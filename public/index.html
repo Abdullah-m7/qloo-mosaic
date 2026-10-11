@@ -32,6 +32,17 @@
    <div class="between"><span></span><b>AND</b><span></span></div>
    <div class="audience second"><div class="person-icon person-b">B</div><div><span>GROUP B</span><h3>Electronic music fans</h3><p>Electronic dance music · Immersive art</p></div></div>
    <div class="rule"></div>
+   <details class="taste-settings" id="taste-settings">
+     <summary>Customize public taste anchors <span aria-hidden="true">↗</span></summary>
+     <p class="seed-help" id="seed-help">Only enabled after live Qloo access. The sample uses fixed synthetic audiences.</p>
+     <label for="group-a">GROUP A — PUBLIC ENTITIES (SEPARATE WITH ;)</label>
+     <input id="group-a" type="text" maxlength="360" value="Radiohead; The Grand Budapest Hotel" disabled autocomplete="off" />
+     <label for="group-b">GROUP B — PUBLIC ENTITIES (SEPARATE WITH ;)</label>
+     <input id="group-b" type="text" maxlength="360" value="Daft Punk; Blade Runner 2049" disabled autocomplete="off" />
+     <label for="location">SEARCH LOCATION</label>
+     <input id="location" type="text" maxlength="72" value="New York" disabled autocomplete="off" />
+   </details>
+   <div class="rule"></div>
    <label class="form-label" for="budget"><span>Max planning effort</span><output id="budget-value">210 pts</output></label>
    <input id="budget" type="range" min="130" max="260" value="210" step="5"/>
    <div class="slider-ends"><span>130 pts</span><span>260 pts</span></div>

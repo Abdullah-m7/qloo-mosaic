@@ -4,6 +4,7 @@ const percent=x=>(Number(x)*100).toFixed(0)+"%";
 const safe=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const vetoes=new Map();
 let latest=null, baselineType="majority";
+let runtimeMode=null;
 function bar(name,value){
  $(name).style.width=percent(value);
  $(name+"T").textContent=percent(value);
@@ -39,6 +40,14 @@ function render(result){
  renderVetoes();
  if(result.mode==="qloo-live"){
   const banner=document.querySelector(".notice");
+  const scenario=result.scenario;
+  if(scenario){
+   document.querySelector(".audience.first h3").textContent=scenario.groupA.title;
+   document.querySelector(".audience.first p").textContent=scenario.groupA.anchors.join(" · ");
+   document.querySelector(".audience.second h3").textContent=scenario.groupB.title;
+   document.querySelector(".audience.second p").textContent=scenario.groupB.anchors.join(" · ");
+  }
+  document.querySelector(".score-foot").textContent="Qloo-derived relative ordinal rank proxies on identical candidate sets, not real satisfaction, probabilities, or causal evidence.";
   banner.querySelector("b").textContent="QLOO API MODE — SERVER-VERIFIED EVIDENCE";
   banner.querySelector("p").textContent="Relative ordinal ranks from Qloo. Planning tokens are not actual prices.";
   banner.querySelector(".notice-tag").textContent="QLOO LIVE";
@@ -76,6 +85,11 @@ async function run(){
  const button=$("run");button.disabled=true;button.textContent="Renegotiating…";
  try{
   const payload={maxBudget:Number($("budget").value),exclude:[...vetoes.keys()]};
+  if(runtimeMode==="live"){
+   payload.groupA=$("group-a").value.split(";").map(x=>x.trim()).filter(Boolean);
+   payload.groupB=$("group-b").value.split(";").map(x=>x.trim()).filter(Boolean);
+   payload.location=$("location").value.trim();
+  }
   const r=await fetch("/api/plan",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(payload)});
   const data=await r.json();
   if(!r.ok)throw Error(data.message||"Unable to plan");
@@ -111,4 +125,27 @@ $("rejection-list").addEventListener("click",ev=>{
 for(const name of ["majority","average"]){
  $("baseline-"+name).addEventListener("click",()=>{baselineType=name;drawBaselines();});
 }
-run();
+async function init(){
+ const response=await fetch("/health",{cache:"no-store"});
+ if(!response.ok)throw Error("Server health probe failed");
+ const health=await response.json();
+ runtimeMode=health.mode;
+ if(!["sample","live"].includes(runtimeMode))throw Error("Unknown server mode");
+ const enabled=runtimeMode==="live";
+ for(const name of ["group-a","group-b","location"])$(name).disabled=!enabled;
+ $("seed-help").textContent=enabled?
+ "Enter 1–5 publicly known cultural entities for each audience, separated with semicolons. No names, personal data or emails.":
+ "Sample mode: fixed fictional audience preferences. Custom seeds become available when the Qloo event key is configured on the server.";
+ if(enabled){
+  const banner=document.querySelector(".notice");
+  banner.querySelector("b").textContent="LIVE QLOO MODE — VERIFYING EVIDENCE";
+  banner.querySelector("p").textContent="No simulated Qloo results will be shown if the API is unavailable.";
+  banner.querySelector(".notice-tag").textContent="VERIFYING";
+ }
+ await run();
+}
+init().catch(e=>{
+ $("plan-title").textContent="Server unavailable";
+ $("plan-items").textContent=e.message;
+ $("gain").textContent="NOT AVAILABLE";
+});

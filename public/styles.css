@@ -140,3 +140,12 @@ footer .brand{font-size:17px}footer p{font-size:11px;color:#89988c}footer>a:last
 .veto-chip span{font-size:14px;margin-left:4px}
 .clear-vetoes{border:0;background:transparent;color:#a9b4a8;font-size:10px;text-decoration:underline;cursor:pointer}
 .tradeoff{color:#c6d8bd;font-size:11px;line-height:1.7;border-left:2px solid var(--lime);padding-left:12px;margin-top:18px}
+
+
+.taste-settings summary{font-size:11px;color:var(--lime);cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:600}
+.taste-settings summary:hover{color:#e7ffc3}
+.taste-settings[open] summary{margin-bottom:12px}
+.seed-help{color:#9caf9f;font-size:10px;line-height:1.7}
+.taste-settings label{font-size:9px;letter-spacing:1px;color:#94aa9c;display:block;margin:17px 0 7px}
+.taste-settings input{background:#111817;color:#e4eee4;width:100%;border:1px solid #4b5c50;padding:10px 11px;font-size:12px}
+.taste-settings input:disabled{color:#74867a;background:#18211e;border-color:#303c33;cursor:not-allowed}

@@ -5,10 +5,10 @@
 - Responsive demo UI tested with desktop and 390px mobile Chrome.
 - Repeated reject/undo, planning budget changes and dual baseline comparisons.
 - Evidence-gated global maximin solver with budget constraints.
-- 29/29 automated unit, adversarial and HTTP integration tests passing.
+- 34/34 automated unit, adversarial and HTTP integration tests passing.
 - 500 deterministic-seed synthetic scenarios: 429 feasible, 71 infeasible; maximin objective at least as high as both baselines in 429/429 feasible cases (expected by construction).
 - Server Qloo mode without credentials fails closed; no fabricated Qloo result is substituted.
-- Qloo's official harness and MCP SDK installed.
+- Qloo's official harness and MCP SDK installed.\n- Public taste anchors and geographic input in live mode, validated against personal contact data.
 
 ## Open requirements
 - Official screenshot-confirmed API key request accepted; **key has not arrived yet**. Qloo says a few business days.
@@ -23,3 +23,4 @@
 - Planning tokens are arbitrary, not quotes or actual operating costs.
 - Keep project isolated from ARC, RSNA, Gemma and other research.
 - Deadline Oct 30 2026 11:45 PM EDT = Oct 31 06:45 AM Riyadh.
+\n## GitHub remote publication\nThe temporary official GitHub CLI identifies an existing local authenticated account as al3obdi, which is not the target Abdullah-m7. We will not publish under the wrong account. Correct authorization or a new public repository under Abdullah-m7 is still required.\n

@@ -4,7 +4,7 @@ import path from "node:path";
 import {fileURLToPath} from "node:url";
 import {buildBridge} from "./src/engine.mjs";
 import {sample} from "./src/fixtures.mjs";
-import {liveBridge} from "./src/qloo.mjs";
+import {liveBridge,validateSeeds,validateLocation,DEFAULT_SEEDS} from "./src/qloo.mjs";
 const root=path.dirname(fileURLToPath(import.meta.url));
 const publicDir=path.join(root,"public");
 const port=Number(process.env.PORT||8788);
@@ -43,12 +43,20 @@ const server=http.createServer(async(req,res)=>{
     const exclude=Array.isArray(input.exclude)?input.exclude.filter(x=>typeof x==="string").slice(0,24):[];
     if(!Number.isFinite(budget)||budget<0||budget>100000)return json(res,400,{status:"error",message:"Invalid budget"});
     if(mode==="live"){
-      const key=JSON.stringify({budget,exclude});
+      let context;
+      try{
+        context={groupA:validateSeeds(input.groupA,DEFAULT_SEEDS.groupA),
+          groupB:validateSeeds(input.groupB,DEFAULT_SEEDS.groupB),
+          location:validateLocation(input.location)};
+      }catch(e){
+        return json(res,400,{status:"needs_input",message:e.message});
+      }
+      const key=JSON.stringify({budget,exclude,...context});
       const hit=cache.get(key);
       if(hit&&Date.now()-hit.time<600000)return json(res,200,hit.value);
       if(limited(req.socket.remoteAddress??"unknown"))return json(res,429,{status:"blocked",message:"Try later: Qloo API rate protection."});
       try{
-        const result=await liveBridge({maxBudget:budget,exclude});
+        const result=await liveBridge({maxBudget:budget,exclude,...context});
         if(result.status==="ok")cache.set(key,{time:Date.now(),value:result});
         return json(res,200,result);
       }catch(e){
@@ -56,6 +64,8 @@ const server=http.createServer(async(req,res)=>{
         return json(res,503,{status:"blocked",code:"QLOO_LIVE_UNAVAILABLE",message:"Live Qloo evidence is unavailable; no synthetic fallback is used. Configure an event-issued Qloo API key and check the Qloo result schema."});
       }
     }
+    if(input.groupA!==undefined||input.groupB!==undefined||input.location!==undefined)
+      return json(res,422,{status:"needs_input",message:"Sample mode uses fixed synthetic audiences. Custom anchors require Qloo live mode."});
     const result=buildBridge({candidates:sample.candidates,maxBudget:budget,exclude});
     return json(res,200,{mode:"synthetic",notice:"Illustrative synthetic fixture, NOT an actual Qloo API response.",scenario:{title:sample.title,groupA:sample.groupA,groupB:sample.groupB},...result});
   }

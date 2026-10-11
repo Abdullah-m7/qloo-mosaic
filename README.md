@@ -39,7 +39,7 @@ The project uses the official `@qloo/qloo-harness` and `@modelcontextprotocol/sd
 QLOO_MODE=live npm start
 ```
 
-The backend calls `qloo_capabilities`, then `qloo_recommend` and `qloo_rank` through the read-only MCP transport. Missing credentials, partial ranks, ambiguity, or Qloo errors **fail closed**; no synthetic output is silently substituted. **Real API integration is not yet validated** because an event credential has not been supplied. Qloo result-schema adaptation may still be required after first live request.
+In live mode, the organizer can configure up to five public taste anchors per audience and a public location. Synthetic preview mode locks these fields, so it cannot pretend that fabricated scores respond to custom taste inputs.\n\nThe backend calls `qloo_capabilities`, then `qloo_recommend` and `qloo_rank` through the read-only MCP transport. Missing credentials, partial ranks, ambiguity, or Qloo errors **fail closed**; no synthetic output is silently substituted. **Real API integration is not yet validated** because an event credential has not been supplied. Qloo result-schema adaptation may still be required after first live request.
 
 Deployment requirement: The hackathon needs an **externally hosted demo**, accessible to judges until November 16, 2026. Running localhost is insufficient. Host the Node service on a managed VM/container; attach the event credential only as a protected server-side secret. Do not deploy in sample mode and claim a fully Qloo-powered submission.
 
@@ -56,7 +56,7 @@ Deployment requirement: The hackathon needs an **externally hosted demo**, acces
 
 ## Results and limitations
 
-29 automated unit, adversarial and HTTP integration tests passed (run npm test). Chrome desktop and narrow-screen mobile smoke checks passed for budgeting, repeated vetoes, undo, and baseline comparisons.
+34 automated unit, adversarial and HTTP integration tests passed (run npm test). Chrome desktop and narrow-screen mobile smoke checks passed for budgeting, repeated vetoes, undo, and baseline comparisons.
 
 500 seeded **synthetic** scenarios can be recreated with npm run benchmark. Of these 500, 429 had feasible plans. Maximin maintained a worst-off-group proxy at least as high as both comparison policies in 429/429 feasible scenarios, improving on Group A-first by 0.132 on average and the max-mean alternative by 0.024. Mean preference relative to max-mean changed by -0.014 on average.
 

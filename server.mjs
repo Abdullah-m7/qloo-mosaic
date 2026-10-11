@@ -12,6 +12,7 @@ const mode=process.env.QLOO_MODE||"sample";
 if(!["sample","live"].includes(mode))throw Error("Invalid QLOO_MODE");
 const typeMap={".html":"text/html; charset=utf-8",".css":"text/css; charset=utf-8",".js":"application/javascript; charset=utf-8",".svg":"image/svg+xml"};
 const cache=new Map();
+const evidenceCache=new Map();
 const calls=new Map();
 function json(res,status,data){
  res.writeHead(status,{"content-type":"application/json; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff"});
@@ -52,13 +53,25 @@ const server=http.createServer(async(req,res)=>{
         return json(res,400,{status:"needs_input",message:e.message});
       }
       const key=JSON.stringify({budget,exclude,...context});
+      const contextKey=JSON.stringify(context);
       const hit=cache.get(key);
       if(hit&&Date.now()-hit.time<600000)return json(res,200,hit.value);
+      const evidence=evidenceCache.get(contextKey);
+      if(evidence&&Date.now()-evidence.time<900000){
+        const planned=buildBridge({candidates:evidence.candidates,maxBudget:budget,exclude});
+        const result={mode:"qloo-live",scenario:evidence.scenario,notice:evidence.notice,...planned};
+        cache.set(key,{time:Date.now(),value:result});
+        return json(res,200,result);
+      }
       if(limited(req.socket.remoteAddress??"unknown"))return json(res,429,{status:"blocked",message:"Try later: Qloo API rate protection."});
       try{
         const result=await liveBridge({maxBudget:budget,exclude,...context});
-        if(result.status==="ok")cache.set(key,{time:Date.now(),value:result});
-        return json(res,200,result);
+        const {candidates,...safeResult}=result;
+        if(Array.isArray(candidates)&&candidates.length&&result.status==="ok"){
+          evidenceCache.set(contextKey,{time:Date.now(),candidates,scenario:result.scenario,notice:result.notice});
+          cache.set(key,{time:Date.now(),value:safeResult});
+        }
+        return json(res,200,safeResult);
       }catch(e){
         console.error("Qloo integration failed:",e?.message??"unknown");
         return json(res,503,{status:"blocked",code:"QLOO_LIVE_UNAVAILABLE",message:"Live Qloo evidence is unavailable; no synthetic fallback is used. Configure an event-issued Qloo API key and check the Qloo result schema."});

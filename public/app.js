@@ -49,7 +49,7 @@ function render(result){
   }
   document.querySelector(".score-foot").textContent="Qloo-derived relative ordinal rank proxies on identical candidate sets, not real satisfaction, probabilities, or causal evidence.";
   banner.querySelector("b").textContent="QLOO API MODE — SERVER-VERIFIED EVIDENCE";
-  banner.querySelector("p").textContent="Relative ordinal ranks from Qloo. Planning tokens are not actual prices.";
+  banner.querySelector("p").textContent="Relative ordinal ranks grounded in Qloo entity IDs. No actual pricing, availability, or attendance predictions.";
   banner.querySelector(".notice-tag").textContent="QLOO LIVE";
   $("ledger-mode").textContent="QLOO TOOL TRACE";
  }
@@ -65,7 +65,8 @@ function render(result){
  }
  const bridge=result.bridge;
  $("plan-title").textContent="A little of both. All together.";
- $("plan-cost").textContent=money(bridge.cost);
+ $("plan-cost").textContent=result.mode==="qloo-live"?"—":money(bridge.cost);
+ if(result.mode==="qloo-live")document.querySelector(".cost span").textContent="NO REAL PRICES";
  $("plan-items").innerHTML=bridge.items.map((o,i)=>
   '<article class="plan-card"><span class="category">'+
   String(i+1).padStart(2,"0")+" / "+safe(o.slot.toUpperCase())+
@@ -137,6 +138,10 @@ async function init(){
  "Enter 1–5 publicly known cultural entities for each audience, separated with semicolons. No names, personal data or emails.":
  "Sample mode: fixed fictional audience preferences. Custom seeds become available when the Qloo event key is configured on the server.";
  if(enabled){
+  document.querySelector('label[for="budget"]').style.display="none";
+  $("budget").style.display="none";
+  document.querySelector(".slider-ends").style.display="none";
+  document.querySelector(".hint").textContent="Change public cultural anchors or reject options to renegotiate. Qloo has no verified price or booking data.";
   const banner=document.querySelector(".notice");
   banner.querySelector("b").textContent="LIVE QLOO MODE — VERIFYING EVIDENCE";
   banner.querySelector("p").textContent="No simulated Qloo results will be shown if the API is unavailable.";

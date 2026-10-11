@@ -24,3 +24,10 @@
 - Keep project isolated from ARC, RSNA, Gemma and other research.
 - Deadline Oct 30 2026 11:45 PM EDT = Oct 31 06:45 AM Riyadh.
 \n## GitHub remote publication\nThe temporary official GitHub CLI identifies an existing local authenticated account as al3obdi, which is not the target Abdullah-m7. We will not publish under the wrong account. Correct authorization or a new public repository under Abdullah-m7 is still required.\n
+
+## Hardening checkpoint
+- Live Qloo candidate lists now require actual Qloo entity IDs; no invented IDs can stand in for provenance.
+- Live mode does not fabricate prices, availability, or budget constraints.
+- Official SDK defaults to production Qloo URL, so MOSAIC overrides QLOO_BASE_URL to https://hackathon.api.qloo.com in subprocess and deployment definitions.
+- Live Qloo candidate discovery is cached separately from optimizer runs, reducing event API consumption for vetoes/replans.
+- Render Blueprint, Docker image definition, deployment checklist and judge demo playbook are committed as deployment-ready artifacts; no external deployment is claimed before it actually exists.

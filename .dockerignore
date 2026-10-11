@@ -1,0 +1,11 @@
+node_modules
+.git
+.env
+.env.*
+.gitignore
+.cache
+evidence
+docs
+scripts
+tests
+.DS_Store

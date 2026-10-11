@@ -7,6 +7,7 @@ import {buildBridge} from "./engine.mjs";
 
 const here=path.dirname(fileURLToPath(import.meta.url));
 const qlooBinary=path.resolve(here,"../node_modules/.bin/qloo");
+export const EVENT_BASE_URL="https://hackathon.api.qloo.com";
 const types=[["music","artist"],["food","place"],["experience","movie"]];
 export const DEFAULT_SEEDS=Object.freeze({
   groupA:["Radiohead","The Grand Budapest Hotel"],
@@ -71,7 +72,10 @@ export async function liveBridge({maxBudget=210,exclude=[],groupA,groupB,locatio
   const a=validateSeeds(groupA,DEFAULT_SEEDS.groupA);
   const b=validateSeeds(groupB,DEFAULT_SEEDS.groupB);
   const place=validateLocation(location);
-  const transport=new StdioClientTransport({command:qlooBinary,args:["mcp"],env:process.env});
+  // The event key NEVER works against the default production Qloo endpoint.
+  // Force the official hackathon hostname for every MCP subprocess.
+  const transport=new StdioClientTransport({command:qlooBinary,args:["mcp"],
+    env:{...process.env,QLOO_BASE_URL:EVENT_BASE_URL}});
   const client=new Client({name:"mosaic-common-ground-agent",version:"0.2.0"});
   await client.connect(transport);
   try{
@@ -85,8 +89,8 @@ export async function liveBridge({maxBudget=210,exclude=[],groupA,groupB,locatio
         target_type:type,signals:[...a,...b],limit:5,
         ...(slot==="food"?{filter_location:place}:{})
       });
-      const foundItems=extractItems(found).slice(0,5);
-      const names=[...new Set(foundItems.map(x=>x.name))];
+      const foundItems=extractItems(found).filter(x=>x.id).slice(0,5);
+      const names=[...new Map(foundItems.map(x=>[normalized(x.name),x.name])).values()];
       if(names.length<2)throw Error("Qloo returned fewer than two unambiguous candidates for "+slot);
       const [left,right]=await Promise.all([
         call("qloo_rank",{options:names,option_type:type,signals:a}),
@@ -97,19 +101,21 @@ export async function liveBridge({maxBudget=210,exclude=[],groupA,groupB,locatio
       const scored=matchRanks(names,leftNames,rightNames);
       for(const [i,record] of scored.entries()){
         const source=foundItems.find(x=>x.name===record.name);
+        if(!source?.id)throw Error("Qloo did not return a verifiable entity ID.");
         all.push({
-          id:source?.id??(slot+":"+normalized(record.name)),
-          slot,label:record.name,
-          // DEMO planning tokens only: neither Qloo pricing nor ticket availability.
-          cost:slot==="music"?65:slot==="food"?55:50,
+          id:slot+":"+source.id,slot,label:record.name,
+          // Qloo does not supply actual prices or availability. Cost is
+          // intentionally zero in LIVE mode: no fabricated budget arithmetic.
+          cost:0,
           scoreA:record.scoreA,scoreB:record.scoreB,
           source:"qloo-mcp:recommend+rank",
-          evidence_id:"QL-"+slot.toUpperCase()+"-"+(i+1)
+          qloo_entity_id:source.id,
+          evidence_id:"QL-"+source.id.replace(/[^a-zA-Z0-9]/g,"").slice(0,12)
         });
       }
     }
     const result=buildBridge({candidates:all,maxBudget,exclude});
-    return {mode:"qloo-live",scenario:{title:"Custom cultural bridge",groupA:{title:"First audience",anchors:a},groupB:{title:"Second audience",anchors:b},location:place},notice:"Rank-percentile proxies from verified Qloo tool calls on identical candidate shortlists. Planning costs are fictional tokens, not commercial quotes.",...result};
+    return {candidates:all,mode:"qloo-live",scenario:{title:"Custom cultural bridge",groupA:{title:"First audience",anchors:a},groupB:{title:"Second audience",anchors:b},location:place},notice:"Relative rank-percentile proxies from Qloo tool calls on matched shortlists. Real Qloo entities have NO pricing or availability guarantee. Budget is disabled in live mode.",...result};
   }finally{
     await client.close();
   }

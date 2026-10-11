@@ -66,7 +66,13 @@ Key request form receipt: confirmed October 12, 2026. Event API URL: https://hac
 
 ## Open source
 
-MIT licensed original code. Project runs separately from any other competition or research program.
+Public repository: https://github.com/Abdullah-m7/qloo-mosaic
+
+GitHub Actions verification template: docs/examples/github-actions-ci.template.yml (not activated).
+
+MIT licensed original code. A GitHub Actions template is provided under docs/examples and can run checks without a Qloo secret. Automatic CI is not yet activated because the current GitHub OAuth grant lacks workflow modification permission. This project is isolated from all other research and competition programs.
+
+**Submission status:** local demo and public repository are ready; the publicly hosted live demo and real Qloo API validation are still pending the organizer-issued API key.
 
 ## Official competition
 

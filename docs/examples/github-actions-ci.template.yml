@@ -1,0 +1,39 @@
+name: MOSAIC verification
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: Unit, adversarial and HTTP integration tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      QLOO_MODE: sample
+      QLOO_BASE_URL: https://hackathon.api.qloo.com
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+      - name: Install dependency lockfile
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Syntax validation
+        run: |
+          node --check server.mjs
+          node --check src/engine.mjs
+          node --check src/qloo.mjs
+          node --check public/app.js
+      - name: Verify safe sample and unavailable-live behavior
+        run: npm test
+      - name: Reproduce seeded synthetic optimizer checks
+        run: |
+          npm run benchmark
+          node -e "const s=require('./evidence/synthetic_benchmark_summary.json'); if(s.cases!==500 || s.feasible_cases!==s.maximin_at_least_majority || s.feasible_cases!==s.maximin_at_least_mean) process.exit(1); console.log('Synthetic algorithm checks passed:',s.feasible_cases,'feasible cases')"

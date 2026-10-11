@@ -14,7 +14,7 @@
 - Official screenshot-confirmed API key request accepted; **key has not arrived yet**. Qloo says a few business days.
 - Verify event key works against https://hackathon.api.qloo.com and live Qloo tool response schemas.
 - Turn fixed taste anchors into live user-selectable public cultural anchors.
-- Publish repo under Abdullah-m7 with recognized MIT license, then externally deploy demo.
+- The public repository is now published at https://github.com/Abdullah-m7/qloo-mosaic (MIT license detected); externally hosted demo is still required.
 - Validate Qloo-based results and compare with baselines; document honest failure cases.
 - Prepare English Devpost story and final review; NO submission has been made.
 
@@ -23,7 +23,7 @@
 - Planning tokens are arbitrary, not quotes or actual operating costs.
 - Keep project isolated from ARC, RSNA, Gemma and other research.
 - Deadline Oct 30 2026 11:45 PM EDT = Oct 31 06:45 AM Riyadh.
-\n## GitHub remote publication\nThe temporary official GitHub CLI identifies an existing local authenticated account as al3obdi, which is not the target Abdullah-m7. We will not publish under the wrong account. Correct authorization or a new public repository under Abdullah-m7 is still required.\n
+\n## GitHub remote publication\nThe GitHub CLI active account was reauthenticated to Abdullah-m7. The public repository exists at https://github.com/Abdullah-m7/qloo-mosaic and the initial remote main commit matches local commit 0994d36. GitHub identifies the MIT license. An Actions CI template was prepared, but activating workflow files is blocked by a missing workflow scope in the authenticated GitHub grant. Automatic CI is NOT active.\n
 
 ## Hardening checkpoint
 - Live Qloo candidate lists now require actual Qloo entity IDs; no invented IDs can stand in for provenance.
@@ -31,3 +31,9 @@
 - Official SDK defaults to production Qloo URL, so MOSAIC overrides QLOO_BASE_URL to https://hackathon.api.qloo.com in subprocess and deployment definitions.
 - Live Qloo candidate discovery is cached separately from optimizer runs, reducing event API consumption for vetoes/replans.
 - Render Blueprint, Docker image definition, deployment checklist and judge demo playbook are committed as deployment-ready artifacts; no external deployment is claimed before it actually exists.
+
+## Latest publication checkpoint
+- Github target: Abdullah-m7/qloo-mosaic (public)
+- Confirmed repository uses MIT and branch main.
+- Local checks pass 34 tests and 500 seeded synthetic cases. A CI template is available at docs/examples/github-actions-ci.template.yml; GitHub Actions is NOT active.
+- Deployment and Qloo API key are still pending; no final Devpost submission.

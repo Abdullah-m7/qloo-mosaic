@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="color-scheme" content="dark"/>
+<title>MOSAIC — common ground, by design</title>
+<meta name="description" content="A culture-aware event planner that finds an experience two different audiences can both enjoy."/>
+<link rel="stylesheet" href="/styles.css"/>
+</head>
+<body>
+<header class="nav">
+  <a href="/" class="brand" aria-label="Mosaic home"><span class="mark"><b></b><b></b><b></b><b></b></span>MOSAIC<span class="brand-dot">.</span></a>
+  <nav><a href="#problem">The problem</a><a href="#lab">The lab</a><a href="#evidence">Evidence</a></nav>
+  <span class="top-status"><span class="dot"></span> PROTOTYPE 01</span>
+</header>
+<main>
+<section class="hero" id="problem">
+ <div class="eyebrow"><span class="eyedot"></span> THE CULTURAL COMMON-GROUND AGENT <span class="thin-line"></span> OCT 2026</div>
+ <h1>Great experiences<br/>shouldn't have <em>winners</em><br/>and <em>losers.</em></h1>
+ <p>Most recommendation engines optimize for the average. MOSAIC designs a shared night for <strong>two different audiences</strong> — without leaving one behind.</p>
+ <div class="hero-actions"><a class="primary" href="#lab">Try the planner <span aria-hidden="true">↗</span></a><a class="text-link" href="#evidence">See how decisions are made <span aria-hidden="true">↓</span></a></div>
+ <div class="hero-aside"><span>01 / The challenge</span><p>What if the right answer isn't anybody's first choice — but everybody's second?</p></div>
+</section>
+<section class="lab" id="lab">
+ <div class="section-intro"><div><span class="section-number">02 / THE INTERACTIVE LAB</span><h2>One night.<br/>Two worlds.</h2></div><div class="section-explain"><strong>A real planning problem.</strong><p>Bring two taste communities to the same event. Adjust your constraints and ask the agent to renegotiate the evening.</p></div></div>
+ <div class="notice" role="status"><span class="notice-icon">!</span><div><b>DEMONSTRATION MODE — SYNTHETIC DATA</b><p>This preview uses deliberately invented test scores, not Qloo results. A live Qloo connector is the next step.</p></div><span class="notice-tag">NOT LIVE</span></div>
+ <div class="lab-grid">
+  <div class="controls">
+   <div class="panel-heading"><span>YOUR AUDIENCES</span><span class="tiny-num">01—02</span></div>
+   <div class="audience first"><div class="person-icon person-a">A</div><div><span>GROUP A</span><h3>Indie film lovers</h3><p>Art-house cinema · Acoustic music</p></div></div>
+   <div class="between"><span></span><b>AND</b><span></span></div>
+   <div class="audience second"><div class="person-icon person-b">B</div><div><span>GROUP B</span><h3>Electronic music fans</h3><p>Electronic dance music · Immersive art</p></div></div>
+   <div class="rule"></div>
+   <label class="form-label" for="budget"><span>Max event budget</span><output id="budget-value">$210</output></label>
+   <input id="budget" type="range" min="130" max="260" value="210" step="5"/>
+   <div class="slider-ends"><span>$130</span><span>$260</span></div>
+   <label class="form-label sublabel" for="exclude"><span>Replan: reject an option</span></label>
+   <select id="exclude"><option value="">No exclusions</option></select>
+   <button type="button" id="run" class="run">Find common ground <span>↗</span></button>
+   <p class="hint">Try lowering the budget or removing the strongest option. The agent recalculates the trade-off.</p>
+  </div>
+  <div class="results">
+   <div class="panel-heading"><span>THE PROPOSED BRIDGE</span><span class="pill">MAXIMIN PLANNER</span></div>
+   <div class="result-head"><div><span class="mini-label">THE SHARED EXPERIENCE</span><h3 id="plan-title">Finding our common ground…</h3></div><div class="cost"><b id="plan-cost">—</b><span>EST. BUDGET</span></div></div>
+   <div id="plan-items" class="plan-items"></div>
+   <div class="score-section">
+    <div class="score-title"><span>FAIRNESS CHECK</span><span id="gain" class="gain">—</span></div>
+    <div class="compare"><span>Average-first baseline</span><span class="small-note">Group A / Group B</span></div>
+    <div class="bars"><div class="bar-wrap"><span>A</span><div class="bar-bg"><i id="baseA" class="bar-a" style="width:0%"></i></div><output id="baseAT">—</output></div><div class="bar-wrap"><span>B</span><div class="bar-bg"><i id="baseB" class="bar-b" style="width:0%"></i></div><output id="baseBT">—</output></div></div>
+    <div class="compare compare-second"><span>MOSAIC's bridge plan</span><span class="mini-pill">BALANCED</span></div>
+    <div class="bars"><div class="bar-wrap"><span>A</span><div class="bar-bg"><i id="newA" class="bar-a" style="width:0%"></i></div><output id="newAT">—</output></div><div class="bar-wrap"><span>B</span><div class="bar-bg"><i id="newB" class="bar-b" style="width:0%"></i></div><output id="newBT">—</output></div></div>
+    <p class="score-foot">Scores show synthetic group-level affinities, not predictions of individual behavior.</p>
+   </div>
+  </div>
+ </div>
+</section>
+<section class="evidence-section" id="evidence">
+ <div class="section-intro evidence-intro"><div><span class="section-number">03 / WHY IT CHOSE THIS</span><h2>No magic.<br/>Just reasons.</h2></div><p>Good AI should be willing to explain its choices — and know when it doesn't have enough evidence.</p></div>
+ <div class="evidence-grid"><div class="evidence-card"><span class="card-numeral">01</span><h3>Bridge, don't average.</h3><p>Optimize the lower satisfaction score rather than maximizing the most vocal group's preferences.</p></div><div class="evidence-card"><span class="card-numeral">02</span><h3>Show the trade-offs.</h3><p>Compare what a one-sided recommendation would produce with the proposed shared experience.</p></div><div class="evidence-card"><span class="card-numeral">03</span><h3>Trace the evidence.</h3><p>Every candidate must have a valid score and source. Missing evidence means abstain, not invent.</p></div></div>
+ <div class="ledger"><div class="ledger-head"><h3>Decision ledger</h3><span id="ledger-mode">SYNTHETIC ONLY</span></div><div id="ledger-items" class="ledger-items"><p>Run the planner to show evidence identifiers.</p></div></div>
+</section>
+<section class="closing"><span>BEYOND THE ALGORITHM</span><h2>Belonging shouldn't<br/>be an <i>afterthought.</i></h2><p>MOSAIC is a prototype built for the 2026 Qloo Agentic Hackathon. The long-term goal: give event organizers an evidence-aware agent that understands cultural overlap without profiling individuals.</p></section>
+</main>
+<footer><a class="brand" href="/"><span class="mark"><b></b><b></b><b></b><b></b></span>MOSAIC<span class="brand-dot">.</span></a><p>Independent build · Qloo Agentic Hackathon 2026</p><a href="https://qloo.devpost.com/" target="_blank" rel="noopener noreferrer">Hackathon ↗</a></footer>
+<script src="/app.js" type="module"></script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+# MOSAIC — Common Ground, by Design
+
+**An evidence-aware cultural negotiation agent for the Qloo Agentic Hackathon 2026.**
+
+> Most recommendation engines optimize for the average. MOSAIC designs for the people the average overlooks.
+
+MOSAIC helps organizers conceptually design one cultural experience for **two taste communities** rather than only the majority: music + a place + a movie/experience. It is not a ticketing, pricing, availability, identity, or demographic-profiling application.
+
+## The product idea
+
+An organizer supplies two groups' **public cultural anchors**, a rough planning budget, and vetoes. The agent:
+
+1. **Discovers** cultural candidates using Qloo recommendations grounded in combined tastes.
+2. **Ranks** the identical candidate set twice, once against each audience profile.
+3. **Normalizes ordinal ranks separately** into relative [0,1] proxy utilities. Qloo warns that scores from separate rank calls are not directly comparable; MOSAIC never combines raw scores.
+4. **Negotiates** the 3-piece event concept, maximizing the **minimum** group proxy score. The means break ties, and total budget is a hard constraint.
+5. **Explains and replans** when the user rejects an option or adjusts the budget. Every candidate requires source metadata; incomplete evidence causes abstention.
+
+This is a research prototype. The rank-percentile proxies do **not** predict attendance, individual preferences, real satisfaction, or a causal outcome. Costs are illustrative planning tokens and not quotes or operational budgets.
+
+## Quick start (sample mode)
+
+Requires Node.js >=22:
+
+```bash
+npm install
+QLOO_MODE=sample npm start
+# Open http://localhost:8788
+npm test
+```
+
+**CRITICAL: Sample mode shows SYNTHETIC test values. It does not contact Qloo.** This mode illustrates the planner's logic, not actual cultural fit. The product page labels this prominently.
+
+## Live Qloo mode (requires separate event credential)
+
+The project uses the official `@qloo/qloo-harness` and `@modelcontextprotocol/sdk`. Obtain a key using the form linked from the [official hackathon resources](https://qloo.devpost.com/resources). Use `npx qloo setup --qloo` locally, or set `QLOO_API_KEY` securely in your server environment. Never commit or display the credential.
+
+```bash
+QLOO_MODE=live npm start
+```
+
+The backend calls `qloo_capabilities`, then `qloo_recommend` and `qloo_rank` through the read-only MCP transport. Missing credentials, partial ranks, ambiguity, or Qloo errors **fail closed**; no synthetic output is silently substituted. **Real API integration is not yet validated** because an event credential has not been supplied. Qloo result-schema adaptation may still be required after first live request.
+
+Deployment requirement: The hackathon needs an **externally hosted demo**, accessible to judges until November 16, 2026. Running localhost is insufficient. Host the Node service on a managed VM/container; attach the event credential only as a protected server-side secret. Do not deploy in sample mode and claim a fully Qloo-powered submission.
+
+## Repo map
+
+- `src/engine.mjs` — budget-constrained maximin optimizer, baselines, evidence gates, replanning
+- `src/fixtures.mjs` — synthetic scenario, **not Qloo data**
+- `src/qloo.mjs` — Qloo MCP tool caller, rank-normalization logic; unvalidated with live key
+- `server.mjs` — web server with server-only Qloo access and failure handling
+- `public/` — responsive product prototype and interactive controls
+- `tests/` — unit/contract tests, including missing evidence and cross-call rank comparability
+- `docs/STATUS.md` — tested vs pending state
+- `docs/DECISIONS.md` — technical and ethical design rationale
+
+## Results & limitations
+
+`npm test` is currently green. On the entirely **synthetic** example at a 210-token budget, worst-group proxy improves from 0.393 under the group-A-first heuristic to 0.813 for maximin. This is a property of a small fabricated example, **not real validation of Qloo or field effectiveness**.
+
+## Open source
+
+MIT licensed original code. Project runs separately from any other competition or research program.
+
+## Official competition
+
+[Qloo Agentic Hackathon](https://qloo.devpost.com/) | Deadline: Oct 30, 2026 at 11:45pm EDT.

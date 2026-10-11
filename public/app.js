@@ -2,50 +2,80 @@ const $=id=>document.getElementById(id);
 const money=x=>Number(x).toFixed(0)+" pts";
 const percent=x=>(Number(x)*100).toFixed(0)+"%";
 const safe=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-let chosen=[];
+const vetoes=new Map();
+let latest=null, baselineType="majority";
 function bar(name,value){
  $(name).style.width=percent(value);
  $(name+"T").textContent=percent(value);
 }
+function renderVetoes(){
+ const el=$("rejection-list");
+ if(!vetoes.size){el.innerHTML="";return;}
+ el.innerHTML='<span class="veto-caption">REJECTED</span>'+
+ [...vetoes].map(([id,label])=>'<button class="veto-chip" data-undo="'+safe(id)+'" title="Undo rejection">'+safe(label)+' <span>×</span></button>').join("")+
+ '<button class="clear-vetoes" id="clear-vetoes">Reset all</button>';
+}
+function drawBaselines(){
+ if(!latest||latest.status!=="ok")return;
+ const chosen=latest.baselines?.[baselineType]??latest.baseline;
+ const bridge=latest.bridge;
+ const modeLabel=baselineType==="majority"?"Group A–first baseline":"Average–first baseline";
+ $("baseline-title").textContent=modeLabel;
+ bar("baseA",chosen.groupA);bar("baseB",chosen.groupB);
+ const delta=bridge.worst-chosen.worst;
+ $("gain").textContent=(delta>=0?"+":"")+Math.round(delta*100)+"pp worst-group rank proxy";
+ $("tradeoff").textContent=baselineType==="majority"?
+  "Against a one-sided plan: Group A "+signed(bridge.groupA-chosen.groupA)+", Group B "+signed(bridge.groupB-chosen.groupB)+". The aim is a better balance, not a guarantee about real attendance.":
+  "Against the highest mean proxy plan: worst-group rank "+signed(delta)+", with group mean change "+signed(bridge.mean-chosen.mean)+".";
+ for(const name of ["majority","average"]){
+  const button=$("baseline-"+name);
+  button.classList.toggle("active",name===baselineType);
+  button.setAttribute("aria-pressed",String(name===baselineType));
+ }
+}
+const signed=n=>(n>=0?"+":"")+Math.round(n*100)+"pp";
 function render(result){
+ latest=result;
+ renderVetoes();
  if(result.mode==="qloo-live"){
-   const banner=document.querySelector(".notice");
-   banner.querySelector("b").textContent="QLOO API MODE — SERVER-VERIFIED EVIDENCE";
-   banner.querySelector("p").textContent="Relative ordinal ranks from Qloo. Estimates are planning tokens, not actual prices.";
-   banner.querySelector(".notice-tag").textContent="QLOO LIVE";
-   $("ledger-mode").textContent="QLOO TOOL TRACE";
+  const banner=document.querySelector(".notice");
+  banner.querySelector("b").textContent="QLOO API MODE — SERVER-VERIFIED EVIDENCE";
+  banner.querySelector("p").textContent="Relative ordinal ranks from Qloo. Planning tokens are not actual prices.";
+  banner.querySelector(".notice-tag").textContent="QLOO LIVE";
+  $("ledger-mode").textContent="QLOO TOOL TRACE";
  }
  if(result.status!=="ok"){
   $("plan-title").textContent=result.reason||"No valid plan found";
   $("plan-items").textContent="";
-  $("gain").textContent="NO VALID PLAN";
-  $("ledger-items").textContent="Change your budget or release an exclusion and try again.";
+  $("plan-cost").textContent="—";
+  $("gain").textContent="NO FEASIBLE PLAN";
+  $("ledger-items").textContent="Undo a veto or raise the budget to retry.";
+  $("tradeoff").textContent="No partial or invented plan is shown.";
+  $("exclude").innerHTML='<option value="">No options available</option>';
   return;
  }
- const bridge=result.bridge,base=result.baseline;
+ const bridge=result.bridge;
  $("plan-title").textContent="A little of both. All together.";
  $("plan-cost").textContent=money(bridge.cost);
  $("plan-items").innerHTML=bridge.items.map((o,i)=>
   '<article class="plan-card"><span class="category">'+
   String(i+1).padStart(2,"0")+" / "+safe(o.slot.toUpperCase())+
-  '</span><strong>'+safe(o.label)+'</strong><div class="under"><span>'+money(o.cost)+'</span><small>Evidence '+safe(o.evidence_id)+'</small></div></article>'
+  '</span><strong>'+safe(o.label)+'</strong><div class="under"><span>'+money(o.cost)+'</span><small>Evidence '+safe(o.evidence_id)+'</small></div>'+
+  '<button class="card-veto" data-veto="'+safe(o.id)+'" aria-label="Reject '+safe(o.label)+'">Reject option ↗</button></article>'
  ).join("");
- bar("baseA",base.groupA);bar("baseB",base.groupB);
  bar("newA",bridge.groupA);bar("newB",bridge.groupB);
- $("gain").textContent=(result.improvement>=0?"+":"")+Math.round(result.improvement*100)+"pp worst-off rank proxy";
+ drawBaselines();
  $("ledger-items").innerHTML=bridge.items.map(o=>
   '<div class="ledger-row"><b>'+safe(o.label)+'</b><span>'+safe(o.source)+'</span><code>'+safe(o.evidence_id)+'</code></div>'
  ).join("");
- const ex=$("exclude"),last=ex.value;
- chosen=bridge.items.map(x=>({id:x.id,label:x.label}));
- ex.innerHTML='<option value="">No exclusions</option>'+
-   chosen.map(x=>'<option value="'+safe(x.id)+'">'+safe(x.label)+'</option>').join("");
- if(chosen.some(x=>x.id===last))ex.value=last;
+ const ex=$("exclude");
+ ex.innerHTML='<option value="">Select an option to reject</option>'+
+ bridge.items.map(x=>'<option value="'+safe(x.id)+'">'+safe(x.label)+'</option>').join("");
 }
 async function run(){
- const button=$("run");button.disabled=true;button.textContent="Finding the bridge…";
+ const button=$("run");button.disabled=true;button.textContent="Renegotiating…";
  try{
-  const payload={maxBudget:Number($("budget").value),exclude:$("exclude").value?[$("exclude").value]:[]};
+  const payload={maxBudget:Number($("budget").value),exclude:[...vetoes.keys()]};
   const r=await fetch("/api/plan",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(payload)});
   const data=await r.json();
   if(!r.ok)throw Error(data.message||"Unable to plan");
@@ -58,6 +88,27 @@ async function run(){
   button.disabled=false;button.innerHTML='Find common ground <span>↗</span>';
  }
 }
+function addVeto(id,label){
+ if(!id || vetoes.has(id))return;
+ vetoes.set(id,label||id);
+ run();
+}
 $("budget").addEventListener("input",()=>{$("budget-value").textContent=money($("budget").value);});
 $("run").addEventListener("click",run);
+$("exclude").addEventListener("change",ev=>{
+ const id=ev.target.value;
+ if(id)addVeto(id,ev.target.selectedOptions[0].textContent);
+});
+$("plan-items").addEventListener("click",ev=>{
+ const b=ev.target.closest("[data-veto]");
+ if(b)addVeto(b.dataset.veto,b.closest(".plan-card")?.querySelector("strong")?.textContent);
+});
+$("rejection-list").addEventListener("click",ev=>{
+ const undo=ev.target.closest("[data-undo]");
+ if(undo){vetoes.delete(undo.dataset.undo);return run();}
+ if(ev.target.closest("#clear-vetoes")){vetoes.clear();run();}
+});
+for(const name of ["majority","average"]){
+ $("baseline-"+name).addEventListener("click",()=>{baselineType=name;drawBaselines();});
+}
 run();

@@ -36,7 +36,7 @@
    <input id="budget" type="range" min="130" max="260" value="210" step="5"/>
    <div class="slider-ends"><span>130 pts</span><span>260 pts</span></div>
    <label class="form-label sublabel" for="exclude"><span>Replan: reject an option</span></label>
-   <select id="exclude"><option value="">No exclusions</option></select>
+   <select id="exclude"><option value="">Select an option to reject</option></select><div class="vetoes" id="rejection-list" aria-live="polite"></div>
    <button type="button" id="run" class="run">Find common ground <span>↗</span></button>
    <p class="hint">Try lowering the budget or removing the strongest option. The agent recalculates the trade-off.</p>
   </div>
@@ -45,12 +45,12 @@
    <div class="result-head"><div><span class="mini-label">THE SHARED EXPERIENCE</span><h3 id="plan-title">Finding our common ground…</h3></div><div class="cost"><b id="plan-cost">—</b><span>PLANNING TOKENS</span></div></div>
    <div id="plan-items" class="plan-items"></div>
    <div class="score-section">
-    <div class="score-title"><span>FAIRNESS CHECK</span><span id="gain" class="gain">—</span></div>
-    <div class="compare"><span>Average-first baseline</span><span class="small-note">Group A / Group B</span></div>
+    <div class="score-title"><span>FAIRNESS CHECK</span><span id="gain" class="gain">—</span></div><div class="baseline-tabs" role="group" aria-label="Choose baseline"><button id="baseline-majority" type="button" class="active" aria-pressed="true">One-sided baseline</button><button id="baseline-average" type="button" aria-pressed="false">Average-first baseline</button></div>
+    <div class="compare"><span id="baseline-title">Group A–first baseline</span><span class="small-note">Group A / Group B</span></div>
     <div class="bars"><div class="bar-wrap"><span>A</span><div class="bar-bg"><i id="baseA" class="bar-a" style="width:0%"></i></div><output id="baseAT">—</output></div><div class="bar-wrap"><span>B</span><div class="bar-bg"><i id="baseB" class="bar-b" style="width:0%"></i></div><output id="baseBT">—</output></div></div>
     <div class="compare compare-second"><span>MOSAIC's bridge plan</span><span class="mini-pill">BALANCED</span></div>
     <div class="bars"><div class="bar-wrap"><span>A</span><div class="bar-bg"><i id="newA" class="bar-a" style="width:0%"></i></div><output id="newAT">—</output></div><div class="bar-wrap"><span>B</span><div class="bar-bg"><i id="newB" class="bar-b" style="width:0%"></i></div><output id="newBT">—</output></div></div>
-    <p class="score-foot">Scores show synthetic rank proxies, not predictions of individual behavior.</p>
+    <p class="score-foot">The percentages represent synthetic relative group-preference scores, not observed satisfaction or probabilities.</p><p class="tradeoff" id="tradeoff" aria-live="polite">—</p>
    </div>
   </div>
  </div>

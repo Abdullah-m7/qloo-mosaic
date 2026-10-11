@@ -13,7 +13,7 @@ An organizer supplies two groups' **public cultural anchors**, a rough planning 
 1. **Discovers** cultural candidates using Qloo recommendations grounded in combined tastes.
 2. **Ranks** the identical candidate set twice, once against each audience profile.
 3. **Normalizes ordinal ranks separately** into relative [0,1] proxy utilities. Qloo warns that scores from separate rank calls are not directly comparable; MOSAIC never combines raw scores.
-4. **Negotiates** the 3-piece event concept, maximizing the **minimum** group proxy score. The means break ties, and total budget is a hard constraint.
+4. **Negotiates** the 3-piece event concept, maximizing the **minimum** group proxy score. The mean breaks ties, and budget is a hard constraint. The interface compares a one-sided Group A-first baseline and a maximum-average baseline, both globally optimized under identical constraints.
 5. **Explains and replans** when the user rejects an option or adjusts the budget. Every candidate requires source metadata; incomplete evidence causes abstention.
 
 This is a research prototype. The rank-percentile proxies do **not** predict attendance, individual preferences, real satisfaction, or a causal outcome. Costs are illustrative planning tokens and not quotes or operational budgets.
@@ -54,9 +54,15 @@ Deployment requirement: The hackathon needs an **externally hosted demo**, acces
 - `docs/STATUS.md` — tested vs pending state
 - `docs/DECISIONS.md` — technical and ethical design rationale
 
-## Results & limitations
+## Results and limitations
 
-`npm test` is currently green. On the entirely **synthetic** example at a 210-token budget, worst-group proxy improves from 0.393 under the group-A-first heuristic to 0.813 for maximin. This is a property of a small fabricated example, **not real validation of Qloo or field effectiveness**.
+29 automated unit, adversarial and HTTP integration tests passed (run npm test). Chrome desktop and narrow-screen mobile smoke checks passed for budgeting, repeated vetoes, undo, and baseline comparisons.
+
+500 seeded **synthetic** scenarios can be recreated with npm run benchmark. Of these 500, 429 had feasible plans. Maximin maintained a worst-off-group proxy at least as high as both comparison policies in 429/429 feasible scenarios, improving on Group A-first by 0.132 on average and the max-mean alternative by 0.024. Mean preference relative to max-mean changed by -0.014 on average.
+
+**Critical limitation:** The above behavior primarily follows from the programmed objectives. Synthetic scores and costs are invented for algorithm verification, not evidence of Qloo quality, audience preferences or actual product impact. Real Qloo testing has not occurred, since the event key has not arrived.
+
+Key request form receipt: confirmed October 12, 2026. Event API URL: https://hackathon.api.qloo.com (not the production Qloo API URL).
 
 ## Open source
 

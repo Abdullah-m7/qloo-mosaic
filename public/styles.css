@@ -125,3 +125,18 @@ footer{display:flex;align-items:center;justify-content:space-between;gap:20px;pa
 footer .brand{font-size:17px}footer p{font-size:11px;color:#89988c}footer>a:last-child{font-size:12px;color:var(--lime)}
 @media(max-width:850px){.nav{padding:0 22px;height:70px}.nav nav{display:none}.top-status{margin-left:auto}.hero{min-height:0;padding:70px 22px 110px}.hero h1{font-size:clamp(47px,9vw,74px);letter-spacing:-3px}.hero-aside{position:static;margin-top:55px}.lab,.evidence-section{padding:70px 22px}.lab-grid{grid-template-columns:1fr}.section-intro{align-items:flex-start}.evidence-grid{grid-template-columns:1fr}.evidence-card{padding:20px 0}.evidence-card h3{margin:15px 0}.hero:before{right:-330px}}
 @media(max-width:550px){.hero h1{font-size:48px;letter-spacing:-3px}.hero>p{font-size:16px}.hero-actions{align-items:flex-start;flex-direction:column}.section-intro{display:block}.section-explain{margin-top:20px}.controls,.results{padding:21px}.plan-items{grid-template-columns:1fr}.plan-card{min-height:112px}.result-head h3{font-size:24px}.cost b{font-size:22px}.notice-tag{display:none}.ledger-row{grid-template-columns:1fr auto;gap:10px}.ledger-row code{grid-column:1/-1}footer{flex-wrap:wrap}footer p{order:3;width:100%}}
+
+
+.baseline-tabs{display:flex;flex-wrap:wrap;gap:8px;margin:-7px 0 21px}
+.baseline-tabs button{border:1px solid #45604e;background:#242d29;color:#aebdb3;font-size:11px;padding:9px 12px;cursor:pointer}
+.baseline-tabs button:hover{border-color:var(--lime)}
+.baseline-tabs button.active{background:#d5ff911a;color:var(--lime);border-color:var(--lime)}
+.plan-card{padding-bottom:40px}
+.card-veto{position:absolute;bottom:14px;right:14px;border:0;border-bottom:1px solid #526657;background:transparent;color:#aac6b0;font-size:10px;cursor:pointer;padding:0 0 2px}
+.card-veto:hover{color:var(--lime)}
+.vetoes{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.veto-caption{font-size:9px;color:var(--peach);letter-spacing:1px;align-self:center}
+.veto-chip{font-size:10px;color:var(--peach);border:1px solid #82594a;background:#3b2925;padding:6px 8px;max-width:100%;cursor:pointer}
+.veto-chip span{font-size:14px;margin-left:4px}
+.clear-vetoes{border:0;background:transparent;color:#a9b4a8;font-size:10px;text-decoration:underline;cursor:pointer}
+.tradeoff{color:#c6d8bd;font-size:11px;line-height:1.7;border-left:2px solid var(--lime);padding-left:12px;margin-top:18px}

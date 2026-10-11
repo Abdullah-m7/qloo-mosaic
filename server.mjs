@@ -76,4 +76,4 @@ const server=http.createServer(async(req,res)=>{
   return json(res,e.message==="Payload too large"?413:400,{status:"error",message:e.message});
  }
 });
-server.listen(port,()=>console.log("MOSAIC "+mode+" ready at http://localhost:"+port));
+server.listen(port,()=>console.log("MOSAIC "+mode+" ready at http://localhost:"+server.address().port));

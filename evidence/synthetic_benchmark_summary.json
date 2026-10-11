@@ -1,0 +1,15 @@
+{
+  "type": "offline synthetic algorithm verification",
+  "seed": 20261012,
+  "disclaimer": "500 seeded synthetic score assignments only. This is not Qloo-derived evidence, nor a human preference or product impact experiment.",
+  "cases": 500,
+  "feasible_cases": 429,
+  "unavailable_cases": 71,
+  "maximin_at_least_majority": 429,
+  "maximin_at_least_mean": 429,
+  "mean_worst_delta_vs_majority": 0.132,
+  "mean_worst_delta_vs_average": 0.024,
+  "mean_change_vs_average": -0.014,
+  "latency_ms_p50": 0.095,
+  "latency_ms_p95": 0.583
+}

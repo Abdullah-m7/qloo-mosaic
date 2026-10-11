@@ -32,9 +32,9 @@
    <div class="between"><span></span><b>AND</b><span></span></div>
    <div class="audience second"><div class="person-icon person-b">B</div><div><span>GROUP B</span><h3>Electronic music fans</h3><p>Electronic dance music · Immersive art</p></div></div>
    <div class="rule"></div>
-   <label class="form-label" for="budget"><span>Max event budget</span><output id="budget-value">$210</output></label>
+   <label class="form-label" for="budget"><span>Max planning effort</span><output id="budget-value">210 pts</output></label>
    <input id="budget" type="range" min="130" max="260" value="210" step="5"/>
-   <div class="slider-ends"><span>$130</span><span>$260</span></div>
+   <div class="slider-ends"><span>130 pts</span><span>260 pts</span></div>
    <label class="form-label sublabel" for="exclude"><span>Replan: reject an option</span></label>
    <select id="exclude"><option value="">No exclusions</option></select>
    <button type="button" id="run" class="run">Find common ground <span>↗</span></button>
@@ -42,7 +42,7 @@
   </div>
   <div class="results">
    <div class="panel-heading"><span>THE PROPOSED BRIDGE</span><span class="pill">MAXIMIN PLANNER</span></div>
-   <div class="result-head"><div><span class="mini-label">THE SHARED EXPERIENCE</span><h3 id="plan-title">Finding our common ground…</h3></div><div class="cost"><b id="plan-cost">—</b><span>EST. BUDGET</span></div></div>
+   <div class="result-head"><div><span class="mini-label">THE SHARED EXPERIENCE</span><h3 id="plan-title">Finding our common ground…</h3></div><div class="cost"><b id="plan-cost">—</b><span>PLANNING TOKENS</span></div></div>
    <div id="plan-items" class="plan-items"></div>
    <div class="score-section">
     <div class="score-title"><span>FAIRNESS CHECK</span><span id="gain" class="gain">—</span></div>
@@ -50,7 +50,7 @@
     <div class="bars"><div class="bar-wrap"><span>A</span><div class="bar-bg"><i id="baseA" class="bar-a" style="width:0%"></i></div><output id="baseAT">—</output></div><div class="bar-wrap"><span>B</span><div class="bar-bg"><i id="baseB" class="bar-b" style="width:0%"></i></div><output id="baseBT">—</output></div></div>
     <div class="compare compare-second"><span>MOSAIC's bridge plan</span><span class="mini-pill">BALANCED</span></div>
     <div class="bars"><div class="bar-wrap"><span>A</span><div class="bar-bg"><i id="newA" class="bar-a" style="width:0%"></i></div><output id="newAT">—</output></div><div class="bar-wrap"><span>B</span><div class="bar-bg"><i id="newB" class="bar-b" style="width:0%"></i></div><output id="newBT">—</output></div></div>
-    <p class="score-foot">Scores show synthetic group-level affinities, not predictions of individual behavior.</p>
+    <p class="score-foot">Scores show synthetic rank proxies, not predictions of individual behavior.</p>
    </div>
   </div>
  </div>

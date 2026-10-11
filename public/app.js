@@ -1,5 +1,5 @@
 const $=id=>document.getElementById(id);
-const money=x=>"$"+Number(x).toFixed(0);
+const money=x=>Number(x).toFixed(0)+" pts";
 const percent=x=>(Number(x)*100).toFixed(0)+"%";
 const safe=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 let chosen=[];
@@ -8,6 +8,13 @@ function bar(name,value){
  $(name+"T").textContent=percent(value);
 }
 function render(result){
+ if(result.mode==="qloo-live"){
+   const banner=document.querySelector(".notice");
+   banner.querySelector("b").textContent="QLOO API MODE — SERVER-VERIFIED EVIDENCE";
+   banner.querySelector("p").textContent="Relative ordinal ranks from Qloo. Estimates are planning tokens, not actual prices.";
+   banner.querySelector(".notice-tag").textContent="QLOO LIVE";
+   $("ledger-mode").textContent="QLOO TOOL TRACE";
+ }
  if(result.status!=="ok"){
   $("plan-title").textContent=result.reason||"No valid plan found";
   $("plan-items").textContent="";
@@ -25,7 +32,7 @@ function render(result){
  ).join("");
  bar("baseA",base.groupA);bar("baseB",base.groupB);
  bar("newA",bridge.groupA);bar("newB",bridge.groupB);
- $("gain").textContent=(result.improvement>=0?"+":"")+Math.round(result.improvement*100)+"pp worst-off affinity";
+ $("gain").textContent=(result.improvement>=0?"+":"")+Math.round(result.improvement*100)+"pp worst-off rank proxy";
  $("ledger-items").innerHTML=bridge.items.map(o=>
   '<div class="ledger-row"><b>'+safe(o.label)+'</b><span>'+safe(o.source)+'</span><code>'+safe(o.evidence_id)+'</code></div>'
  ).join("");

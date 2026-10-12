@@ -149,3 +149,13 @@ footer .brand{font-size:17px}footer p{font-size:11px;color:#89988c}footer>a:last
 .taste-settings label{font-size:9px;letter-spacing:1px;color:#94aa9c;display:block;margin:17px 0 7px}
 .taste-settings input{background:#111817;color:#e4eee4;width:100%;border:1px solid #4b5c50;padding:10px 11px;font-size:12px}
 .taste-settings input:disabled{color:#74867a;background:#18211e;border-color:#303c33;cursor:not-allowed}
+
+
+.agent-trace-panel{border:1px solid #4b5f50;margin-top:18px;background:#202823}
+.agent-trace-panel[hidden]{display:none}
+.agent-trace{padding:10px 21px;margin:0;list-style:none}
+.agent-trace li{display:grid;grid-template-columns:28px 87px minmax(0,1fr);align-items:center;gap:15px;padding:11px 0;border-bottom:1px solid #36433b;font-size:12px;color:#b8c8b7}
+.agent-trace li:last-child{border:0}
+.agent-trace li b{font-size:10px;color:var(--lime);letter-spacing:.7px}
+.trace-index{color:#809080;font-size:10px}
+.agent-trace-note{padding:0 21px 19px;color:#9aa99a;font-size:11px;line-height:1.7}

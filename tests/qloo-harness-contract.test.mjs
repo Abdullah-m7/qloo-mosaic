@@ -17,7 +17,7 @@ test("official Qloo MCP harness exposes required read-only agent workflow contra
   await client.connect(transport);
   const {tools}=await client.listTools();
   const byName=new Map(tools.map(x=>[x.name,x]));
-  for(const name of ["qloo_capabilities","qloo_recommend","qloo_rank","qloo_find_tags"]){
+  for(const name of ["qloo_capabilities","qloo_recommend","qloo_rank","qloo_find_tags","qloo_entity_tags"]){
    assert.ok(byName.has(name),"Missing official Qloo tool: "+name);
   }
   assert.deepEqual(byName.get("qloo_rank").inputSchema.required,["options","option_type"]);

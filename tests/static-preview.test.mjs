@@ -28,6 +28,9 @@ test("public demo is offline, explicitly synthetic, and budget/replan works",asy
  assert.equal(first.mode,"synthetic");
  assert.equal(first.status,"ok");
  assert.ok(first.bridge.cost<=210);
+ assert.equal(first.treaty.label,"Cultural Bridge Agreement");
+ assert.equal(first.treaty.provenance.kind,"synthetic");
+ assert.equal(first.treaty.provenance.verifiedCrossDomainMotif,false);
  const id=first.bridge.items[0].id;
  const replanned=await shim.offlineFetch("/api/plan",{method:"POST",body:JSON.stringify({maxBudget:210,exclude:[id]})});
  const second=await replanned.json();

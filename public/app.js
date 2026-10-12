@@ -35,6 +35,27 @@ function drawBaselines(){
  }
 }
 const signed=n=>(n>=0?"+":"")+Math.round(n*100)+"pp";
+function renderTreaty(result){
+ const t=result.treaty;
+ if(!t){$("treaty-panel").hidden=true;return;}
+ $("treaty-panel").hidden=false;
+ const delta=x=>(x>=0?"+":"")+Math.round(x*100)+"pp";
+ $("treaty-a").textContent=delta(t.groupAChange);
+ $("treaty-b").textContent=delta(t.groupBChange);
+ $("treaty-compromise").textContent=t.compromiseOptions+" / "+t.selected.length;
+ $("treaty-source").textContent=result.mode==="qloo-live"?"QLOO-BASED ORDINAL RANKS":"SYNTHETIC EXAMPLE";
+ const motifs=t.motifs||[];
+ $("treaty-thread").textContent=motifs.length?motifs.map(x=>x.label).join(" · "):
+   "No cross-domain thread verified";
+ $("treaty-thread-explain").textContent=motifs.length?
+   "Recurring Qloo tag identifiers across more than one selected cultural category. This does not establish causality.":
+   "No shared Qloo tag has been established. We won't invent a cultural connection. The agreement is based on comparative ordinal scores.";
+ const explanation="The worst-ranked group proxy "+delta(t.worstGain)+
+   " versus the one-sided plan. Total mean proxy "+delta(t.meanSacrifice)+
+   " versus mean-first. These are ordinal trade-offs, not predicted customer behavior.";
+ $("treaty-note").textContent=explanation;
+ $("copy-feedback").textContent="";
+}
 function render(result){
  latest=result;
  renderVetoes();
@@ -54,6 +75,7 @@ function render(result){
   $("ledger-mode").textContent="QLOO TOOL TRACE";
  }
  if(result.status!=="ok"){
+  renderTreaty(result);
   $("plan-title").textContent=result.reason||"No valid plan found";
   $("plan-items").textContent="";
   $("plan-cost").textContent="—";
@@ -63,6 +85,7 @@ function render(result){
   $("exclude").innerHTML='<option value="">No options available</option>';
   return;
  }
+ renderTreaty(result);
  const bridge=result.bridge;
  $("plan-title").textContent="A little of both. All together.";
  $("plan-cost").textContent=result.mode==="qloo-live"?"—":money(bridge.cost);
@@ -142,6 +165,27 @@ $("rejection-list").addEventListener("click",ev=>{
 for(const name of ["majority","average"]){
  $("baseline-"+name).addEventListener("click",()=>{baselineType=name;drawBaselines();});
 }
+$("copy-treaty").addEventListener("click",async()=>{
+ if(!latest?.treaty || latest.status!=="ok")return;
+ const t=latest.treaty;
+ const lines=[
+  "MOSAIC | CULTURAL BRIDGE AGREEMENT",
+  "Evidence status: "+(latest.mode==="qloo-live"?"Qloo ordinal rankings":"SYNTHETIC EXAMPLE — NOT QLOO DATA"),
+  "Selected: "+t.selected.map(x=>x.name+" ["+x.evidence_id+"]").join("; "),
+  "Group A difference from A-first: "+Math.round(t.groupAChange*100)+" percentage points of ordinal proxy",
+  "Group B difference from A-first: "+Math.round(t.groupBChange*100)+" percentage points of ordinal proxy",
+  "Both groups' non-top choice count: "+t.compromiseOptions,
+  "Verified cross-domain Qloo tags: "+(t.motifs?.length?t.motifs.map(x=>x.label).join(", "):"none"),
+  "Limitations: "+t.provenance.limitations,
+  "Project: https://github.com/Abdullah-m7/qloo-mosaic"
+ ];
+ try{
+  await navigator.clipboard.writeText(lines.join("\n"));
+  $("copy-feedback").textContent="Brief copied.";
+ }catch{
+  $("copy-feedback").textContent="Clipboard unavailable in this browser.";
+ }
+});
 async function init(){
  const response=await fetch("/health",{cache:"no-store"});
  if(!response.ok)throw Error("Server health probe failed");

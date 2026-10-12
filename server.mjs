@@ -5,6 +5,7 @@ import {fileURLToPath} from "node:url";
 import {buildBridge} from "./src/engine.mjs";
 import {sample} from "./src/fixtures.mjs";
 import {liveBridge,validateSeeds,validateLocation,DEFAULT_SEEDS} from "./src/qloo.mjs";
+import {createTreaty} from "./src/treaty.mjs";
 const root=path.dirname(fileURLToPath(import.meta.url));
 const publicDir=path.join(root,"public");
 const port=Number(process.env.PORT||8788);
@@ -61,17 +62,20 @@ const server=http.createServer(async(req,res)=>{
         const planned=buildBridge({candidates:evidence.candidates,maxBudget:budget,exclude});
         const result={mode:"qloo-live",scenario:evidence.scenario,notice:evidence.notice,
           trace:[...evidence.trace,{stage:"renegotiate",tool:"cached-evidence",
-            calls:0,policy:"Re-optimized without additional Qloo API calls."}],...planned};
+            calls:0,policy:"Re-optimized without additional Qloo API calls."}],
+          treaty:createTreaty({candidates:evidence.candidates,plan:planned,
+            tagEvidence:evidence.tagEvidence}),...planned};
         cache.set(key,{time:Date.now(),value:result});
         return json(res,200,result);
       }
       if(limited(req.socket.remoteAddress??"unknown"))return json(res,429,{status:"blocked",message:"Try later: Qloo API rate protection."});
       try{
         const result=await liveBridge({maxBudget:budget,exclude,...context});
-        const {candidates,...safeResult}=result;
+        const {candidates,tagEvidence,...safeResult}=result;
         if(Array.isArray(candidates)&&candidates.length&&result.status==="ok"){
           evidenceCache.set(contextKey,{time:Date.now(),candidates,scenario:result.scenario,
-            notice:result.notice,trace:result.trace});
+            notice:result.notice,trace:result.trace,
+            tagEvidence:result.tagEvidence});
           cache.set(key,{time:Date.now(),value:safeResult});
         }
         return json(res,200,safeResult);
@@ -83,7 +87,8 @@ const server=http.createServer(async(req,res)=>{
     if(input.groupA!==undefined||input.groupB!==undefined||input.location!==undefined)
       return json(res,422,{status:"needs_input",message:"Sample mode uses fixed synthetic audiences. Custom anchors require Qloo live mode."});
     const result=buildBridge({candidates:sample.candidates,maxBudget:budget,exclude});
-    return json(res,200,{mode:"synthetic",notice:"Illustrative synthetic fixture, NOT an actual Qloo API response.",scenario:{title:sample.title,groupA:sample.groupA,groupB:sample.groupB},...result});
+    return json(res,200,{mode:"synthetic",notice:"Illustrative synthetic fixture, NOT an actual Qloo API response.",scenario:{title:sample.title,groupA:sample.groupA,groupB:sample.groupB},
+      treaty:createTreaty({candidates:sample.candidates,plan:result}),...result});
   }
   if(u.pathname.startsWith("/api/"))return json(res,404,{status:"not_found"});
   if(req.method!=="GET"&&req.method!=="HEAD")return json(res,405,{status:"bad_method"});

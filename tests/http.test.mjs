@@ -4,12 +4,18 @@ import {spawn} from "node:child_process";
 import {once} from "node:events";
 import {fileURLToPath} from "node:url";
 import path from "node:path";
+import os from "node:os";
+import fs from "node:fs";
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");
 async function startServer(mode){
+ // Deliberately isolate credentials: this test must never contact Qloo even
+ // if a valid event key is configured on the developer machine later.
+ const isolatedHome=fs.mkdtempSync(path.join(os.tmpdir(),"mosaic-no-key-"));
+ const env={...process.env,PORT:"0",QLOO_MODE:mode,QLOO_HOME:isolatedHome};
+ delete env.QLOO_API_KEY;
  const child=spawn(process.execPath,["server.mjs"],{
-   cwd:root,env:{...process.env,PORT:"0",QLOO_MODE:mode},
-   stdio:["ignore","pipe","pipe"]
+   cwd:root,env,stdio:["ignore","pipe","pipe"]
  });
  const timeout=setTimeout(()=>child.kill("SIGTERM"),13000);
  let buffer="";
@@ -24,7 +30,10 @@ async function startServer(mode){
  });
  clearTimeout(timeout);
  return {url:"http://127.0.0.1:"+port,
-   close:async()=>{if(child.exitCode===null){child.kill("SIGTERM");await once(child,"exit").catch(()=>{});}}};
+   close:async()=>{
+    if(child.exitCode===null){child.kill("SIGTERM");await once(child,"exit").catch(()=>{});}
+    fs.rmSync(isolatedHome,{recursive:true,force:true});
+   }};
 }
 async function json(base,payload){
  const res=await fetch(base+"/api/plan",{method:"POST",
@@ -41,6 +50,8 @@ test("sample mode is honestly synthetic, budget enforced, and veto replan works"
   assert.equal(response.status,200);
   assert.equal(response.body.mode,"synthetic");
   assert.equal(response.body.source_mode,"synthetic");
+  assert.equal(response.body.treaty.label,"Cultural Bridge Agreement");
+  assert.equal(response.body.treaty.motifs.length,0);
   const plan=response.body.bridge;
   assert.ok(plan.cost<=210);
   const excluded=plan.items[0].id;

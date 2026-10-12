@@ -1,58 +1,94 @@
-# MOSAIC checkpoint — Qloo Agentic Hackathon 2026
+# MOSAIC — Common Ground, by Design
 
-## Completed
-- Fresh independent repository on the user's Mac: /Users/3obd/Developer/qloo-mosaic.
-- Responsive demo UI tested with desktop and 390px mobile Chrome.
-- Repeated reject/undo, planning budget changes and dual baseline comparisons.
-- Evidence-gated global maximin solver with budget constraints.
-- 34/34 automated unit, adversarial and HTTP integration tests passing.
-- 500 deterministic-seed synthetic scenarios: 429 feasible, 71 infeasible; maximin objective at least as high as both baselines in 429/429 feasible cases (expected by construction).
-- Server Qloo mode without credentials fails closed; no fabricated Qloo result is substituted.
-- Qloo's official harness and MCP SDK installed.\n- Public taste anchors and geographic input in live mode, validated against personal contact data.
+**A cultural negotiation agent for event promoters and community organizers.**
 
-## Open requirements
-- Official screenshot-confirmed API key request accepted; **key has not arrived yet**. Qloo says a few business days.
-- Verify event key works against https://hackathon.api.qloo.com and live Qloo tool response schemas.
-- Turn fixed taste anchors into live user-selectable public cultural anchors.
-- The public repository is now published at https://github.com/Abdullah-m7/qloo-mosaic (MIT license detected); externally hosted demo is still required.
-- Validate Qloo-based results and compare with baselines; document honest failure cases.
-- Prepare English Devpost story and final review; NO submission has been made.
+*One room. Two audiences. A cultural agreement that explains the trade-offs.*
 
-## Caveats
-- Synthetic scores are not observed audience satisfaction or Qloo results.
-- Planning tokens are arbitrary, not quotes or actual operating costs.
-- Keep project isolated from ARC, RSNA, Gemma and other research.
-- Deadline Oct 30 2026 11:45 PM EDT = Oct 31 06:45 AM Riyadh.
-\n## GitHub remote publication\nThe GitHub CLI active account was reauthenticated to Abdullah-m7. The public repository exists at https://github.com/Abdullah-m7/qloo-mosaic and the initial remote main commit matches local commit 0994d36. GitHub identifies the MIT license. An Actions CI template was prepared, but activating workflow files is blocked by a missing workflow scope in the authenticated GitHub grant. Automatic CI is NOT active.\n
+[**Interactive preview — synthetic data**](https://abdullah-m7.github.io/qloo-mosaic/) · [**Hosted Node demo — synthetic data**](https://mosaic-agent-2026.onrender.com/) · [**Qloo Agentic Hackathon**](https://qloo.devpost.com/)
 
-## Hardening checkpoint
-- Live Qloo candidate lists now require actual Qloo entity IDs; no invented IDs can stand in for provenance.
-- Live mode does not fabricate prices, availability, or budget constraints.
-- Official SDK defaults to production Qloo URL, so MOSAIC overrides QLOO_BASE_URL to https://hackathon.api.qloo.com in subprocess and deployment definitions.
-- Live Qloo candidate discovery is cached separately from optimizer runs, reducing event API consumption for vetoes/replans.
-- Render Blueprint, Docker image definition, deployment checklist and judge demo playbook are committed as deployment-ready artifacts; no external deployment is claimed before it actually exists.
+![MOSAIC interface with the Cultural Bridge Agreement and supporting decision evidence](docs/mosaic-demo-desktop.png)
 
-## Latest publication checkpoint
-- Github target: Abdullah-m7/qloo-mosaic (public)
-- Confirmed repository uses MIT and branch main.
-- Local checks pass 34 tests and 500 seeded synthetic cases. A CI template is available at docs/examples/github-actions-ci.template.yml; GitHub Actions is NOT active.
-- Deployment and Qloo API key are still pending; no final Devpost submission.
+> **Live data status:** Qloo event API access has been requested and receipt confirmed. As of October 12, 2026, the event key has not arrived. Both demos currently show **clearly labeled synthetic preferences**; neither is presented as a validated Qloo-backed entry.
 
-## Static preview checkpoint
-- Added a build:preview deterministic generator, with an offline adapter using the unchanged maximin engine and synthetic example.
-- Chrome desktop and 390px mobile test passed, including veto undo; zero Qloo API/network requests.
-- Public GitHub Pages deployment being prepared. Live Qloo demo still blocked on event-issued key.
+## The challenge
 
-## 12 October 2026 GitHub Pages verified
-- Public preview: https://abdullah-m7.github.io/qloo-mosaic/
-- Origin: isolated gh-pages branch, d3be4a3, while source stays on main.
-- GitHub Pages API reported status built; public HTTPS served HTTP 200 and fetched all JS/CSS successfully.
-- Browser smoke test against PUBLIC HTTPS at 390px confirmed a 3-option plan, veto/undo, zero page errors, no API/Qloo requests and no horizontal overflow.
-- Core test suite now 35/35 passing, including static-preview module tests.
-- This public preview intentionally uses fictional data and is NOT the Qloo-powered final submission.
+An event promoter wants to bring together communities with different cultural tastes — for example, independent film fans and electronic music listeners. Choosing what the largest group prefers may alienate the other. Choosing whatever has the best average rank may still neglect one audience.
 
-## Bounded agentic loop checkpoint
-- Implemented Qloo discovery, one bounded fallback query when joint discovery is sparse, paired rankings on identical option lists and evidence-gated maximin negotiation.
-- Added a visible agent trace for actual Qloo-backed runs, preserving trace during cache-based replan.
-- Five mocked Qloo-tool orchestration checks and one official MCP capabilities schema check bring total to 41 automated tests, all green.
-- Explicit limitation: mocked behavior is not live Qloo API validation. The key request remains pending.
+MOSAIC designs a *shared cultural activation* spanning an artist, a place and a film-themed experience. The key output is **the Cultural Bridge Agreement**: an explainable proposal showing which options provide common ground, how each community's relative rank changes compared with alternative selection policies, and what cultural connections can actually be traced to Qloo evidence.
+
+It does **not** book venues, reserve artists, license films or predict a real audience's satisfaction.
+
+## What the agent does
+
+1. **Discover:** Ask Qloo for relevant entities using publicly chosen taste anchors from both groups. If joint discovery returns too little evidence, try a **single bounded alternative**, never an unbounded search.
+2. **Compare:** Rank the *identical* shortlist against each group's taste anchors independently. Use **within-list ordinal percentile proxies** rather than treating scores from separate Qloo calls as directly comparable or calibrated probabilities.
+3. **Negotiate:** Search feasible three-category combinations and maximize the **lower** of the two relative group rank scores. Show separate globally computed one-sided and average-first baselines, not a strawman comparator.
+4. **Verify cultural threads:** When available, call Qloo's entity tag tool at most once per selected category. A shared cross-category motif is shown **only if Qloo reports the same verified tag across two different chosen categories**. Otherwise the UI explicitly states *No cross-domain thread verified*.
+5. **Adapt and explain:** Reject options, change the taste anchors and inspect the tool trace. The planner reuses cached Qloo evidence for ordinary veto-based renegotiation; incomplete or ambiguous Qloo evidence causes abstention, **never a synthetic fallback disguised as Qloo**.
+
+Unlike a conventional group recommender, the application exposes the cultural and decision-making process: whose preference shaped the result, how the compromise changes, and which cultural links are — or are not — supported.
+
+## First-look demo
+
+In the **synthetic preview**, choose a planning budget, inspect three candidate experiences, switch the one-sided versus mean-first comparison, veto a suggestion and watch the agreement update. Click *Copy decision brief* to capture the chosen items, evidence identifiers, quantified trade-off and limitations.
+
+The preview's example scores, tag availability and planning tokens are invented **solely for demonstration and testing**. The live Qloo mode requires a separate server-side event credential, so the public sample is not a valid final competition entry.
+
+## What is implemented, versus what is not
+
+| Area | Verified status |
+| --- | --- |
+| Responsive interface, working veto/undo and comparison controls | Tested in desktop and mobile Chrome |
+| Optimizer, provenance gates, bounded agent orchestration and cultural treaty | **50/50 local automated checks passed**; Qloo tool responses mocked in agent tests |
+| Deterministic algorithmic falsification | 500 **synthetic** scenarios, 429 feasible; see below |
+| Public open-source repo and externally hosted Node app | Deployed; Node app is intentionally **sample mode** |
+| Qloo live API integration and real shared-tag evidence | **Pending** event-issued credential and live schema validation |
+| Public, judge-ready Qloo experience and Devpost final submission | **Not completed** |
+
+## Reproducible tests
+
+Requires Node.js 24 (Node >=22 is supported):
+
+```bash
+git clone https://github.com/Abdullah-m7/qloo-mosaic.git
+cd qloo-mosaic
+npm ci
+npm test
+npm run benchmark
+QLOO_MODE=sample npm start
+```
+
+Open http://localhost:8788. Run `npm run build:preview` to generate the static synthetic-only UI in `dist-preview/`.
+
+The offline property experiment generates 500 deterministic score assignments (seed `20261012`). For 429 scenarios a feasible plan exists. In **all 429**, maximin's worst-group proxy was at least as high as the one-sided and mean-first alternatives — **a mathematical consequence of the optimization objective**, not proof of product quality. Average worst-group rank-proxy improvement over the one-sided alternative was 0.132, and relative to mean-first it was 0.024. An ablation on **actual Qloo-derived candidates** is still required.
+
+## Live Qloo setup — after key approval
+
+The app depends on Qloo's official `@qloo/qloo-harness`, using the read-only MCP tools `qloo_recommend`, `qloo_rank`, `qloo_entity_tags` and `qloo_capabilities`.
+
+The key is a **hackathon-only secret**. Configure it in your server's secure environment as `QLOO_API_KEY`, never in a browser, public repository, example URL or screenshot. The service pins `QLOO_BASE_URL=https://hackathon.api.qloo.com` instead of the production Qloo API endpoint.
+
+```bash
+QLOO_MODE=live npm start
+```
+
+If there is no key or Qloo returns inadequate evidence, the live endpoint responds with an explicit error. It does not substitute fixture data. Before any final submission we will verify real Qloo request/response schemas, accuracy of entity resolution and ordinal ranking, limited API usage, error recovery and performance of the public live deployment.
+
+## Repo map
+
+- `src/engine.mjs` — optimizer and evidence gates
+- `src/qloo.mjs` — bounded Qloo tools, provenance and result validation
+- `src/treaty.mjs` — cross-category tag validation and decision agreements
+- `server.mjs` — server-side API orchestration, short-lived evidence cache
+- `public/` — responsive product experience
+- `tests/` — adversarial, API, browser-independent unit and mocked tool tests
+- `scripts/benchmark.mjs` and `evidence/` — reproducible **synthetic** results
+- `scripts/build-static-preview.mjs` — deliberately offline preview generator
+- `docs/DEPLOY.md` — live deployment and key-handling instructions
+- `docs/STATUS.md` — implementation and limitations ledger
+
+## License and acknowledgments
+
+Original project code released under **MIT**. Qloo remains a separate third-party data provider; its data and API are subject to their own terms. No personal taste records or participant identity information is needed for the synthetic demos.
+
+Built independently for the [Qloo Agentic Hackathon 2026](https://qloo.devpost.com/) by Abdullah Almohammedi. The submission closes **October 30, 2026 at 11:45 PM EDT**.

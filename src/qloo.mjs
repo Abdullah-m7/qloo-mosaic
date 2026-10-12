@@ -4,6 +4,7 @@ import {StdioClientTransport} from "@modelcontextprotocol/sdk/client/stdio.js";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
 import {buildBridge} from "./engine.mjs";
+import {createTreaty,extractTagFacts} from "./treaty.mjs";
 
 const here=path.dirname(fileURLToPath(import.meta.url));
 const qlooBinary=path.resolve(here,"../node_modules/.bin/qloo");
@@ -127,6 +128,28 @@ export async function discoverCulturalEvidence({a,b,place,call}){
     policy:"Optimize the lower ordinal group rank; never infer prices or attendance."});
   return {candidates,trace};
 }
+export async function enrichSelectedTags({selected,call}){
+  if(!Array.isArray(selected)||selected.length>3)throw new TypeError("At most three selected candidates permitted");
+  const tagEvidence=[],trace=[];
+  for(const option of selected){
+    const entityType=types.find(([slot])=>slot===option.slot)?.[1];
+    if(!entityType||typeof option.qloo_entity_id!=="string"||!option.qloo_entity_id)
+      throw new TypeError("Selected candidate lacks original Qloo identity");
+    try{
+      const result=await call("qloo_entity_tags",{
+        entities:[option.qloo_entity_id],entity_type:entityType,limit:10
+      });
+      const verified=extractTagFacts(result);
+      tagEvidence.push({optionId:option.id,slot:option.slot,tags:verified});
+      trace.push({stage:"enrich",tool:"qloo_entity_tags",slot:option.slot,
+        status:verified.length?"verified":"no_tags",count:verified.length});
+    }catch{
+      trace.push({stage:"enrich",tool:"qloo_entity_tags",slot:option.slot,
+        status:"unavailable",count:0});
+    }
+  }
+  return {tagEvidence,trace};
+}
 export async function liveBridge({maxBudget=210,exclude=[],groupA,groupB,location}={}){
   const a=validateSeeds(groupA,DEFAULT_SEEDS.groupA);
   const b=validateSeeds(groupB,DEFAULT_SEEDS.groupB);
@@ -145,7 +168,15 @@ export async function liveBridge({maxBudget=210,exclude=[],groupA,groupB,locatio
       a,b,place,call
     });
     const result=buildBridge({candidates:all,maxBudget,exclude});
-    return {candidates:all,trace,mode:"qloo-live",scenario:{title:"Custom cultural bridge",groupA:{title:"First audience",anchors:a},groupB:{title:"Second audience",anchors:b},location:place},notice:"Relative rank-percentile proxies from Qloo tool calls on matched shortlists. Real Qloo entities have NO pricing or availability guarantee. Budget is disabled in live mode.",...result};
+    // No more than three enrichment queries; incomplete Qloo tags do not
+    // manufacture cross-domain cultural overlap.
+    const tagStep=result.status==="ok"?
+      await enrichSelectedTags({selected:result.bridge.items,call}):
+      {tagEvidence:[],trace:[]};
+    trace.push(...tagStep.trace);
+    const tagEvidence=tagStep.tagEvidence;
+    const treaty=createTreaty({candidates:all,plan:result,tagEvidence});
+    return {candidates:all,trace,tagEvidence,treaty,mode:"qloo-live",scenario:{title:"Custom cultural bridge",groupA:{title:"First audience",anchors:a},groupB:{title:"Second audience",anchors:b},location:place},notice:"Relative rank-percentile proxies from Qloo tool calls on matched shortlists. Real Qloo entities have NO pricing or availability guarantee. Budget is disabled in live mode.",...result};
   }finally{
     await client.close();
   }

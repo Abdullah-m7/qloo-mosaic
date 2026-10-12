@@ -1,59 +1,42 @@
-# MOSAIC checkpoint — Qloo Agentic Hackathon 2026
+# MOSAIC — Execution checkpoint
 
-## Completed
-- Fresh independent repository on the user's Mac: /Users/3obd/Developer/qloo-mosaic.
-- Responsive demo UI tested with desktop and 390px mobile Chrome.
-- Repeated reject/undo, planning budget changes and dual baseline comparisons.
-- Evidence-gated global maximin solver with budget constraints.
-- 34/34 automated unit, adversarial and HTTP integration tests passing.
-- 500 deterministic-seed synthetic scenarios: 429 feasible, 71 infeasible; maximin objective at least as high as both baselines in 429/429 feasible cases (expected by construction).
-- Server Qloo mode without credentials fails closed; no fabricated Qloo result is substituted.
-- Qloo's official harness and MCP SDK installed.\n- Public taste anchors and geographic input in live mode, validated against personal contact data.
+**Project:** Qloo Agentic Hackathon 2026 · **Owner:** Abdullah Almohammedi
+**Updated:** October 12, 2026
+**Repository:** https://github.com/Abdullah-m7/qloo-mosaic
+**Render app:** https://mosaic-agent-2026.onrender.com/
+**Synthetic static preview:** https://abdullah-m7.github.io/qloo-mosaic/
 
-## Open requirements
-- Official screenshot-confirmed API key request accepted; **key has not arrived yet**. Qloo says a few business days.
-- Verify event key works against https://hackathon.api.qloo.com and live Qloo tool response schemas.
-- Turn fixed taste anchors into live user-selectable public cultural anchors.
-- The public repository is now published at https://github.com/Abdullah-m7/qloo-mosaic (MIT license detected); externally hosted demo is still required.
-- Validate Qloo-based results and compare with baselines; document honest failure cases.
-- Prepare English Devpost story and final review; NO submission has been made.
+## Completed and verified
 
-## Caveats
-- Synthetic scores are not observed audience satisfaction or Qloo results.
-- Planning tokens are arbitrary, not quotes or actual operating costs.
-- Keep project isolated from ARC, RSNA, Gemma and other research.
-- Deadline Oct 30 2026 11:45 PM EDT = Oct 31 06:45 AM Riyadh.
-\n## GitHub remote publication\nThe GitHub CLI active account was reauthenticated to Abdullah-m7. The public repository exists at https://github.com/Abdullah-m7/qloo-mosaic and the initial remote main commit matches local commit 0994d36. GitHub identifies the MIT license. An Actions CI template was prepared, but activating workflow files is blocked by a missing workflow scope in the authenticated GitHub grant. Automatic CI is NOT active.\n
+- GitHub public repository under the correct account, MIT license recognized by GitHub.
+- Live publicly accessible **Node service on Render** in `QLOO_MODE=sample`; HTTPS homepage and health checks returned 200. Render is configured on the free plan, region Frankfurt, auto-deploy from main.
+- Separate GitHub Pages client-only sample that cannot call the Qloo API.
+- Responsive UI with two audience scenarios, veto/undo, alternative baseline comparisons, and a Cultural Bridge Agreement explaining trade-offs between two group-level ordinal preference proxies.
+- Qloo client implemented using event-harness read-only MCP workflows: recommend, rank, capability check and optional entity tags for at most three selected entities, with bounded fallback discovery.
+- Cross-domain cultural thread is shown only if Qloo returns identical tag IDs in more than one selected category; missing or inadequate data yields an explicit `no shared tag verified` state.
+- 50/50 tests passed: optimization, adversarial evidence gating, HTTP sample/live fail-closed, mocked tool orchestration, Qloo capability contract, tag enrichment, static preview and treaty.
+- 500 deterministic synthetic assignments: 429 feasible; maximin wins or ties the baseline worst-off proxy in all feasible cases, as **guaranteed by that mathematical objective**. No empirical product impact is claimed.
+- Desktop 1440px and 390px mobile Chrome tests verified proposed treaty updates on veto, no JS errors and no horizontal overflow.
+- Production clean-room install was tested from a public GitHub clone.
 
-## Hardening checkpoint
-- Live Qloo candidate lists now require actual Qloo entity IDs; no invented IDs can stand in for provenance.
-- Live mode does not fabricate prices, availability, or budget constraints.
-- Official SDK defaults to production Qloo URL, so MOSAIC overrides QLOO_BASE_URL to https://hackathon.api.qloo.com in subprocess and deployment definitions.
-- Live Qloo candidate discovery is cached separately from optimizer runs, reducing event API consumption for vetoes/replans.
-- Render Blueprint, Docker image definition, deployment checklist and judge demo playbook are committed as deployment-ready artifacts; no external deployment is claimed before it actually exists.
+## Not yet validated (critical)
 
-## Latest publication checkpoint
-- Github target: Abdullah-m7/qloo-mosaic (public)
-- Confirmed repository uses MIT and branch main.
-- Local checks pass 34 tests and 500 seeded synthetic cases. A CI template is available at docs/examples/github-actions-ci.template.yml; GitHub Actions is NOT active.
-- Deployment and Qloo API key are still pending; no final Devpost submission.
+1. The user submitted the official key form and received a screen confirmation. **Qloo event API key has not been received or configured.**
+2. Real Qloo response formats, actual entity resolution, rank completeness, quota limits, and tag-evidence reproducibility must be validated end to end. All agent tool calls up to now are **mocked**, except the local, credential-free capability introspection.
+3. Render service remains in explicit synthetic mode. Once a key arrives, store it only as a protected Render environment secret, set `QLOO_MODE=live`, validate the app and error handling, and verify no Qloo key reaches client JavaScript or logs.
+4. Run empirical ablations on real Qloo-grounded cultural alternatives, including difficult cross-audience pairs, sparse results, a no-Qloo baseline, and honest failure cases.
+5. Improve the judge walkthrough and prepare the final English Devpost entry; **nothing has been submitted**. Submission deadline: October 30 2026 at 11:45 PM EDT (October 31 06:45 AM Riyadh). The demo must remain accessible through judging ending November 16.
+6. GitHub Actions CI template exists under `docs/examples/`, but cannot be activated without a separate `workflow` scope; local tests pass.
+7. Render free instances can sleep between visits, so verify initial-load behavior before judging. Do not incur paid charges without approval.
 
-## Static preview checkpoint
-- Added a build:preview deterministic generator, with an offline adapter using the unchanged maximin engine and synthetic example.
-- Chrome desktop and 390px mobile test passed, including veto undo; zero Qloo API/network requests.
-- Public GitHub Pages deployment being prepared. Live Qloo demo still blocked on event-issued key.
+## Responsible data/claims
 
-## 12 October 2026 GitHub Pages verified
-- Public preview: https://abdullah-m7.github.io/qloo-mosaic/
-- Origin: isolated gh-pages branch, d3be4a3, while source stays on main.
-- GitHub Pages API reported status built; public HTTPS served HTTP 200 and fetched all JS/CSS successfully.
-- Browser smoke test against PUBLIC HTTPS at 390px confirmed a 3-option plan, veto/undo, zero page errors, no API/Qloo requests and no horizontal overflow.
-- Core test suite now 35/35 passing, including static-preview module tests.
-- This public preview intentionally uses fictional data and is NOT the Qloo-powered final submission.
+- Synthetic group preference numbers are **invented**; rank-percentile transforms are not observed satisfaction or causal metrics.
+- No attendee addresses, emails, identity data, medical data or individual taste histories are sent to Qloo.
+- Qloo does not establish venue availability, event rights or ticket prices. Live planning budget control is disabled rather than fabricating them.
+- Qloo requests are bound to the official event host: https://hackathon.api.qloo.com.
+- Competition project remains isolated from ARC, RSNA, Gemma and other research programs.
 
-## Clean-room deployment verification (12 October 2026)
-- Fresh clone of public main commit 199bfa2 into a separate temporary directory on macOS.
-- npm ci --omit=dev --ignore-scripts --no-audit --no-fund succeeded.
-- Node server in live mode started and /health returned HTTP 200 with mode=live.
-- Without the event API key, POST /api/plan correctly returned HTTP 503, code QLOO_LIVE_UNAVAILABLE, with NO synthetic bridge/candidates. Process was terminated after the test.
-- This proves basic production installation and failure isolation, NOT a public deployment or live Qloo success.
+## Next highest-value move
+
+**Key arrives → live integration proof → empirical Qloo-versus-no-Qloo case study → judge-accessible live demo → polished Devpost entry.** The goal is strong evidence for a non-obvious and useful product, not increasing test counts for their own sake.

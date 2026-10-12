@@ -1,6 +1,7 @@
 // Offline static preview is deliberately synthetic; never submits network API calls.
 import {buildBridge} from "./shared/engine.mjs";
 import {sample} from "./shared/fixtures.mjs";
+import {createTreaty} from "./shared/treaty.mjs";
 const reply=(status,data)=>new Response(JSON.stringify(data),{status,headers:{"content-type":"application/json"}});
 export async function offlineFetch(url,init={}){
  const route=String(url);
@@ -14,7 +15,7 @@ export async function offlineFetch(url,init={}){
    const budget=Number(values.maxBudget??210);
    const exclude=Array.isArray(values.exclude)?values.exclude:[];
    const plan=buildBridge({candidates:sample.candidates,maxBudget:budget,exclude});
-   return reply(200,{mode:"synthetic",notice:"Invented demo-only data, no Qloo API.",scenario:{title:sample.title,groupA:sample.groupA,groupB:sample.groupB},...plan});
+   return reply(200,{mode:"synthetic",notice:"Invented demo-only data, no Qloo API.",scenario:{title:sample.title,groupA:sample.groupA,groupB:sample.groupB},treaty:createTreaty({candidates:sample.candidates,plan}),...plan});
   }catch(e){return reply(400,{status:"error",message:e.message});}
  }
  return reply(404,{status:"not_found"});

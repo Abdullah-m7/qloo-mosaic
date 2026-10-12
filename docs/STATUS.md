@@ -37,3 +37,8 @@
 - Confirmed repository uses MIT and branch main.
 - Local checks pass 34 tests and 500 seeded synthetic cases. A CI template is available at docs/examples/github-actions-ci.template.yml; GitHub Actions is NOT active.
 - Deployment and Qloo API key are still pending; no final Devpost submission.
+
+## Static preview checkpoint
+- Added a build:preview deterministic generator, with an offline adapter using the unchanged maximin engine and synthetic example.
+- Chrome desktop and 390px mobile test passed, including veto undo; zero Qloo API/network requests.
+- Public GitHub Pages deployment being prepared. Live Qloo demo still blocked on event-issued key.

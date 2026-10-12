@@ -31,6 +31,16 @@ npm test
 
 **CRITICAL: Sample mode shows SYNTHETIC test values. It does not contact Qloo.** This mode illustrates the planner's logic, not actual cultural fit. The product page labels this prominently.
 
+## Public static preview (not the contest's live demo)
+
+To illustrate the interaction without a Qloo credential, build a client-side-only preview:
+
+    npm run build:preview
+
+The generator uses the same engine and fixture source but replaces server calls with a local, synthetic-only adapter. Its HTML clearly labels fictional affinity values, and it never attempts to contact Qloo. This is NOT the API-driven demo required for the final Qloo Devpost entry.
+
+The static preview will be published from an independent gh-pages branch. The Node application remains on main; no Qloo secret is ever embedded in GitHub Pages.
+
 ## Live Qloo mode (requires separate event credential)
 
 The project uses the official `@qloo/qloo-harness` and `@modelcontextprotocol/sdk`. Obtain a key using the form linked from the [official hackathon resources](https://qloo.devpost.com/resources). Use `npx qloo setup --qloo` locally, or set `QLOO_API_KEY` securely in your server environment. Never commit or display the credential.

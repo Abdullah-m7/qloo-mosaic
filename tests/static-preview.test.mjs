@@ -1,0 +1,38 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {spawnSync} from "node:child_process";
+import {readFileSync,existsSync} from "node:fs";
+import path from "node:path";
+import {pathToFileURL,fileURLToPath} from "node:url";
+const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),"..");
+const output=path.join(root,"dist-preview-ci");
+
+test("public demo is offline, explicitly synthetic, and budget/replan works",async()=>{
+ const run=spawnSync(process.execPath,["scripts/build-static-preview.mjs"],{cwd:root,
+  env:{...process.env,MOSAIC_PREVIEW_DIR:"dist-preview-ci"},encoding:"utf8",timeout:20000});
+ assert.equal(run.status,0,run.stderr);
+ const html=readFileSync(path.join(output,"index.html"),"utf8");
+ assert.match(html,/FICTIONAL CULTURAL SCORES/);
+ assert.match(html,/SYNTHETIC DATA/);
+ assert.ok(existsSync(path.join(output,".nojekyll")));
+ assert.match(html,/href="\.\/styles\.css"/);
+ assert.match(html,/src="\.\/app\.js"/);
+ const app=readFileSync(path.join(output,"app.js"),"utf8");
+ assert.match(app,/offlineFetch as fetch/);
+ const shim=await import(pathToFileURL(path.join(output,"static-offline.mjs")).href);
+ const health=await shim.offlineFetch("/health");
+ assert.equal(health.status,200);
+ assert.equal((await health.json()).staticPreview,true);
+ const base=await shim.offlineFetch("/api/plan",{method:"POST",body:JSON.stringify({maxBudget:210})});
+ const first=await base.json();
+ assert.equal(first.mode,"synthetic");
+ assert.equal(first.status,"ok");
+ assert.ok(first.bridge.cost<=210);
+ const id=first.bridge.items[0].id;
+ const replanned=await shim.offlineFetch("/api/plan",{method:"POST",body:JSON.stringify({maxBudget:210,exclude:[id]})});
+ const second=await replanned.json();
+ assert.equal(second.status,"ok");
+ assert.ok(!second.bridge.items.some(x=>x.id===id));
+ const fakePersonal=await shim.offlineFetch("/api/plan",{method:"POST",body:JSON.stringify({groupA:["Daft Punk"]})});
+ assert.equal(fakePersonal.status,422);
+});

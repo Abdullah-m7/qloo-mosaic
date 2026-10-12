@@ -5,3 +5,7 @@ node_modules/
 .DS_Store
 *.log
 .cache/
+
+# Generated static preview: published from separate gh-pages branch
+/dist-preview/
+/dist-preview-ci/

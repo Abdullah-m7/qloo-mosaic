@@ -75,6 +75,22 @@ function render(result){
  ).join("");
  bar("newA",bridge.groupA);bar("newB",bridge.groupB);
  drawBaselines();
+ const steps=Array.isArray(result.trace)?result.trace:[];
+ const panel=$("agent-trace-panel");
+ if(panel){
+  panel.hidden=result.mode!=="qloo-live"||steps.length===0;
+  $("agent-trace").innerHTML=steps.map((step,i)=>{
+   const status=step.stage==="discover" ? "DISCOVER" : step.stage==="rank" ? "RANK" :
+     step.stage==="renegotiate" ? "REPLAN" : "OPTIMIZE";
+   const label=step.stage==="discover" ? safe(step.slot)+" · "+safe(step.strategy) +
+     " · "+safe(step.count)+" candidate(s)" :
+     step.stage==="rank" ? safe(step.slot)+" · "+safe(step.candidates)+" matched options" :
+     step.stage==="renegotiate" ? "Cached Qloo evidence · zero extra API calls" :
+     safe(step.candidates)+" options · worst-group objective";
+   return '<li><span class="trace-index">'+String(i+1).padStart(2,"0")+'</span><b>'+
+     status+'</b><span>'+label+'</span></li>';
+  }).join("");
+ }
  $("ledger-items").innerHTML=bridge.items.map(o=>
   '<div class="ledger-row"><b>'+safe(o.label)+'</b><span>'+safe(o.source)+'</span><code>'+safe(o.evidence_id)+'</code></div>'
  ).join("");

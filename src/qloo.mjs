@@ -68,6 +68,65 @@ const parseResult=response=>{
   }
   return obj;
 };
+// A bounded, observable multi-tool planning loop. Tool calls are injected so
+// its contract can be falsified with mocks even before the Qloo key arrives.
+// Important: it never substitutes synthetic output when Qloo evidence is sparse.
+export async function discoverCulturalEvidence({a,b,place,call}){
+  if(typeof call!=="function")throw new TypeError("Qloo tool caller required");
+  const candidates=[],trace=[];
+  for(const [slot,type] of types){
+    const args={target_type:type,signals:[...a,...b],limit:5,
+      ...(slot==="food"?{filter_location:place}:{})};
+    let found=await call("qloo_recommend",args);
+    let pool=extractItems(found).filter(x=>x.id);
+    trace.push({stage:"discover",slot,tool:"qloo_recommend",strategy:"combined",
+      count:pool.length});
+    // A bounded adaptive step: when joint taste discovery is too sparse,
+    // explore an alternate group signal once. No infinite retries.
+    if(new Set(pool.map(x=>normalized(x.name))).size<2){
+      found=await call("qloo_recommend",{...args,signals:b});
+      const alt=extractItems(found).filter(x=>x.id);
+      pool=[...pool,...alt];
+      trace.push({stage:"discover",slot,tool:"qloo_recommend",
+        strategy:"second-audience-fallback",count:alt.length});
+    }
+    const normalizedPool=new Map();
+    for(const item of pool){
+      const key=normalized(item.name);
+      if(!normalizedPool.has(key))normalizedPool.set(key,item);
+    }
+    const shortlist=[...normalizedPool.values()].slice(0,5);
+    const names=shortlist.map(x=>x.name);
+    if(names.length<2)
+      throw new Error("Insufficient verifiable Qloo candidates for "+slot+
+        ". Refuse to invent a shared cultural option.");
+    const [left,right]=await Promise.all([
+      call("qloo_rank",{options:names,option_type:type,signals:a}),
+      call("qloo_rank",{options:names,option_type:type,signals:b})
+    ]);
+    const leftNames=extractItems(left).map(x=>x.name);
+    const rightNames=extractItems(right).map(x=>x.name);
+    const ranked=matchRanks(names,leftNames,rightNames);
+    trace.push({stage:"rank",slot,tool:"qloo_rank",calls:2,
+      comparable:"ordinal ranks on identical candidate shortlist",
+      candidates:names.length});
+    for(const record of ranked){
+      const source=normalizedPool.get(normalized(record.name));
+      if(!source?.id)throw Error("Qloo candidate lacks a verifiable entity ID.");
+      candidates.push({
+        id:slot+":"+source.id,slot,label:record.name,
+        cost:0,scoreA:record.scoreA,scoreB:record.scoreB,
+        source:"qloo-mcp:recommend+rank",
+        qloo_entity_id:source.id,
+        evidence_id:"QL-"+source.id.replace(/[^a-zA-Z0-9]/g,"").slice(0,12)
+      });
+    }
+  }
+  trace.push({stage:"negotiate",tool:"maximin-search",
+    candidates:candidates.length,
+    policy:"Optimize the lower ordinal group rank; never infer prices or attendance."});
+  return {candidates,trace};
+}
 export async function liveBridge({maxBudget=210,exclude=[],groupA,groupB,location}={}){
   const a=validateSeeds(groupA,DEFAULT_SEEDS.groupA);
   const b=validateSeeds(groupB,DEFAULT_SEEDS.groupB);
@@ -82,40 +141,11 @@ export async function liveBridge({maxBudget=210,exclude=[],groupA,groupB,locatio
     const cap=await client.callTool({name:"qloo_capabilities",arguments:{}});
     if(!cap.structuredContent?.adapter?.ready)throw Error("QLOO_CREDENTIAL_MISSING: Request an event API key and configure it server-side.");
     const call=async(name,args)=>parseResult(await client.callTool({name,arguments:args}));
-    const all=[];
-    for(const [slot,type] of types){
-      // One discovery call, then two ranks on the SAME shortlist.
-      const found=await call("qloo_recommend",{
-        target_type:type,signals:[...a,...b],limit:5,
-        ...(slot==="food"?{filter_location:place}:{})
-      });
-      const foundItems=extractItems(found).filter(x=>x.id).slice(0,5);
-      const names=[...new Map(foundItems.map(x=>[normalized(x.name),x.name])).values()];
-      if(names.length<2)throw Error("Qloo returned fewer than two unambiguous candidates for "+slot);
-      const [left,right]=await Promise.all([
-        call("qloo_rank",{options:names,option_type:type,signals:a}),
-        call("qloo_rank",{options:names,option_type:type,signals:b})
-      ]);
-      const leftNames=extractItems(left).map(x=>x.name);
-      const rightNames=extractItems(right).map(x=>x.name);
-      const scored=matchRanks(names,leftNames,rightNames);
-      for(const [i,record] of scored.entries()){
-        const source=foundItems.find(x=>x.name===record.name);
-        if(!source?.id)throw Error("Qloo did not return a verifiable entity ID.");
-        all.push({
-          id:slot+":"+source.id,slot,label:record.name,
-          // Qloo does not supply actual prices or availability. Cost is
-          // intentionally zero in LIVE mode: no fabricated budget arithmetic.
-          cost:0,
-          scoreA:record.scoreA,scoreB:record.scoreB,
-          source:"qloo-mcp:recommend+rank",
-          qloo_entity_id:source.id,
-          evidence_id:"QL-"+source.id.replace(/[^a-zA-Z0-9]/g,"").slice(0,12)
-        });
-      }
-    }
+    const {candidates:all,trace}=await discoverCulturalEvidence({
+      a,b,place,call
+    });
     const result=buildBridge({candidates:all,maxBudget,exclude});
-    return {candidates:all,mode:"qloo-live",scenario:{title:"Custom cultural bridge",groupA:{title:"First audience",anchors:a},groupB:{title:"Second audience",anchors:b},location:place},notice:"Relative rank-percentile proxies from Qloo tool calls on matched shortlists. Real Qloo entities have NO pricing or availability guarantee. Budget is disabled in live mode.",...result};
+    return {candidates:all,trace,mode:"qloo-live",scenario:{title:"Custom cultural bridge",groupA:{title:"First audience",anchors:a},groupB:{title:"Second audience",anchors:b},location:place},notice:"Relative rank-percentile proxies from Qloo tool calls on matched shortlists. Real Qloo entities have NO pricing or availability guarantee. Budget is disabled in live mode.",...result};
   }finally{
     await client.close();
   }

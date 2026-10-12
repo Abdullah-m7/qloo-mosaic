@@ -70,6 +70,11 @@
  <div class="section-intro evidence-intro"><div><span class="section-number">03 / WHY IT CHOSE THIS</span><h2>No magic.<br/>Just reasons.</h2></div><p>Good AI should be willing to explain its choices — and know when it doesn't have enough evidence.</p></div>
  <div class="evidence-grid"><div class="evidence-card"><span class="card-numeral">01</span><h3>Bridge, don't average.</h3><p>Optimize the lower satisfaction score rather than maximizing the most vocal group's preferences.</p></div><div class="evidence-card"><span class="card-numeral">02</span><h3>Show the trade-offs.</h3><p>Compare what a one-sided recommendation would produce with the proposed shared experience.</p></div><div class="evidence-card"><span class="card-numeral">03</span><h3>Trace the evidence.</h3><p>Every candidate must have a valid score and source. Missing evidence means abstain, not invent.</p></div></div>
  <div class="ledger"><div class="ledger-head"><h3>Decision ledger</h3><span id="ledger-mode">SYNTHETIC ONLY</span></div><div id="ledger-items" class="ledger-items"><p>Run the planner to show evidence identifiers.</p></div></div>
+ <div id="agent-trace-panel" class="agent-trace-panel" hidden>
+   <div class="ledger-head"><h3>Agent activity &amp; evidence</h3><span>QLOO TOOL CALLS</span></div>
+   <ol class="agent-trace" id="agent-trace" aria-live="polite"></ol>
+   <p class="agent-trace-note">Tool provenance describes queries made, not causal claims about people. Incomplete evidence causes abstention.</p>
+ </div>
 </section>
 <section class="closing"><span>BEYOND THE ALGORITHM</span><h2>Belonging shouldn't<br/>be an <i>afterthought.</i></h2><p>MOSAIC is a prototype built for the 2026 Qloo Agentic Hackathon. The long-term goal: give event organizers an evidence-aware agent that understands cultural overlap without profiling individuals.</p></section>
 </main>

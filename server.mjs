@@ -59,7 +59,9 @@ const server=http.createServer(async(req,res)=>{
       const evidence=evidenceCache.get(contextKey);
       if(evidence&&Date.now()-evidence.time<900000){
         const planned=buildBridge({candidates:evidence.candidates,maxBudget:budget,exclude});
-        const result={mode:"qloo-live",scenario:evidence.scenario,notice:evidence.notice,...planned};
+        const result={mode:"qloo-live",scenario:evidence.scenario,notice:evidence.notice,
+          trace:[...evidence.trace,{stage:"renegotiate",tool:"cached-evidence",
+            calls:0,policy:"Re-optimized without additional Qloo API calls."}],...planned};
         cache.set(key,{time:Date.now(),value:result});
         return json(res,200,result);
       }
@@ -68,7 +70,8 @@ const server=http.createServer(async(req,res)=>{
         const result=await liveBridge({maxBudget:budget,exclude,...context});
         const {candidates,...safeResult}=result;
         if(Array.isArray(candidates)&&candidates.length&&result.status==="ok"){
-          evidenceCache.set(contextKey,{time:Date.now(),candidates,scenario:result.scenario,notice:result.notice});
+          evidenceCache.set(contextKey,{time:Date.now(),candidates,scenario:result.scenario,
+            notice:result.notice,trace:result.trace});
           cache.set(key,{time:Date.now(),value:safeResult});
         }
         return json(res,200,safeResult);

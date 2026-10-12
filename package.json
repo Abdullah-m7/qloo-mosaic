@@ -10,7 +10,8 @@
     "start": "node server.mjs",
     "test": "node --test tests/*.test.mjs",
     "benchmark": "node scripts/benchmark.mjs",
-    "build:preview": "node scripts/build-static-preview.mjs"
+    "build:preview": "node scripts/build-static-preview.mjs",
+    "build:lineup-preview": "node scripts/build-lineup-preview.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.32.1",

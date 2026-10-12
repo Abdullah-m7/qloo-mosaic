@@ -9,3 +9,5 @@ node_modules/
 # Generated static preview: published from separate gh-pages branch
 /dist-preview/
 /dist-preview-ci/
+
+/dist-lineup-preview/

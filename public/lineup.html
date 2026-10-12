@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="color-scheme" content="dark"/>
+<meta name="description" content="MOSAIC Lineup Red-Team: rescue a festival program when an artist cancels."/>
+<title>MOSAIC / Lineup Rescue</title>
+<link rel="stylesheet" href="/lineup.css"/>
+</head>
+<body>
+<header class="topbar"><a class="brand" href="/">MOSAIC<span>.</span></a>
+<div class="edition">LINEUP RED-TEAM / EXPERIMENT 01</div>
+<a class="source-link" href="https://github.com/Abdullah-m7/qloo-mosaic" target="_blank" rel="noreferrer">See the code ↗</a></header>
+<main>
+<section class="intro">
+ <div class="eyebrow">CULTURAL INTELLIGENCE UNDER PRESSURE</div>
+ <h1>The headliner<br/>just <em>cancelled.</em><br/>Now what?</h1>
+ <p>When one act drops out, a festival organizer doesn't need another generic recommendation. They need the <b>smallest defensible replacement</b> — without alienating an audience.</p>
+ <div class="synthetic-label"><span>!</span><div><b>FICTIONAL SIMULATION — NOT QLOO DATA</b><small>All artists, availability flags and audience rankings below are invented for testing. Real Qloo integration is pending an event credential.</small></div></div>
+</section>
+<section class="workspace">
+ <div class="section-heading"><div><span class="section-code">01 / THE INCIDENT</span><h2>A night in jeopardy.</h2></div><p>One program. Two public taste audiences. One cancelled artist. Make one change, not an entirely new festival.</p></div>
+ <div class="setup-grid">
+  <div class="lineup-panel">
+   <div class="panel-title">THE ORIGINAL LINEUP <span>3 ACTS</span></div>
+   <div id="lineup-list" class="lineup-list"></div>
+   <label class="field-label" for="cancelled">The act that just cancelled</label>
+   <select id="cancelled">
+    <option value="artist:A">Atlas Echo</option>
+    <option value="artist:B" selected>Blue Current</option>
+    <option value="artist:C">Cinder Arcade</option>
+   </select>
+  </div>
+  <div class="conditions-panel">
+   <div class="panel-title">THE AVAILABLE REPLACEMENTS <span>PROVIDED BY ORGANIZER</span></div>
+   <div class="replacement"><div><strong>Dawn Frequency</strong><small>Alternative act D</small></div><label class="switch"><input type="checkbox" id="available-d" checked/>Confirmed available</label></div>
+   <div class="replacement"><div><strong>Electric Garden</strong><small>Alternative act E</small></div><label class="switch"><input type="checkbox" id="available-e" checked/>Confirmed available</label></div>
+   <div class="constraint">
+    <label for="maxloss">Maximum allowed decline for any audience <b id="maxloss-value">30%</b></label>
+    <input id="maxloss" type="range" min="0" max="75" step="5" value="30"/>
+    <div class="range-labels"><span>Protect all existing taste fit</span><span>Allow difficult compromises</span></div>
+   </div>
+   <button type="button" id="audit">Run rescue audit <span aria-hidden="true">↗</span></button>
+  </div>
+ </div>
+</section>
+<section class="resolution">
+ <div class="section-heading"><div><span class="section-code">02 / THE VERDICT</span><h2>A repair with receipts.</h2></div><p>All candidate identities are ranked over the same fixed universe for each audience. No price, rights or attendance claim is inferred.</p></div>
+ <div class="result-panel" aria-live="polite">
+  <div id="result-status" class="result-status">Running the simulated audit…</div>
+  <div class="decision-head"><div><span class="eyebrow">THE SMALLEST CHANGE</span><h3 id="decision">—</h3><p id="decision-subtitle"></p></div>
+   <div class="metric"><span>WORST-GROUP RANK PROXY CHANGE</span><strong id="gain">—</strong></div></div>
+  <div class="audiences" id="audiences"></div>
+  <div class="proof"><span>WHY YOU CAN CHECK THIS</span><p id="proof">Awaiting analysis.</p></div>
+ </div>
+</section>
+<section class="what">
+ <div class="section-heading"><div><span class="section-code">03 / WHAT MAKES THIS AN AGENT</span><h2>Don't generate.<br/>Diagnose. Repair. Verify.</h2></div><p>Live mode will resolve real lineup identities with Qloo, rank a fixed comparison universe and propose repairs only when evidence is complete.</p></div>
+ <div class="steps"><article><span>01</span><strong>Diagnose the gap</strong><p>Locate which audience is least served when an act is removed.</p></article><article><span>02</span><strong>Constrain the repair</strong><p>Preserve the remaining program. Require organizer-confirmed alternatives.</p></article><article><span>03</span><strong>Show a checkable counterfactual</strong><p>Display identical-entity rank comparisons before and after the single change, or refuse the repair.</p></article></div>
+ <div class="bottom-note">This offline simulation demonstrates the decision policy only. Percentile ranks are not audience satisfaction probabilities. Qloo does not verify artist availability, contracts, prices, travel or performance rights.</div>
+</section>
+</main>
+<footer><span>MOSAIC — Lineup Red-Team</span><span>Independent experiment · Qloo Agentic Hackathon 2026</span><a href="/">Original prototype ↗</a></footer>
+<script type="module" src="/lineup.js"></script>
+</body>
+</html>

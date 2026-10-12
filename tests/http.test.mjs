@@ -81,3 +81,31 @@ test("unconfigured live mode fails closed and never returns synthetic candidates
   assert.ok(!("candidates" in response.body));
  }finally{await s.close();}
 });
+
+test("lineup red-team sample route negotiates exactly one replacement and refuses fake availability",async()=>{
+ const s=await startServer("sample");
+ try{
+  const one=await fetch(s.url+"/api/lineup-demo",{method:"POST",headers:{"content-type":"application/json"},
+    body:JSON.stringify({cancelledId:"artist:B",availability:{"artist:D":true,"artist:E":true}})});
+  assert.equal(one.status,200);
+  const result=await one.json();
+  assert.equal(result.mode,"synthetic");
+  assert.equal(result.plan.status,"repair");
+  assert.equal(result.plan.changes.length,1);
+  assert.equal(result.plan.proof.rankingUniverseSize,5);
+  const none=await fetch(s.url+"/api/lineup-demo",{method:"POST",headers:{"content-type":"application/json"},
+    body:JSON.stringify({availability:{"artist:D":false,"artist:E":false}})});
+  assert.equal((await none.json()).plan.status,"needs_input");
+ }finally{await s.close();}
+});
+
+test("unconfigured Qloo live mode does not secretly serve synthetic lineup repairs",async()=>{
+ const s=await startServer("live");
+ try{
+  const one=await fetch(s.url+"/api/lineup-demo",{method:"POST",headers:{"content-type":"application/json"},body:"{}"});
+  assert.equal(one.status,503);
+  const data=await one.json();
+  assert.equal(data.code,"QLOO_LINEUP_LIVE_NOT_VALIDATED");
+  assert.equal(data.plan,undefined);
+ }finally{await s.close();}
+});

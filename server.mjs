@@ -6,6 +6,8 @@ import {buildBridge} from "./src/engine.mjs";
 import {sample} from "./src/fixtures.mjs";
 import {liveBridge,validateSeeds,validateLocation,DEFAULT_SEEDS} from "./src/qloo.mjs";
 import {createTreaty} from "./src/treaty.mjs";
+import {auditLineup} from "./src/lineupAudit.mjs";
+import {lineupSample} from "./src/lineupFixtures.mjs";
 const root=path.dirname(fileURLToPath(import.meta.url));
 const publicDir=path.join(root,"public");
 const port=Number(process.env.PORT||8788);
@@ -38,6 +40,30 @@ const server=http.createServer(async(req,res)=>{
   const u=new URL(req.url,"http://localhost");
   if(u.pathname==="/health"){
     return json(res,200,{status:"ok",product:"MOSAIC",mode,version:"0.2.0"});
+  }
+  if(u.pathname==="/api/lineup-demo"&&req.method==="POST"){
+    if(mode!=="sample")return json(res,503,{status:"blocked",
+      code:"QLOO_LINEUP_LIVE_NOT_VALIDATED",
+      message:"Qloo live lineup reconciliation requires verified event-key integration."});
+    const input=await getBody(req);
+    const scenario=structuredClone(lineupSample);
+    if(input.cancelledId!==undefined)scenario.cancelledId=input.cancelledId;
+    if(input.protectedIds!==undefined)scenario.protectedIds=input.protectedIds;
+    if(input.maxLossFromOriginal!==undefined)
+      scenario.maxLossFromOriginal=Number(input.maxLossFromOriginal);
+    if(input.availability!==undefined){
+      if(!input.availability||typeof input.availability!=="object"||
+         Array.isArray(input.availability))
+        return json(res,400,{status:"error",message:"Invalid availability"});
+      scenario.candidatePool=scenario.candidatePool.map(c=>({
+        ...c,organizerConfirmedAvailable:
+         input.availability[c.id]===undefined?c.organizerConfirmedAvailable:
+          input.availability[c.id]===true
+      }));
+    }
+    return json(res,200,{mode:"synthetic",
+      notice:"Invented audience rankings and artists. Demonstrates algorithm only, NOT Qloo validation.",
+      scenario,plan:auditLineup(scenario)});
   }
   if(u.pathname==="/api/plan"&&req.method==="POST"){
     const input=await getBody(req);

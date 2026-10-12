@@ -10,6 +10,17 @@
 
 > **Live data status:** Qloo event API access has been requested and receipt confirmed. As of October 12, 2026, the event key has not arrived. Both demos currently show **clearly labeled synthetic preferences**; neither is presented as a validated Qloo-backed entry.
 
+## Experimental direction: Lineup Red-Team & Rescue
+
+A new independent feature branch is testing a sharper Qloo use case: audit a previously published music lineup and rescue it after a hypothetical cancellation with one minimum-change artist substitution. The existing sample engine and main prototype remain separate.
+
+- Preview (only on this branch, from the local Node server): **/lineup.html**.
+- Pure strict-ID policy: **src/lineupAudit.mjs**; simulated rankings are clearly marked, NOT Qloo results.
+- Independent read-only Codex Astra and Claude Fable assessments: **docs/REDTEAM_REVIEW.md**.
+- Pre-registered real published lineups and falsification protocol: **docs/REDTEAM_PROTOCOL.md**.
+
+The event Qloo key has not arrived. No feature here claims real Qloo ranking, artist booking availability, rights or attendance forecasts. **Do not submit this synthetic experimental branch as the final Devpost entry.**
+
 ## The challenge
 
 An event promoter wants to bring together communities with different cultural tastes — for example, independent film fans and electronic music listeners. Choosing what the largest group prefers may alienate the other. Choosing whatever has the best average rank may still neglect one audience.

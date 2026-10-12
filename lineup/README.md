@@ -1,0 +1,1 @@
+Lineup Red-Team is a SYNTHETIC offline experiment. It makes no Qloo calls and cannot be submitted as a live Qloo-powered competition entry. Source: https://github.com/Abdullah-m7/qloo-mosaic/tree/feature/lineup-red-team

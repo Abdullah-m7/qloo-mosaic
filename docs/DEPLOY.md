@@ -25,3 +25,6 @@ This is a Qloo-dependent agent. The official challenge requires an externally re
 - Qloo aggregate taste data are not personal profiling or calibrated likelihood.
 - Live planner does not claim venue prices, availability, ticketing, or permissions for screenings or performances.
 - Qloo discovery is cached by audience profile, so budget changes and vetoes avoid repeating paid API calls.
+
+## Current public preview
+https://abdullah-m7.github.io/qloo-mosaic/ is a verified offline synthetic demo served by GitHub Pages, not the Node API-backed app. It cannot host Qloo secrets and must not be submitted as the final live Qloo application.

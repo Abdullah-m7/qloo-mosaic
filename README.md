@@ -1,5 +1,8 @@
 # MOSAIC — Common Ground, by Design
 
+**Interactive public preview (SYNTHETIC ONLY):** https://abdullah-m7.github.io/qloo-mosaic/
+
+
 **An evidence-aware cultural negotiation agent for the Qloo Agentic Hackathon 2026.**
 
 > Most recommendation engines optimize for the average. MOSAIC designs for the people the average overlooks.
@@ -39,7 +42,7 @@ To illustrate the interaction without a Qloo credential, build a client-side-onl
 
 The generator uses the same engine and fixture source but replaces server calls with a local, synthetic-only adapter. Its HTML clearly labels fictional affinity values, and it never attempts to contact Qloo. This is NOT the API-driven demo required for the final Qloo Devpost entry.
 
-The static preview will be published from an independent gh-pages branch. The Node application remains on main; no Qloo secret is ever embedded in GitHub Pages.
+The static preview is published and publicly verified at https://abdullah-m7.github.io/qloo-mosaic/ from an independent gh-pages branch. The Node application remains on main; no Qloo secret is ever embedded in GitHub Pages.
 
 ## Live Qloo mode (requires separate event credential)
 

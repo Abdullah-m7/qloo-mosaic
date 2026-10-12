@@ -42,3 +42,11 @@
 - Added a build:preview deterministic generator, with an offline adapter using the unchanged maximin engine and synthetic example.
 - Chrome desktop and 390px mobile test passed, including veto undo; zero Qloo API/network requests.
 - Public GitHub Pages deployment being prepared. Live Qloo demo still blocked on event-issued key.
+
+## 12 October 2026 GitHub Pages verified
+- Public preview: https://abdullah-m7.github.io/qloo-mosaic/
+- Origin: isolated gh-pages branch, d3be4a3, while source stays on main.
+- GitHub Pages API reported status built; public HTTPS served HTTP 200 and fetched all JS/CSS successfully.
+- Browser smoke test against PUBLIC HTTPS at 390px confirmed a 3-option plan, veto/undo, zero page errors, no API/Qloo requests and no horizontal overflow.
+- Core test suite now 35/35 passing, including static-preview module tests.
+- This public preview intentionally uses fictional data and is NOT the Qloo-powered final submission.

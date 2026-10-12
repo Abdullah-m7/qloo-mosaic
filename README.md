@@ -14,7 +14,7 @@
 
 A new independent feature branch is testing a sharper Qloo use case: audit a previously published music lineup and rescue it after a hypothetical cancellation with one minimum-change artist substitution. The existing sample engine and main prototype remain separate.
 
-- Preview (only on this branch, from the local Node server): **/lineup.html**.
+- Live public **synthetic-only** preview: https://abdullah-m7.github.io/qloo-mosaic/lineup/ (and /lineup.html from the local Node server).
 - Pure strict-ID policy: **src/lineupAudit.mjs**; simulated rankings are clearly marked, NOT Qloo results.
 - Independent read-only Codex Astra and Claude Fable assessments: **docs/REDTEAM_REVIEW.md**.
 - Pre-registered real published lineups and falsification protocol: **docs/REDTEAM_PROTOCOL.md**.

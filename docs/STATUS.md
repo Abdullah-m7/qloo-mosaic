@@ -40,3 +40,8 @@
 ## Next highest-value move
 
 **Key arrives → live integration proof → empirical Qloo-versus-no-Qloo case study → judge-accessible live demo → polished Devpost entry.** The goal is strong evidence for a non-obvious and useful product, not increasing test counts for their own sake.
+
+## Dependency security preflight (12 October 2026)
+- npm audit for the production tree detected two HIGH-severity transitive advisories: undici 8.9.0 and brace-expansion 5.0.9, inherited from the upstream Qloo harness/Pi agent dependency. Two additional MODERATE dependent-package findings cascade from these.
+- Compatible patched releases exist, but an npm override resolution attempt did NOT change the nested upstream-locked versions. The ineffective overrides were reverted; **do not claim that these findings are patched**.
+- The public Render service remains in sample mode, with no Qloo credential. Before enabling live Qloo mode, repeat security review and apply an upstream-compatible fix or isolate the affected runtime behind bounded, non-user-supplied Qloo API paths.

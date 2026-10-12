@@ -50,3 +50,10 @@
 - Browser smoke test against PUBLIC HTTPS at 390px confirmed a 3-option plan, veto/undo, zero page errors, no API/Qloo requests and no horizontal overflow.
 - Core test suite now 35/35 passing, including static-preview module tests.
 - This public preview intentionally uses fictional data and is NOT the Qloo-powered final submission.
+
+## Clean-room deployment verification (12 October 2026)
+- Fresh clone of public main commit 199bfa2 into a separate temporary directory on macOS.
+- npm ci --omit=dev --ignore-scripts --no-audit --no-fund succeeded.
+- Node server in live mode started and /health returned HTTP 200 with mode=live.
+- Without the event API key, POST /api/plan correctly returned HTTP 503, code QLOO_LIVE_UNAVAILABLE, with NO synthetic bridge/candidates. Process was terminated after the test.
+- This proves basic production installation and failure isolation, NOT a public deployment or live Qloo success.

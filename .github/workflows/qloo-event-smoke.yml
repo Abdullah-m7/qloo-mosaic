@@ -30,6 +30,10 @@ jobs:
         run: npm test
       - name: Check production dependency vulnerabilities
         run: npm audit --omit=dev --audit-level=high
+      - name: Diagnose Qloo search response shape safely
+        env:
+          QLOO_API_KEY: ${{ secrets.QLOO_API_KEY }}
+        run: node scripts/qloo-diagnose.mjs
       - name: Verify Qloo event API and agent with protected secret
         env:
           QLOO_API_KEY: ${{ secrets.QLOO_API_KEY }}

@@ -57,7 +57,7 @@ export class QlooRestClient {
    if(!type)throw Error("QLOO_INVALID_TARGET");
    const signals=await this.resolveSeeds(args.signals);
    const query={"filter.type":type,"signal.interests.entities":signals,
-    take:Math.min(8,Math.max(2,Number(args.limit)||5)),"feature.explainability":"true"};
+    take:Math.min(8,Math.max(2,Number(args.limit)||5))};
    if(args.filter_location&&type===types.place)
     query["filter.location.query"]=args.filter_location;
    const data=await this.request("/v2/insights",query);

@@ -6,6 +6,7 @@ import {buildBridge} from "./src/engine.mjs";
 import {sample} from "./src/fixtures.mjs";
 import {liveBridge,validateSeeds,validateLocation,DEFAULT_SEEDS} from "./src/qloo.mjs";
 import {createTreaty} from "./src/treaty.mjs";
+import {publicQlooFailure} from "./src/qloo-errors.mjs";
 const root=path.dirname(fileURLToPath(import.meta.url));
 const publicDir=path.join(root,"public");
 const port=Number(process.env.PORT||8788);
@@ -37,7 +38,7 @@ const server=http.createServer(async(req,res)=>{
  try{
   const u=new URL(req.url,"http://localhost");
   if(u.pathname==="/health"){
-    return json(res,200,{status:"ok",product:"MOSAIC",mode,version:"0.2.0"});
+    return json(res,200,{status:"ok",product:"MOSAIC",mode,version:"0.3.0"});
   }
   if(u.pathname==="/api/plan"&&req.method==="POST"){
     const input=await getBody(req);
@@ -68,7 +69,9 @@ const server=http.createServer(async(req,res)=>{
         cache.set(key,{time:Date.now(),value:result});
         return json(res,200,result);
       }
-      if(limited(req.socket.remoteAddress??"unknown"))return json(res,429,{status:"blocked",message:"Try later: Qloo API rate protection."});
+      if(limited(req.socket.remoteAddress??"unknown"))
+        return json(res,429,{status:"blocked",code:"DEMO_REQUEST_LIMIT",
+          message:"This live demo has reached its temporary request limit. Please try again later."});
       try{
         const result=await liveBridge({maxBudget:budget,exclude,...context});
         const {candidates,tagEvidence,...safeResult}=result;
@@ -80,8 +83,12 @@ const server=http.createServer(async(req,res)=>{
         }
         return json(res,200,safeResult);
       }catch(e){
-        console.error("Qloo integration failed:",e?.message??"unknown");
-        return json(res,503,{status:"blocked",code:"QLOO_LIVE_UNAVAILABLE",message:"Live Qloo evidence is unavailable; no synthetic fallback is used. Configure an event-issued Qloo API key and check the Qloo result schema."});
+        const publicError=publicQlooFailure(e);
+        // Never log raw error messages, original cultural anchors, provider
+        // payloads, API credentials, or correlation identifiers.
+        console.error("Qloo request blocked:",publicError.code);
+        const {httpStatus,...payload}=publicError;
+        return json(res,httpStatus,payload);
       }
     }
     if(input.groupA!==undefined||input.groupB!==undefined||input.location!==undefined)

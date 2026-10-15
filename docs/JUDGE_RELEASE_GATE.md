@@ -1,0 +1,51 @@
+# MOSAIC — Judge Release Gate
+
+**Status:** NOT READY TO SUBMIT · Updated 16 October 2026
+**Scope:** Abdullah-m7/qloo-mosaic only
+**Candidate:** `feature/qloo-rest-validation-20261015`
+**Public judge URL (not live yet):** https://mosaic-agent-2026.onrender.com/
+
+## Verified independently
+- Source is public under Abdullah-m7 with an MIT license.
+- Real Qloo event key is stored in GitHub Actions secrets; it is not in source.
+- The protected event key successfully authenticated real Qloo Search, Insights,
+  artist/place/movie discovery, matched-list audience rankings and a three-slot
+  agent run: https://github.com/Abdullah-m7/qloo-mosaic/actions/runs/38718037660
+- Production dependencies are empty and the clean GitHub Actions audit found
+  zero known advisories in the direct-REST branch.
+- The local automated test suite covers fail-closed API behavior, provenance,
+  insufficient mutual rankings, live error mapping, and UI stale-result clearing.
+- Real held-out exploratory comparisons have been conducted using separately
+  encrypted artifacts; they DO NOT establish consistent decision uplift.
+  Never publish private experiment rows or claim real-world human outcomes.
+
+## Release blockers — do not mark complete prematurely
+1. Render currently reports `QLOO_MODE=sample`; its public response remains
+   explicitly synthetic. GitHub's Actions secret does NOT configure Render.
+2. The final branch is not merged or deployed; review this feature branch
+   as a draft PR first.
+3. Store `QLOO_API_KEY` in the existing Render service's protected Environment
+   secrets, with `QLOO_MODE=live`. Never paste it into a GitHub issue, PR,
+   commit, browser bundle, documentation, screen recording or chat.
+4. Verify three separate live public scenarios from a browser with no login,
+   including a successful plan and a clear insufficient-evidence case.
+5. Verify direct access from mobile, initial cold start, cache-backed veto/undo,
+   default inputs, API throttling, CORS and absence of secret leakage.
+6. Confirm the public source points to the exact deployed commit, that the
+   MIT license is visible, and that judge instructions are unambiguous.
+7. Prepare the final Devpost entry; no final submission is claimed.
+
+## Required release check (after secure Render provisioning)
+- GET `/health` responds `status=ok,mode=live`.
+- POST `/api/plan` using publicly known cultural entities returns
+  `mode=qloo-live,source_mode=evidence-backed`, three Qloo-backed slots,
+  and provenance IDs. It must NOT return synthetic fixture data.
+- Veto a live recommendation; confirm a cached replan (zero extra Qloo calls).
+- Use ambiguous public inputs; confirm a non-200 explanation and no leaked
+  source, stale previous agreement, or fabricated ranking.
+- Inspect browser Network and logs: zero exposed Qloo credentials.
+- Test after an idle period to assess Render free-tier cold-start delay.
+- No paid plan changes unless separately approved.
+
+**Deadline:** October 30, 2026 at 11:45 PM EDT (October 31 at
+06:45 AM Asia/Riyadh). Keep the public application available during judging.

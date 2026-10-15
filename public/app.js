@@ -56,7 +56,30 @@ function renderTreaty(result){
  $("treaty-note").textContent=explanation;
  $("copy-feedback").textContent="";
 }
+function showUnavailable(message){
+ // A failed Qloo query must not leave a copyable agreement from an earlier run.
+ latest=null;
+ $("plan-title").textContent="No verified plan available";
+ $("plan-items").textContent=message;
+ $("plan-cost").textContent="—";
+ $("gain").textContent="EVIDENCE INCOMPLETE";
+ $("tradeoff").textContent="No partial or invented plan is shown. Choose other public cultural anchors and retry.";
+ $("treaty-panel").hidden=true;
+ $("agent-trace-panel").hidden=true;
+ $("agent-trace").textContent="";
+ $("ledger-items").textContent="No verified evidence-backed agreement was produced.";
+ $("exclude").innerHTML='<option value="">No verified options available</option>';
+ $("copy-feedback").textContent="";
+ for(const name of ["baseA","baseB","newA","newB"]){
+  $(name).style.width="0%";
+  $(name+"T").textContent="—";
+ }
+}
 function render(result){
+ if(result.status!=="ok"){
+  showUnavailable(result.reason||result.message||"Insufficient verified cultural evidence.");
+  return;
+ }
  latest=result;
  renderVetoes();
  if(result.mode==="qloo-live"){
@@ -74,17 +97,6 @@ function render(result){
   banner.querySelector(".notice-tag").textContent="QLOO LIVE";
   $("ledger-mode").textContent="QLOO TOOL TRACE";
  }
- if(result.status!=="ok"){
-  renderTreaty(result);
-  $("plan-title").textContent=result.reason||"No valid plan found";
-  $("plan-items").textContent="";
-  $("plan-cost").textContent="—";
-  $("gain").textContent="NO FEASIBLE PLAN";
-  $("ledger-items").textContent="Undo a veto or raise the budget to retry.";
-  $("tradeoff").textContent="No partial or invented plan is shown.";
-  $("exclude").innerHTML='<option value="">No options available</option>';
-  return;
- }
  renderTreaty(result);
  const bridge=result.bridge;
  $("plan-title").textContent="A little of both. All together.";
@@ -93,7 +105,9 @@ function render(result){
  $("plan-items").innerHTML=bridge.items.map((o,i)=>
   '<article class="plan-card"><span class="category">'+
   String(i+1).padStart(2,"0")+" / "+safe(o.slot.toUpperCase())+
-  '</span><strong>'+safe(o.label)+'</strong><div class="under"><span>'+money(o.cost)+'</span><small>Evidence '+safe(o.evidence_id)+'</small></div>'+
+  '</span><strong>'+safe(o.label)+'</strong><div class="under"><span>'+
+  (result.mode==="qloo-live"?"No verified price":money(o.cost))+
+  '</span><small>Evidence '+safe(o.evidence_id)+'</small></div>'+
   '<button class="card-veto" data-veto="'+safe(o.id)+'" aria-label="Reject '+safe(o.label)+'">Reject option ↗</button></article>'
  ).join("");
  bar("newA",bridge.groupA);bar("newB",bridge.groupB);
@@ -107,7 +121,8 @@ function render(result){
      step.stage==="renegotiate" ? "REPLAN" : "OPTIMIZE";
    const label=step.stage==="discover" ? safe(step.slot)+" · "+safe(step.strategy) +
      " · "+safe(step.count)+" candidate(s)" :
-     step.stage==="rank" ? safe(step.slot)+" · "+safe(step.candidates)+" matched options" :
+     step.stage==="rank" ? safe(step.slot)+" · "+safe(step.candidates)+" mutually ranked"+
+       (step.discarded>0?" · "+safe(step.discarded)+" excluded for missing evidence":"") :
      step.stage==="renegotiate" ? "Cached Qloo evidence · zero extra API calls" :
      safe(step.candidates)+" options · worst-group objective";
    return '<li><span class="trace-index">'+String(i+1).padStart(2,"0")+'</span><b>'+
@@ -135,9 +150,7 @@ async function run(){
   if(!r.ok)throw Error(data.message||"Unable to plan");
   render(data);
  }catch(e){
-  $("plan-title").textContent="Can't complete this plan.";
-  $("plan-items").textContent=e.message;
-  $("gain").textContent="NOT AVAILABLE";
+  showUnavailable(e?.message||"Unable to produce a verified plan.");
  }finally{
   button.disabled=false;button.innerHTML='Find common ground <span>↗</span>';
  }

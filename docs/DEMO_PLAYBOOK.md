@@ -23,5 +23,5 @@ Submission deadline: October 30 2026, 11:45pm EDT (October 31, 06:45 in Riyadh).
 Public app must stay accessible until November 16.
 Video is optional per official current challenge page; a live public app and open-source repository are required.
 
-## Agent behavior to demonstrate (once live key arrives)
+## Agent behavior to demonstrate (after Render live-secret provisioning)
 Show the Qloo tool trace: discover, a single alternate discovery step only if evidence is sparse, two rankings of the SAME candidate set, then maximin negotiation. Reject a recommendation and show a cache-backed replan with zero additional Qloo calls. If results are incomplete, show a clear abstention rather than a confident but invented suggestion. These are testable behaviors, not claims of actual audience satisfaction.

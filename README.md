@@ -4,11 +4,11 @@
 
 *One room. Two audiences. A cultural agreement that explains the trade-offs.*
 
-[**Interactive preview — synthetic data**](https://abdullah-m7.github.io/qloo-mosaic/) · [**Hosted Node demo — synthetic data**](https://mosaic-agent-2026.onrender.com/) · [**Qloo Agentic Hackathon**](https://qloo.devpost.com/)
+[**Interactive preview — synthetic data**](https://abdullah-m7.github.io/qloo-mosaic/) · [**Hosted Node demo — synthetic data**](https://mosaic-agent-2026.onrender.com/) · [**Judge release gate**](docs/JUDGE_RELEASE_GATE.md) · [**Devpost draft**](docs/DEVPOST_DRAFT.md) · [**Qloo Agentic Hackathon**](https://qloo.devpost.com/)
 
 ![MOSAIC interface with the Cultural Bridge Agreement and supporting decision evidence](docs/mosaic-demo-desktop.png)
 
-> **Live data status (October 15):** The event-issued Qloo key is securely configured for GitHub Actions, and the isolated direct-REST agent **passed a real Qloo end-to-end API smoke test**. The two public demo links are still explicitly **synthetic**. Render must be provisioned and validated separately before submitting a public live entry.
+> **Live data status (October 16):** The event-issued Qloo key is securely configured for GitHub Actions, and the isolated direct-REST agent **passed a real Qloo end-to-end API smoke test**. The two public demo links are still explicitly **synthetic**. Render must be provisioned and validated separately before submitting a public live entry.
 
 ## The challenge
 
@@ -39,7 +39,7 @@ The preview's example scores, tag availability and planning tokens are invented 
 | Area | Verified status |
 | --- | --- |
 | Responsive interface, working veto/undo and comparison controls | Tested in desktop and mobile Chrome |
-| Optimizer, provenance gates, bounded agent orchestration and cultural treaty | **61/61 local automated checks passed on the direct-REST branch**; offline tests mock Qloo, supplemented by a separate real API smoke run |
+| Optimizer, provenance gates, bounded agent orchestration and cultural treaty | **73/73 local automated checks passed on the direct-REST branch**; offline tests mock Qloo, supplemented by a separate real API smoke run |
 | Deterministic algorithmic falsification | 500 **synthetic** scenarios, 429 feasible; see below |
 | Public open-source repo and externally hosted Node app | Deployed; Node app is intentionally **sample mode** |
 | Qloo live API integration and real shared-tag evidence | **Real GitHub Actions Qloo Search/Insights/Rank agent smoke PASSED**; a public Render live integration and independent tag evidence remain pending |

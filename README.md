@@ -8,7 +8,7 @@
 
 ![MOSAIC interface with the Cultural Bridge Agreement and supporting decision evidence](docs/mosaic-demo-desktop.png)
 
-> **Live data status:** Qloo event API access has been requested and receipt confirmed. As of October 12, 2026, the event key has not arrived. Both demos currently show **clearly labeled synthetic preferences**; neither is presented as a validated Qloo-backed entry.
+> **Live data status (October 15):** The event-issued Qloo credential arrived by email on October 13. It has **not been installed in the server's secret manager or live-tested**. Both public demos still show clearly labeled synthetic preferences. The experimental direct-REST branch must pass live validation before release.
 
 ## The challenge
 
@@ -39,10 +39,10 @@ The preview's example scores, tag availability and planning tokens are invented 
 | Area | Verified status |
 | --- | --- |
 | Responsive interface, working veto/undo and comparison controls | Tested in desktop and mobile Chrome |
-| Optimizer, provenance gates, bounded agent orchestration and cultural treaty | **50/50 local automated checks passed**; Qloo tool responses mocked in agent tests |
+| Optimizer, provenance gates, bounded agent orchestration and cultural treaty | **54/54 local automated checks passed on the direct-REST branch**; Qloo network responses remain mocked |
 | Deterministic algorithmic falsification | 500 **synthetic** scenarios, 429 feasible; see below |
 | Public open-source repo and externally hosted Node app | Deployed; Node app is intentionally **sample mode** |
-| Qloo live API integration and real shared-tag evidence | **Pending** event-issued credential and live schema validation |
+| Qloo live API integration and real shared-tag evidence | **Pending** protected secret installation and real API/schema validation |
 | Public, judge-ready Qloo experience and Devpost final submission | **Not completed** |
 
 ## Reproducible tests
@@ -62,9 +62,9 @@ Open http://localhost:8788. Run `npm run build:preview` to generate the static s
 
 The offline property experiment generates 500 deterministic score assignments (seed `20261012`). For 429 scenarios a feasible plan exists. In **all 429**, maximin's worst-group proxy was at least as high as the one-sided and mean-first alternatives — **a mathematical consequence of the optimization objective**, not proof of product quality. Average worst-group rank-proxy improvement over the one-sided alternative was 0.132, and relative to mean-first it was 0.024. An ablation on **actual Qloo-derived candidates** is still required.
 
-## Live Qloo setup — after key approval
+## Live Qloo setup — after secure credential provisioning
 
-The app depends on Qloo's official `@qloo/qloo-harness`, using the read-only MCP tools `qloo_recommend`, `qloo_rank`, `qloo_entity_tags` and `qloo_capabilities`.
+The experimental branch uses a dependency-free, bounded REST tool executor over the documented Qloo `/search` and `/v2/insights` GET endpoints. It resolves public cultural seeds, ranks identical candidate shortlists for each audience and optionally checks shared tag evidence. No live Qloo request has yet succeeded with the event credential.
 
 The key is a **hackathon-only secret**. Configure it in your server's secure environment as `QLOO_API_KEY`, never in a browser, public repository, example URL or screenshot. The service pins `QLOO_BASE_URL=https://hackathon.api.qloo.com` instead of the production Qloo API endpoint.
 

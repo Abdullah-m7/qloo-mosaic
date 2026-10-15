@@ -1,14 +1,10 @@
-// Read-only Qloo MCP integration. Actual API data is NEVER replaced with demo fixtures.
-import {Client} from "@modelcontextprotocol/sdk/client/index.js";
-import {StdioClientTransport} from "@modelcontextprotocol/sdk/client/stdio.js";
-import path from "node:path";
-import {fileURLToPath} from "node:url";
+// Bounded Qloo REST tool orchestration. Real data never falls back to synthetic fixtures.
+import {QlooRestClient} from "./qloo-rest.mjs";
+export {EVENT_BASE_URL} from "./qloo-rest.mjs";
 import {buildBridge} from "./engine.mjs";
 import {createTreaty,extractTagFacts} from "./treaty.mjs";
 
-const here=path.dirname(fileURLToPath(import.meta.url));
-const qlooBinary=path.resolve(here,"../node_modules/.bin/qloo");
-export const EVENT_BASE_URL="https://hackathon.api.qloo.com";
+// The event base URL is pinned by qloo-rest.mjs.
 const types=[["music","artist"],["food","place"],["experience","movie"]];
 export const DEFAULT_SEEDS=Object.freeze({
   groupA:["Radiohead","The Grand Budapest Hotel"],
@@ -57,18 +53,6 @@ export function matchRanks(options,a,b){
   const left=percentileRanks(a,options),right=percentileRanks(b,options);
   return options.map(name=>({name,scoreA:left.get(normalized(name)),scoreB:right.get(normalized(name))}));
 }
-const parseResult=response=>{
-  let obj=response?.structuredContent;
-  if(!obj){
-    const text=response?.content?.find(c=>c.type==="text")?.text;
-    try{obj=JSON.parse(text??"{}");}catch{throw Error("Qloo MCP returned unparseable result");}
-  }
-  if(obj.status!=="ok"){
-    const err=obj.error?.code??obj.status??"UNKNOWN";
-    throw Error("Qloo tool returned "+err+": "+(obj.summary||"Unable to provide grounded evidence"));
-  }
-  return obj;
-};
 // A bounded, observable multi-tool planning loop. Tool calls are injected so
 // its contract can be falsified with mocks even before the Qloo key arrives.
 // Important: it never substitutes synthetic output when Qloo evidence is sparse.
@@ -117,7 +101,7 @@ export async function discoverCulturalEvidence({a,b,place,call}){
       candidates.push({
         id:slot+":"+source.id,slot,label:record.name,
         cost:0,scoreA:record.scoreA,scoreB:record.scoreB,
-        source:"qloo-mcp:recommend+rank",
+        source:"qloo-rest:insights+rank",
         qloo_entity_id:source.id,
         evidence_id:"QL-"+source.id.replace(/[^a-zA-Z0-9]/g,"").slice(0,12)
       });
@@ -155,15 +139,11 @@ export async function liveBridge({maxBudget=210,exclude=[],groupA,groupB,locatio
   const b=validateSeeds(groupB,DEFAULT_SEEDS.groupB);
   const place=validateLocation(location);
   // The event key NEVER works against the default production Qloo endpoint.
-  // Force the official hackathon hostname for every MCP subprocess.
-  const transport=new StdioClientTransport({command:qlooBinary,args:["mcp"],
-    env:{...process.env,QLOO_BASE_URL:EVENT_BASE_URL}});
-  const client=new Client({name:"mosaic-common-ground-agent",version:"0.2.0"});
-  await client.connect(transport);
+  // All outbound REST calls are pinned to the official hackathon hostname.
+  // A small, auditable tool executor over documented Qloo GET APIs.
+  const client=new QlooRestClient();
+  const call=(name,args)=>client.call(name,args);
   try{
-    const cap=await client.callTool({name:"qloo_capabilities",arguments:{}});
-    if(!cap.structuredContent?.adapter?.ready)throw Error("QLOO_CREDENTIAL_MISSING: Request an event API key and configure it server-side.");
-    const call=async(name,args)=>parseResult(await client.callTool({name,arguments:args}));
     const {candidates:all,trace}=await discoverCulturalEvidence({
       a,b,place,call
     });
@@ -178,6 +158,7 @@ export async function liveBridge({maxBudget=210,exclude=[],groupA,groupB,locatio
     const treaty=createTreaty({candidates:all,plan:result,tagEvidence});
     return {candidates:all,trace,tagEvidence,treaty,mode:"qloo-live",scenario:{title:"Custom cultural bridge",groupA:{title:"First audience",anchors:a},groupB:{title:"Second audience",anchors:b},location:place},notice:"Relative rank-percentile proxies from Qloo tool calls on matched shortlists. Real Qloo entities have NO pricing or availability guarantee. Budget is disabled in live mode.",...result};
   }finally{
-    await client.close();
+    // Drop the in-memory credential reference after each bounded request cycle.
+    client.key="";
   }
 }

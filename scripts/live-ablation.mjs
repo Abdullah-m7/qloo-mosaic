@@ -2,6 +2,7 @@
 // Preregistered, falsifiable held-out ablation using real Qloo scores only.
 // Never commit output from live API; results are aggregate and may be negative.
 import {QlooRestClient} from "../src/qloo-rest.mjs";
+import {writeEncryptedAblation} from "./encrypt-ablation.mjs";
 import {discoverCulturalEvidence,matchRanks,extractItems} from "../src/qloo.mjs";
 import {buildBridge,evaluatePlan,SLOTS} from "../src/engine.mjs";
 
@@ -76,6 +77,15 @@ if(!process.env.QLOO_API_KEY){
   mean_holdout_difference:good.length?compact(avg(good.map(x=>x.heldout_difference))):null,
   positive:good.filter(x=>x.heldout_difference>0).length,
   negative:good.filter(x=>x.heldout_difference<0).length,rows};
- console.log(JSON.stringify(summary,null,2));
+ try{
+  writeEncryptedAblation(summary,{
+   publicKeyPath:process.env.QLOO_RESULT_PUBLIC_KEY,
+   outputPath:process.env.QLOO_RESULT_OUTPUT
+  });
+  console.log("QLOO_ABLATION_RESULT_ENCRYPTED");
+ }catch(error){
+  console.error("QLOO_ABLATION_ENCRYPTION_BLOCKED: "+String(error?.code||error?.message||"UNKNOWN").replace(/[^A-Z0-9_]/g,""));
+  process.exitCode=3;
+ }
  if(!good.length)process.exitCode=1;
 }

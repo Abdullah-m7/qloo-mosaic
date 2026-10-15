@@ -22,4 +22,6 @@ Does Qloo-derived preference ranking improve decisions for *unseen cultural anch
 - Aggregate metrics can be shared; do not commit raw API results, event credentials or private research material.
 - No cost, event booking, film licensing, artist availability or attendee conversion is estimated.
 
-Run only on a secure local or server environment with a protected event key: `npm run benchmark:live`.
+The GitHub workflow runs this protocol only when the latest commit message contains `[ablation]` (or on an explicit manual run). The workflow never prints scores: a one-time AES-256-GCM data key encrypts all results, and RSA-OAEP-SHA256 wraps that key for the public recipient key under `evidence/ablation_results_public.pem`. The corresponding private decryption key remains outside the Git repository on the authorized Mac. The encrypted workflow artifact is retained for 7 days. This protects private research metrics from public repository logs.
+
+Run with protected environment variables `QLOO_API_KEY`, `QLOO_RESULT_PUBLIC_KEY` and `QLOO_RESULT_OUTPUT`. Output encryption is mandatory; plaintext experiment results are not printed.

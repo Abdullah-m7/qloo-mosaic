@@ -5,6 +5,7 @@ node_modules/
 .DS_Store
 *.log
 .cache/
+.qloo-private/
 
 # Generated static preview: published from separate gh-pages branch
 /dist-preview/

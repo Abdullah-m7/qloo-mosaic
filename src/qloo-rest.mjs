@@ -25,7 +25,17 @@ const parseEntity=value=>{
  const name=x?.name??x?.title??x?.properties?.name;
  const id=x?.entity_id??x?.id;
  return typeof name==="string"&&typeof id==="string"&&name.trim()&&id.trim()?
-  {name:name.trim(),id:id.trim(),type:x?.type??null}:null;
+  {name:name.trim(),id:id.trim(),type:x?.type??null,subtype:x?.subtype??null}:null;
+};
+// Qloo Insights returns type='urn:entity' for a typed category request.
+// The subtype, when present, may carry the specific category URN.
+const matchesCategory=(item,expected)=>{
+ if(item?.type===expected||item?.subtype===expected)return true;
+ if(item?.type==='urn:entity'){
+  return !item.subtype||typeof item.subtype!=='string'||
+   !item.subtype.startsWith('urn:entity:');
+ }
+ return !item?.type&&!item?.subtype;
 };
 export class QlooRestClient {
  constructor({apiKey=process.env.QLOO_API_KEY,fetchImpl=globalThis.fetch}={}){
@@ -84,7 +94,7 @@ export class QlooRestClient {
    const data=await this.request("/v2/insights",query);
    const raw=resultList(data);
    const results=raw.map(parseEntity).filter(Boolean)
-    .filter(x=>!x.type||x.type===type);
+    .filter(x=>matchesCategory(x,type));
    if(process.env.QLOO_TEST_INSPECT==="1"){
     const first=raw[0];
     console.log("QLOO_INSIGHTS_META="+JSON.stringify({slot:args.target_type,

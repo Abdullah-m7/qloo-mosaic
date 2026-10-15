@@ -89,3 +89,22 @@ test("real Qloo search items without type still resolve inside a typed query",as
  assert.equal(await client.resolveSeed("Radiohead"),"typed-artist-id");
  assert.equal(called,true);
 });
+
+test("actual Insights generic entity envelope is accepted only for compatible category",async()=>{
+ const fetchImpl=async url=>{
+  const endpoint=new URL(url);
+  if(endpoint.pathname==="/search"){
+   return new Response(JSON.stringify({results:[{name:"Radiohead",entity_id:"seed-1"}]}),{status:200});
+  }
+  return new Response(JSON.stringify({success:true,results:[
+   {name:"Verified Artist",entity_id:"aa",type:"urn:entity",subtype:"urn:entity:artist"},
+   {name:"Other Movie",entity_id:"bb",type:"urn:entity",subtype:"urn:entity:movie"},
+   {name:"Legacy Artist",entity_id:"cc",type:"urn:entity:artist"}
+  ]}),{status:200});
+ };
+ const client=new QlooRestClient({apiKey:"synthetic-test",fetchImpl});
+ const ranked=await client.call("qloo_recommend",{
+  target_type:"artist",signals:["Radiohead"],limit:5
+ });
+ assert.deepEqual(ranked.results.map(x=>x.id),["aa","cc"]);
+});

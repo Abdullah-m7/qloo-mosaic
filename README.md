@@ -8,7 +8,7 @@
 
 ![MOSAIC interface with the Cultural Bridge Agreement and supporting decision evidence](docs/mosaic-demo-desktop.png)
 
-> **Live data status (October 15):** The event-issued Qloo credential arrived by email on October 13. It has **not been installed in the server's secret manager or live-tested**. Both public demos still show clearly labeled synthetic preferences. The experimental direct-REST branch must pass live validation before release.
+> **Live data status (October 15):** The event-issued Qloo key is securely configured for GitHub Actions, and the isolated direct-REST agent **passed a real Qloo end-to-end API smoke test**. The two public demo links are still explicitly **synthetic**. Render must be provisioned and validated separately before submitting a public live entry.
 
 ## The challenge
 
@@ -39,10 +39,10 @@ The preview's example scores, tag availability and planning tokens are invented 
 | Area | Verified status |
 | --- | --- |
 | Responsive interface, working veto/undo and comparison controls | Tested in desktop and mobile Chrome |
-| Optimizer, provenance gates, bounded agent orchestration and cultural treaty | **54/54 local automated checks passed on the direct-REST branch**; Qloo network responses remain mocked |
+| Optimizer, provenance gates, bounded agent orchestration and cultural treaty | **61/61 local automated checks passed on the direct-REST branch**; offline tests mock Qloo, supplemented by a separate real API smoke run |
 | Deterministic algorithmic falsification | 500 **synthetic** scenarios, 429 feasible; see below |
 | Public open-source repo and externally hosted Node app | Deployed; Node app is intentionally **sample mode** |
-| Qloo live API integration and real shared-tag evidence | **Pending** protected secret installation and real API/schema validation |
+| Qloo live API integration and real shared-tag evidence | **Real GitHub Actions Qloo Search/Insights/Rank agent smoke PASSED**; a public Render live integration and independent tag evidence remain pending |
 | Public, judge-ready Qloo experience and Devpost final submission | **Not completed** |
 
 ## Reproducible tests
@@ -60,11 +60,11 @@ QLOO_MODE=sample npm start
 
 Open http://localhost:8788. Run `npm run build:preview` to generate the static synthetic-only UI in `dist-preview/`.
 
-The offline property experiment generates 500 deterministic score assignments (seed `20261012`). For 429 scenarios a feasible plan exists. In **all 429**, maximin's worst-group proxy was at least as high as the one-sided and mean-first alternatives — **a mathematical consequence of the optimization objective**, not proof of product quality. Average worst-group rank-proxy improvement over the one-sided alternative was 0.132, and relative to mean-first it was 0.024. An ablation on **actual Qloo-derived candidates** is still required.
+The offline property experiment generates 500 deterministic score assignments (seed `20261012`). For 429 scenarios a feasible plan exists. In **all 429**, maximin's worst-group proxy was at least as high as the one-sided and mean-first alternatives — **a mathematical consequence of the optimization objective**, not proof of product quality. Average worst-group rank-proxy improvement over the one-sided alternative was 0.132, and relative to mean-first it was 0.024. Private exploratory holdout ablations using **real Qloo-ranked candidates** have now been run; they do not establish reliable out-of-sample preference improvement. Numeric research results are stored as encrypted, access-controlled artifacts, not in this public repository.
 
 ## Live Qloo setup — after secure credential provisioning
 
-The experimental branch uses a dependency-free, bounded REST tool executor over the documented Qloo `/search` and `/v2/insights` GET endpoints. It resolves public cultural seeds, ranks identical candidate shortlists for each audience and optionally checks shared tag evidence. No live Qloo request has yet succeeded with the event credential.
+The experimental branch uses a dependency-free, bounded REST tool executor over the documented Qloo `/search` and `/v2/insights` GET endpoints. It resolves public cultural seeds, ranks identical candidate shortlists for each audience and optionally checks shared tag evidence. The direct REST agent has been verified against the event API in GitHub Actions. This does not imply that the publicly hosted Render application is live or that the exploratory recommendation metrics show uplift.
 
 The key is a **hackathon-only secret**. Configure it in your server's secure environment as `QLOO_API_KEY`, never in a browser, public repository, example URL or screenshot. The service pins `QLOO_BASE_URL=https://hackathon.api.qloo.com` instead of the production Qloo API endpoint.
 

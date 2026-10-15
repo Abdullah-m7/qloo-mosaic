@@ -143,3 +143,25 @@ test("release-year disambiguation selects the intended movie without popularity 
  await assert.rejects(()=>client.resolveSeed({name:"Example Film",type:"artist",year:2023}),
   /QLOO_INVALID_RELEASE_YEAR/);
 });
+
+test("partial ranked candidates are not imputed and report exact coverage",async()=>{
+ const mock=fixture();
+ const fetchImpl=async(url,request)=>{
+  const response=await mock.fetchImpl(url,request);
+  if(!new URL(url).searchParams.has("filter.results.entities"))return response;
+  return new Response(JSON.stringify({results:{entities:[
+   {name:"Mosaic Artist",entity_id:"artist-1",type:"urn:entity"},
+   {name:"Lantern Artist",entity_id:"artist-2",type:"urn:entity"}
+  ]}}),{status:200});
+ };
+ const client=new QlooRestClient({apiKey:"offline-test",fetchImpl});
+ const rec=await client.call("qloo_recommend",{
+  target_type:"artist",signals:["Radiohead"],limit:3
+ });
+ const rank=await client.call("qloo_rank",{
+  option_type:"artist",options:rec.results.map(x=>x.name),signals:["Radiohead"]
+ });
+ assert.equal(rank.requested,3);
+ assert.equal(rank.returned,2);
+ assert.deepEqual(rank.results.map(x=>x.name),["Mosaic Artist","Lantern Artist"]);
+});

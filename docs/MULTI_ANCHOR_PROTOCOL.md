@@ -40,3 +40,22 @@ filters are versioned in `scripts/multi-anchor-ablation.mjs`. For each:
 - Numerical research results are sealed with AES-256-GCM and an RSA-OAEP-wrapped
   key for a local private recipient; GitHub receives ciphertext only.
 - The public user-facing planner is unchanged by this exploratory run.
+
+## Missingness-aware exploratory amendment — after multi-anchor pilot
+Qloo sometimes returns **fewer ranked items than the requested shortlist**.
+For the next exploratory run, a Qloo tool reply with at least two grounded,
+matched identifiers is retained rather than treating the entire call as
+unusable. The agent takes only the *intersection* of options independently
+ranked for both groups; options absent from either rank are discarded,
+not guessed or assigned a zero. In the multi-arm experiment a second
+intersection restricts all four policies to identical candidates having
+multi-anchor training, single-anchor training and held-out rankings. At
+least two common candidates must survive in **each** of the three slots.
+Every slot re-normalizes relative percentile ranks on this common list and
+records discarded counts. These are changes to evidence availability and
+the evaluation sample, not a claim of increased model ability. Results
+are exploratory because amendments followed inspected pilot failures.
+The public 2019 release year for the original film *Parasite* is specified
+in the private study's preexisting anchor metadata, with no score-based
+choice of homonymous Qloo IDs. Missing or conflicting year evidence
+continues to block that case.

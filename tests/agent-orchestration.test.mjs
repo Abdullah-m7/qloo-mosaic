@@ -5,7 +5,7 @@ import {discoverCulturalEvidence} from "../src/qloo.mjs";
 const GROUP_A=["Radiohead"];
 const GROUP_B=["Daft Punk"];
 const kinds={artist:["Aster","Cobalt","Fern"],place:["Mosaic Hall","Garden Room","The Atrium"],movie:["Moonrise","Tide","Nocturne"]};
-const makeTool=({sparseArtist=false,dropRank=false,alwaysEmpty=false}={})=>{
+const makeTool=({sparseArtist=false,dropRank=false,dropRankHard=false,alwaysEmpty=false}={})=>{
  const logs=[];
  const tool=async(name,args)=>{
   logs.push({name,args});
@@ -17,7 +17,8 @@ const makeTool=({sparseArtist=false,dropRank=false,alwaysEmpty=false}={})=>{
   }
   if(name==="qloo_rank"){
    let ordered=args.signals.includes("Radiohead")?args.options:[...args.options].reverse();
-   if(dropRank)ordered=ordered.slice(0,-1);
+   if(dropRank)ordered=ordered.filter(name=>name!==args.options.at(-1));
+   if(dropRankHard)ordered=ordered.slice(0,1);
    return {status:"ok",results:ordered.map(name=>({name}))};
   }
   throw Error("Unexpected Qloo tool "+name);
@@ -60,11 +61,22 @@ test("agent abstains when neither primary nor bounded fallback has evidence",asy
  assert.equal(mock.logs.filter(x=>x.name==="qloo_rank").length,0);
 });
 
-test("agent abstains when Qloo ranks are incomplete, instead of guessing",async()=>{
+test("agent uses only mutually ranked Qloo options and discloses dropped evidence",async()=>{
  const mock=makeTool({dropRank:true});
+ const evidence=await discoverCulturalEvidence({
+  a:GROUP_A,b:GROUP_B,place:"Jeddah",call:mock.tool
+ });
+ assert.equal(evidence.candidates.length,6);
+ assert.ok(evidence.candidates.every(x=>x.scoreA>=0&&x.scoreA<=1));
+ const ranks=evidence.trace.filter(x=>x.stage==="rank");
+ assert.equal(ranks.length,3);
+ assert.ok(ranks.every(x=>x.discarded===1&&x.candidates===2));
+});
+test("agent abstains when Qloo provides fewer than two mutual rankings",async()=>{
+ const mock=makeTool({dropRankHard:true});
  await assert.rejects(()=>discoverCulturalEvidence({
   a:GROUP_A,b:GROUP_B,place:"Jeddah",call:mock.tool
- }),/Incomplete Qloo ranking/);
+ }),/Insufficient matched Qloo ranking overlap/);
 });
 
 test("agent never receives private user identifiers from the sample driver",async()=>{

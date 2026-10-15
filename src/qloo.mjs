@@ -91,10 +91,16 @@ export async function discoverCulturalEvidence({a,b,place,call}){
     ]);
     const leftNames=extractItems(left).map(x=>x.name);
     const rightNames=extractItems(right).map(x=>x.name);
-    const ranked=matchRanks(names,leftNames,rightNames);
+    const leftSet=new Set(leftNames.map(normalized));
+    const rightSet=new Set(rightNames.map(normalized));
+    const shared=names.filter(x=>leftSet.has(normalized(x))&&rightSet.has(normalized(x)));
+    if(shared.length<2)
+      throw Error('Insufficient matched Qloo ranking overlap for '+slot);
+    // Discard options not independently ranked for both groups; never impute.
+    const ranked=matchRanks(shared,leftNames,rightNames);
     trace.push({stage:"rank",slot,tool:"qloo_rank",calls:2,
-      comparable:"ordinal ranks on identical candidate shortlist",
-      candidates:names.length});
+      comparable:"ordinal ranks on shared, independently ranked candidates",
+      candidates:shared.length,discarded:names.length-shared.length});
     for(const record of ranked){
       const source=normalizedPool.get(normalized(record.name));
       if(!source?.id)throw Error("Qloo candidate lacks a verifiable entity ID.");

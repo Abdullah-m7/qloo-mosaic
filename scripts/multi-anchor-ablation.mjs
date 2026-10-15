@@ -18,7 +18,7 @@ const cases=[
   heldA:E("Sigur Rós","artist"),heldB:E("John Coltrane","artist")},
  {case:"global-pop-multi",location:"Los Angeles",
   a:[E("Taylor Swift","artist"),E("Barbie","movie",2023)],
-  b:[E("BTS","artist"),E("Parasite","movie")],
+  b:[E("BTS","artist"),E("Parasite","movie",2019)],
   heldA:E("Olivia Rodrigo","artist"),heldB:E("BLACKPINK","artist")}
 ];
 const types={music:"artist",food:"place",experience:"movie"};
@@ -53,15 +53,39 @@ async function rankedAgainst(client,candidates,signalsA,signalsB){
    client.call("qloo_rank",{options:names,option_type,signals:signalsA}),
    client.call("qloo_rank",{options:names,option_type,signals:signalsB})
   ]);
-  const results=matchRanks(names,extractItems(a).map(x=>x.name),
-   extractItems(b).map(x=>x.name));
+  const rankA=extractItems(a).map(x=>x.name),rankB=extractItems(b).map(x=>x.name);
+  const setA=new Set(rankA.map(x=>x.toLowerCase()));
+  const setB=new Set(rankB.map(x=>x.toLowerCase()));
+  const shared=names.filter(x=>setA.has(x.toLowerCase())&&setB.has(x.toLowerCase()));
+  if(shared.length<2)throw Error('INSUFFICIENT_MATCHED_RANKS');
+  const results=matchRanks(shared,rankA,rankB);
   for(const item of list){
    const result=results.find(x=>x.name===item.label);
-   if(!result)throw Error("INCOMPLETE_MATCHED_RANKS");
-   scores.set(item.id,{...item,scoreA:result.scoreA,scoreB:result.scoreB});
+   if(result)scores.set(item.id,{...item,scoreA:result.scoreA,scoreB:result.scoreB});
   }
  }
  return scores;
+}
+function normalizeSharedList(candidates,source){
+ const output=new Map();
+ for(const slot of SLOTS){
+  const bucket=candidates.filter(x=>x.slot===slot);
+  if(bucket.length<2)throw Error('INSUFFICIENT_SHARED_CANDIDATES');
+  const merged=new Map(bucket.map(x=>[x.id,{...x}]));
+  for(const field of ['scoreA','scoreB']){
+   const ordered=[...bucket].sort((a,b)=>{
+    const sa=source.get(a.id)?.[field],sb=source.get(b.id)?.[field];
+    if(!Number.isFinite(sa)||!Number.isFinite(sb))
+     throw Error('MISSING_SHARED_QLOO_SCORE');
+    return sb-sa||a.id.localeCompare(b.id);
+   });
+   for(let i=0;i<ordered.length;i++){
+    merged.get(ordered[i].id)[field]=round(1-i/(ordered.length-1));
+   }
+  }
+  for(const item of merged.values())output.set(item.id,item);
+ }
+ return candidates.map(x=>output.get(x.id));
 }
 async function runOne(s){
  const client=new QlooRestClient({maxRequests:36});
@@ -70,17 +94,24 @@ async function runOne(s){
    a:s.a,b:s.b,place:s.location,
    call:(name,args)=>client.call(name,args)
   });
-  const multi=buildBridge({candidates,maxBudget:210});
-  if(multi.status!=="ok")throw Error("MULTI_ANCHOR_PLAN_UNAVAILABLE");
+  const originalRanks=new Map(candidates.map(x=>[x.id,x]));
   const oneRanks=await rankedAgainst(client,candidates,[s.a[0]],[s.b[0]]);
-  const single=buildBridge({
-   candidates:candidates.map(x=>oneRanks.get(x.id)),maxBudget:210
-  });
-  if(single.status!=="ok")throw Error("SINGLE_ANCHOR_PLAN_UNAVAILABLE");
-  const robust=polarizedBridge(candidates,0.25);
-  const blind=SLOTS.map(slot=>candidates.filter(x=>x.slot===slot)
+  const heldRanks=await rankedAgainst(client,candidates,[s.heldA],[s.heldB]);
+  // Every arm is re-evaluated on exactly the same ranked-for-all subset.
+  // Missing Qloo values eliminate an option; they are never imputed.
+  const shared=candidates.filter(x=>oneRanks.has(x.id)&&heldRanks.has(x.id));
+  if(SLOTS.some(slot=>shared.filter(x=>x.slot===slot).length<2))
+   throw Error('INSUFFICIENT_COMMON_QLOO_EVIDENCE');
+  const multiChoices=normalizeSharedList(shared,originalRanks);
+  const singleChoices=normalizeSharedList(shared,oneRanks);
+  const heldChoices=normalizeSharedList(shared,heldRanks);
+  const multi=buildBridge({candidates:multiChoices,maxBudget:210});
+  const single=buildBridge({candidates:singleChoices,maxBudget:210});
+  if(multi.status!=="ok"||single.status!=="ok")throw Error("PLAN_UNAVAILABLE");
+  const robust=polarizedBridge(multiChoices,0.25);
+  const blind=SLOTS.map(slot=>multiChoices.filter(x=>x.slot===slot)
    .sort((a,b)=>a.label.localeCompare(b.label))[0]);
-  const held=await rankedAgainst(client,candidates,[s.heldA],[s.heldB]);
+  const held=new Map(heldChoices.map(x=>[x.id,x]));
   const eMulti=assess(multi.bridge,held);
   const eSingle=assess(single.bridge,held);
   const eRobust=assess(robust,held);
@@ -88,7 +119,8 @@ async function runOne(s){
   if(!eMulti||!eSingle||!eRobust||!eBlind)
    throw Error("HELDOUT_ASSESSMENT_INCOMPLETE");
   return {case:s.case,status:"evaluated",calls:client.requests,
-   candidates:candidates.length,
+   discovered_candidates:candidates.length,candidates:shared.length,
+   discarded_for_incomplete_evidence:candidates.length-shared.length,
    heldout_multi_worst:eMulti.worst,heldout_single_worst:eSingle.worst,
    heldout_blind_worst:eBlind.worst,heldout_robust_worst:eRobust.worst,
    multi_vs_single:round(eMulti.worst-eSingle.worst),

@@ -149,8 +149,10 @@ export class QlooRestClient {
     if(!id||!byId.has(id)||seen.has(id))continue;
     seen.add(id);results.push({name:byId.get(id).name,id:item.id});
    }
-   if(results.length!==options.length)throw Error("QLOO_INCOMPLETE_RANKING");
-   return {status:"ok",results};
+   // A provider may rank only part of the requested shortlist.
+   // Preserve the grounded subset; callers must intersect audience coverage.
+   if(results.length<2)throw Error("QLOO_INCOMPLETE_RANKING");
+   return {status:"ok",results,requested:options.length,returned:results.length};
   }
   if(tool==="qloo_entity_tags"){
    if(!Array.isArray(args.entities)||args.entities.length!==1)

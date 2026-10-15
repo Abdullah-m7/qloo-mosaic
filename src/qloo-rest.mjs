@@ -2,6 +2,19 @@
 export const EVENT_BASE_URL="https://hackathon.api.qloo.com";
 const types={artist:"urn:entity:artist",place:"urn:entity:place",movie:"urn:entity:movie"};
 const normalize=x=>String(x).trim().normalize("NFKC").toLowerCase();
+// A process-wide pacing gate prevents concurrent ranking calls from bursting the
+// event API. Pure injected-fetch unit tests do not touch this network gate.
+let nextRequestAt=0;
+let requestGate=Promise.resolve();
+const pace=()=>{
+ const slot=requestGate.then(async()=>{
+  const delay=Math.max(0,nextRequestAt-Date.now());
+  if(delay)await new Promise(resolve=>setTimeout(resolve,delay));
+  nextRequestAt=Date.now()+900;
+ });
+ requestGate=slot.catch(()=>{});
+ return slot;
+};
 const resultList=(data,key="entities")=>{
  const results=data?.results;
  return Array.isArray(results)?results:Array.isArray(results?.[key])?results[key]:
@@ -19,6 +32,7 @@ export class QlooRestClient {
   if(!apiKey||typeof apiKey!=="string")throw Error("QLOO_CREDENTIAL_MISSING");
   if(typeof fetchImpl!=="function")throw TypeError("Fetch required");
   this.key=apiKey.trim();this.fetchImpl=fetchImpl;this.requests=0;
+  this.networkPacing=fetchImpl===globalThis.fetch;
   this.resolved=new Map();this.candidates=new Map();
  }
  async request(path,params={}){
@@ -29,6 +43,8 @@ export class QlooRestClient {
    if(value!==undefined&&value!==null)
     url.searchParams.set(name,Array.isArray(value)?value.join(","):String(value));
   }
+  // Event API burst protection: no more than roughly one outbound request per second.
+  if(this.networkPacing)await pace();
   let response;
   try{
    response=await this.fetchImpl(url,{method:"GET",redirect:"error",

@@ -37,6 +37,9 @@ test("documented two-stage Qloo flow grounds candidates and independently ranks"
   options:names,signals:["Radiohead"]});
  assert.deepEqual(ranked.results.map(x=>x.name),names.slice().reverse());
  assert.equal(mock.calls.filter(x=>x.path.pathname==="/search").length,2);
+ for(const search of mock.calls.filter(x=>x.path.pathname==="/search")){
+  assert.equal(search.path.searchParams.get("types"),"urn:entity:artist,urn:entity:movie");
+ }
  const rank=mock.calls.find(x=>x.path.searchParams.has("filter.results.entities"));
  assert.equal(rank.path.searchParams.get("filter.type"),"urn:entity:artist");
  assert.equal(rank.path.searchParams.get("filter.results.entities"),"artist-1,artist-2,artist-3");

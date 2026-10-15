@@ -40,9 +40,12 @@ export class QlooRestClient {
  async resolveSeed(name){
   const n=normalize(name);
   if(this.resolved.has(n))return this.resolved.get(n);
-  const data=await this.request("/search",{query:name,take:15});
+  // /search includes legacy categories (albums, actors, etc.) that cannot
+  // serve as Insights taste signals. Narrow discovery to supported anchor types.
+  const allowed=["urn:entity:artist","urn:entity:movie"];
+  const data=await this.request("/search",{query:name,types:allowed,take:15});
   const matches=resultList(data).map(parseEntity).filter(Boolean)
-   .filter(x=>normalize(x.name)===n);
+   .filter(x=>normalize(x.name)===n&&allowed.includes(x.type));
   const ids=new Set(matches.map(x=>x.id.toLowerCase()));
   if(ids.size!==1)throw Error(ids.size?"QLOO_AMBIGUOUS_SIGNAL":"QLOO_SIGNAL_UNRESOLVED");
   const id=matches[0].id;this.resolved.set(n,id);return id;

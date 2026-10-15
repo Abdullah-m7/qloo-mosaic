@@ -90,7 +90,11 @@ export class QlooRestClient {
     console.log("QLOO_INSIGHTS_META="+JSON.stringify({slot:args.target_type,
       responseKeys:Object.keys(data??{}).slice(0,10),rawCount:raw.length,
       acceptedCount:results.length,firstKeys:first&&typeof first==="object"?
-        Object.keys(first).slice(0,16):[],success:data?.success??null,
+        Object.keys(first).slice(0,16):[],
+      typeShape:Array.isArray(first?.type)?"array":typeof first?.type,
+      typeNamespace:typeof first?.type==="string"?first.type.slice(0,100):null,
+      parseableCount:raw.filter(x=>Boolean(parseEntity(x))).length,
+      success:data?.success??null,
       hasError:Boolean(data?.error||data?.errors)}));
    }
    for(const item of results)this.candidates.set(type+"|"+normalize(item.name),item.id);

@@ -80,7 +80,12 @@ export class QlooRestClient {
    .filter(x=>normalize(x.name)===n&&(!x.type||x.type==='urn:entity'||allowed.includes(x.type))
     &&(!x.subtype||!String(x.subtype).startsWith('urn:entity:')||allowed.includes(x.subtype)));
   const ids=new Set(matches.map(x=>x.id.toLowerCase()));
-  if(ids.size!==1)throw Error(ids.size?'QLOO_AMBIGUOUS_SIGNAL':'QLOO_SIGNAL_UNRESOLVED');
+  if(ids.size!==1){
+   const error=Error(ids.size?'QLOO_AMBIGUOUS_SIGNAL':'QLOO_SIGNAL_UNRESOLVED');
+   // Public anchor input only; never attach Qloo candidate identities or API responses.
+   error.publicAnchor={name,category:category??'unspecified',exactMatches:ids.size};
+   throw error;
+  }
   const id=matches[0].id;this.resolved.set(cacheKey,id);return id;
  }
  async resolveSeeds(names){
@@ -93,7 +98,7 @@ export class QlooRestClient {
    if(!type)throw Error("QLOO_INVALID_TARGET");
    const signals=await this.resolveSeeds(args.signals);
    const query={"filter.type":type,"signal.interests.entities":signals,
-    take:Math.min(8,Math.max(2,Number(args.limit)||5))};
+    sort_by:'affinity',take:Math.min(8,Math.max(2,Number(args.limit)||5))};
    if(args.filter_location&&type===types.place)
     query["filter.location.query"]=args.filter_location;
    const data=await this.request("/v2/insights",query);
@@ -127,7 +132,7 @@ export class QlooRestClient {
    const signals=await this.resolveSeeds(args.signals);
    const data=await this.request("/v2/insights",{"filter.type":type,
     "filter.results.entities":options.map(x=>x.id),
-    "signal.interests.entities":signals,take:options.length});
+    "signal.interests.entities":signals,sort_by:'affinity',take:options.length});
    const byId=new Map(options.map(x=>[x.id.toLowerCase(),x]));
    const seen=new Set(),results=[];
    for(const raw of resultList(data)){

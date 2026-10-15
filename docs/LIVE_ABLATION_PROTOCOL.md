@@ -34,3 +34,13 @@ comparators and held-out evaluation. Typed lookup does not inspect Qloo affiniti
 or change selection based on an observed outcome. Genuine within-category
 ambiguity still counts as blocked. The initial private pilot is retained as
 a separate result and must not be silently pooled with the amended run.
+
+## Exploratory analysis extension — after two private pilots
+This extension is explicitly **exploratory**, not confirmatory. It forces the
+documented `sort_by=affinity` option in ranking/discovery, records training-to-
+holdout rank correlations, and evaluates the already-computed one-sided and
+mean-first baseline plans on the *same* held-out data without extra ranking
+requests. If name resolution is blocked, only the category and public anchor
+input are included in the encrypted artifact, not any raw provider response.
+Earlier pilots remain separate evidence; metric differences must not be
+represented as clean independent replications after seeing prior outcomes.

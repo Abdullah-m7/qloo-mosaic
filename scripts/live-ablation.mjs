@@ -28,6 +28,14 @@ const scorePlan=(plan,map)=>{
  const scores=plan.items.map(x=>map.get(x.id)).filter(Boolean);
  return scores.length===plan.items.length?evaluatePlan(scores):null;
 };
+const correlation=(xs,ys)=>{
+ if(xs.length!==ys.length||xs.length<2)return null;
+ const mx=avg(xs),my=avg(ys);
+ const cov=xs.reduce((s,x,i)=>s+(x-mx)*(ys[i]-my),0);
+ const vx=xs.reduce((s,x)=>s+(x-mx)**2,0);
+ const vy=ys.reduce((s,y)=>s+(y-my)**2,0);
+ return vx*vy>0?compact(cov/Math.sqrt(vx*vy)):null;
+};
 
 async function runScenario(s){
  const client=new QlooRestClient();
@@ -56,11 +64,25 @@ async function runScenario(s){
   }
   const live=scorePlan(trained.bridge,holdout);
   const blind=scorePlan({items:blindItems},holdout);
-  if(!live||!blind)throw Error("QLOO_HOLDOUT_INCOMPLETE");
+  const majority=scorePlan(trained.baselines?.majority,holdout);
+  const average=scorePlan(trained.baselines?.average,holdout);
+  if(!live||!blind||!majority||!average)throw Error("QLOO_HOLDOUT_INCOMPLETE");
+  const anchorTransfer={};
+  for(const group of ['scoreA','scoreB']){
+   const perSlot=SLOTS.map(slot=>{
+    const bucket=candidates.filter(x=>x.slot===slot);
+    return correlation(bucket.map(x=>x[group]),
+      bucket.map(x=>holdout.get(x.id)[group]));
+   });
+   anchorTransfer[group]=perSlot.every(Number.isFinite)?compact(avg(perSlot)):null;
+  }
   return {case:s.name,status:"verified_qloo_holdout",requests:client.requests,
    candidates:candidates.length,
    heldout_trained_worst:live.worst,
    heldout_blind_worst:blind.worst,
+   heldout_majority_worst:majority.worst,
+   heldout_average_worst:average.worst,
+   anchor_transfer_rank_correlation:anchorTransfer,
    heldout_difference:compact(live.worst-blind.worst)};
  }finally{
   client.key="";
@@ -74,7 +96,8 @@ if(!process.env.QLOO_API_KEY){
  for(const scenario of scenarios){
   try{rows.push(await runScenario(scenario));}
   catch(error){rows.push({case:scenario.name,status:"blocked",
-   code:String(error.message||"UNKNOWN").replace(/[^A-Z0-9_]/g,"").slice(0,60)});}
+   code:String(error.message||"UNKNOWN").replace(/[^A-Z0-9_]/g,"").slice(0,60),
+   ...(error.publicAnchor?{blocked_public_anchor:error.publicAnchor}:{})});}
  }
  const good=rows.filter(x=>x.status==="verified_qloo_holdout");
  const summary={method:"held-out within-provider Qloo ranking ablation",

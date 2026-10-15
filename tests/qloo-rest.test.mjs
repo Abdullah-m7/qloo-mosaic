@@ -44,6 +44,8 @@ test("documented two-stage Qloo flow grounds candidates and independently ranks"
  assert.equal(rank.path.searchParams.get("filter.type"),"urn:entity:artist");
  assert.equal(rank.path.searchParams.get("filter.results.entities"),"artist-1,artist-2,artist-3");
  assert.equal(rank.path.searchParams.get("signal.interests.entities"),"seed-a");
+ assert.ok(mock.calls.filter(x=>x.path.pathname==="/v2/insights")
+  .every(x=>x.path.searchParams.get('sort_by')==='affinity'));
  assert.ok(mock.calls.every(x=>x.path.origin==="https://hackathon.api.qloo.com"));
  assert.ok(mock.calls.every(x=>x.request.method==="GET"));
  assert.ok(mock.calls.every(x=>!x.path.search.includes("synthetic-test")));

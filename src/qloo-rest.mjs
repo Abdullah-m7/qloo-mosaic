@@ -45,7 +45,9 @@ export class QlooRestClient {
   const allowed=["urn:entity:artist","urn:entity:movie"];
   const data=await this.request("/search",{query:name,types:allowed,take:15});
   const matches=resultList(data).map(parseEntity).filter(Boolean)
-   .filter(x=>normalize(x.name)===n&&allowed.includes(x.type));
+   // The real event /search payload omits 'type' even when 'types' is enforced.
+   // Trust the typed search constraint, but still reject explicit disallowed types.
+   .filter(x=>normalize(x.name)===n&&(!x.type||allowed.includes(x.type)));
   const ids=new Set(matches.map(x=>x.id.toLowerCase()));
   if(ids.size!==1)throw Error(ids.size?"QLOO_AMBIGUOUS_SIGNAL":"QLOO_SIGNAL_UNRESOLVED");
   const id=matches[0].id;this.resolved.set(n,id);return id;

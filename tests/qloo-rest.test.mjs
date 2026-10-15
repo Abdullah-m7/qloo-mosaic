@@ -72,3 +72,20 @@ test("failed Qloo authentication is not silently treated as synthetic evidence",
   target_type:"movie",signals:["Radiohead"]
  }),/QLOO_HTTP_401/);
 });
+
+test("real Qloo search items without type still resolve inside a typed query",async()=>{
+ let called=false;
+ const client=new QlooRestClient({apiKey:"synthetic-test",
+  fetchImpl:async(url)=>{
+   const parsed=new URL(url);
+   assert.equal(parsed.pathname,"/search");
+   assert.equal(parsed.searchParams.get("types"),"urn:entity:artist,urn:entity:movie");
+   called=true;
+   return new Response(JSON.stringify({results:[
+    {name:"Radiohead",entity_id:"typed-artist-id"},
+    {name:"Radiohead Deluxe",entity_id:"irrelevant-id"}
+   ]}),{status:200});
+  }});
+ assert.equal(await client.resolveSeed("Radiohead"),"typed-artist-id");
+ assert.equal(called,true);
+});

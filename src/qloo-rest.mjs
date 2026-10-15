@@ -82,8 +82,17 @@ export class QlooRestClient {
    if(args.filter_location&&type===types.place)
     query["filter.location.query"]=args.filter_location;
    const data=await this.request("/v2/insights",query);
-   const results=resultList(data).map(parseEntity).filter(Boolean)
+   const raw=resultList(data);
+   const results=raw.map(parseEntity).filter(Boolean)
     .filter(x=>!x.type||x.type===type);
+   if(process.env.QLOO_TEST_INSPECT==="1"){
+    const first=raw[0];
+    console.log("QLOO_INSIGHTS_META="+JSON.stringify({slot:args.target_type,
+      responseKeys:Object.keys(data??{}).slice(0,10),rawCount:raw.length,
+      acceptedCount:results.length,firstKeys:first&&typeof first==="object"?
+        Object.keys(first).slice(0,16):[],success:data?.success??null,
+      hasError:Boolean(data?.error||data?.errors)}));
+   }
    for(const item of results)this.candidates.set(type+"|"+normalize(item.name),item.id);
    return {status:"ok",results};
   }

@@ -33,4 +33,5 @@ jobs:
       - name: Verify Qloo event API and agent with protected secret
         env:
           QLOO_API_KEY: ${{ secrets.QLOO_API_KEY }}
+          QLOO_TEST_INSPECT: '1'
         run: node scripts/qloo-smoke.mjs

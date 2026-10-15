@@ -63,20 +63,25 @@ export class QlooRestClient {
   if(!response.ok)throw Error("QLOO_HTTP_"+response.status);
   try{return await response.json();}catch{throw Error("QLOO_INVALID_JSON");}
  }
- async resolveSeed(name){
-  const n=normalize(name);
-  if(this.resolved.has(n))return this.resolved.get(n);
-  // /search includes legacy categories (albums, actors, etc.) that cannot
-  // serve as Insights taste signals. Narrow discovery to supported anchor types.
-  const allowed=["urn:entity:artist","urn:entity:movie"];
-  const data=await this.request("/search",{query:name,types:allowed,take:15});
+ async resolveSeed(input){
+  const name=typeof input==='string'?input:input?.name;
+  const category=typeof input==='string'?null:input?.type;
+  if(typeof name!=='string'||!name.trim()||name.length>72||name.includes('@'))
+   throw Error('QLOO_INVALID_SIGNALS');
+  // Explicit type hints narrow known public artist/movie anchors, but never
+  // guess which entity a genuinely ambiguous name denotes.
+  if(category!==null&&category!==undefined&&!['artist','movie'].includes(category))
+   throw Error('QLOO_INVALID_SIGNAL_TYPE');
+  const allowed=category?[types[category]]:['urn:entity:artist','urn:entity:movie'];
+  const n=normalize(name),cacheKey=n+'|'+allowed.join(',');
+  if(this.resolved.has(cacheKey))return this.resolved.get(cacheKey);
+  const data=await this.request('/search',{query:name,types:allowed,take:15});
   const matches=resultList(data).map(parseEntity).filter(Boolean)
-   // The real event /search payload omits 'type' even when 'types' is enforced.
-   // Trust the typed search constraint, but still reject explicit disallowed types.
-   .filter(x=>normalize(x.name)===n&&(!x.type||allowed.includes(x.type)));
+   .filter(x=>normalize(x.name)===n&&(!x.type||x.type==='urn:entity'||allowed.includes(x.type))
+    &&(!x.subtype||!String(x.subtype).startsWith('urn:entity:')||allowed.includes(x.subtype)));
   const ids=new Set(matches.map(x=>x.id.toLowerCase()));
-  if(ids.size!==1)throw Error(ids.size?"QLOO_AMBIGUOUS_SIGNAL":"QLOO_SIGNAL_UNRESOLVED");
-  const id=matches[0].id;this.resolved.set(n,id);return id;
+  if(ids.size!==1)throw Error(ids.size?'QLOO_AMBIGUOUS_SIGNAL':'QLOO_SIGNAL_UNRESOLVED');
+  const id=matches[0].id;this.resolved.set(cacheKey,id);return id;
  }
  async resolveSeeds(names){
   if(!Array.isArray(names)||names.length<1||names.length>10)throw Error("QLOO_INVALID_SIGNALS");

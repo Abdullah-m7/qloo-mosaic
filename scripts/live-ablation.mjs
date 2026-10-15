@@ -6,13 +6,19 @@ import {writeEncryptedAblation} from "./encrypt-ablation.mjs";
 import {discoverCulturalEvidence,matchRanks,extractItems} from "../src/qloo.mjs";
 import {buildBridge,evaluatePlan,SLOTS} from "../src/engine.mjs";
 
+// Anchor categories are preregistered semantic facts, not Qloo ranking feedback.
+// Public user-entered names remain ambiguity-gated in the production agent.
+const A=(name,type)=>({name,type});
 const scenarios=[
  {name:"indie-vs-electronic",place:"New York",
-  a:["Radiohead","The Grand Budapest Hotel"],b:["Daft Punk","Blade Runner 2049"]},
+  a:[A("Radiohead","artist"),A("The Grand Budapest Hotel","movie")],
+  b:[A("Daft Punk","artist"),A("Blade Runner 2049","movie")]},
  {name:"alternative-vs-jazz",place:"London",
-  a:["Björk","Spirited Away"],b:["Miles Davis","Casablanca"]},
+  a:[A("Björk","artist"),A("Spirited Away","movie")],
+  b:[A("Miles Davis","artist"),A("Casablanca","movie")]},
  {name:"global-pop-contrast",place:"Los Angeles",
-  a:["Taylor Swift","Barbie"],b:["BTS","Parasite"]}
+  a:[A("Taylor Swift","artist"),A("Barbie","movie")],
+  b:[A("BTS","artist"),A("Parasite","movie")]}
 ];
 const slotType={music:"artist",food:"place",experience:"movie"};
 const avg=xs=>xs.reduce((sum,x)=>sum+x,0)/(xs.length||1);

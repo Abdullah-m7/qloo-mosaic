@@ -25,3 +25,12 @@ Does Qloo-derived preference ranking improve decisions for *unseen cultural anch
 The GitHub workflow runs this protocol only when the latest commit message contains `[ablation]` (or on an explicit manual run). The workflow never prints scores: a one-time AES-256-GCM data key encrypts all results, and RSA-OAEP-SHA256 wraps that key for the public recipient key under `evidence/ablation_results_public.pem`. The corresponding private decryption key remains outside the Git repository on the authorized Mac. The encrypted workflow artifact is retained for 7 days. This protects private research metrics from public repository logs.
 
 Run with protected environment variables `QLOO_API_KEY`, `QLOO_RESULT_PUBLIC_KEY` and `QLOO_RESULT_OUTPUT`. Output encryption is mandatory; plaintext experiment results are not printed.
+
+## Post-pilot protocol amendment — 15 October 2026
+An initial private pilot exposed ambiguous name-only resolution in Qloo Search.
+Before rerunning, the protocol now specifies the **known public category of each
+anchor** (artist versus movie), using the same names, splits, planning algorithm,
+comparators and held-out evaluation. Typed lookup does not inspect Qloo affinities
+or change selection based on an observed outcome. Genuine within-category
+ambiguity still counts as blocked. The initial private pilot is retained as
+a separate result and must not be silently pooled with the amended run.

@@ -108,3 +108,20 @@ test("actual Insights generic entity envelope is accepted only for compatible ca
  });
  assert.deepEqual(ranked.results.map(x=>x.id),["aa","cc"]);
 });
+
+test("typed public anchors resolve category ambiguity without guessing identity",async()=>{
+ const observed=[];
+ const client=new QlooRestClient({apiKey:"offline-test",fetchImpl:async u=>{
+  const url=new URL(u);
+  const filter=url.searchParams.get("types");
+  observed.push(filter);
+  const options=filter==="urn:entity:artist"?
+   [{name:"Overlap",entity_id:"artist-unique"}]:
+   [{name:"Overlap",entity_id:"artist-unique"},{name:"Overlap",entity_id:"film-unique"}];
+  return new Response(JSON.stringify({results:options}),{status:200});
+ }});
+ await assert.rejects(()=>client.resolveSeed("Overlap"),/QLOO_AMBIGUOUS_SIGNAL/);
+ assert.equal(await client.resolveSeed({name:"Overlap",type:"artist"}),"artist-unique");
+ assert.deepEqual(observed,["urn:entity:artist,urn:entity:movie","urn:entity:artist"]);
+ await assert.rejects(()=>client.resolveSeed({name:"Overlap",type:"unknown"}),/QLOO_INVALID_SIGNAL_TYPE/);
+});

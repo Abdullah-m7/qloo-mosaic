@@ -127,3 +127,19 @@ test("typed public anchors resolve category ambiguity without guessing identity"
  assert.deepEqual(observed,["urn:entity:artist,urn:entity:movie","urn:entity:artist"]);
  await assert.rejects(()=>client.resolveSeed({name:"Overlap",type:"unknown"}),/QLOO_INVALID_SIGNAL_TYPE/);
 });
+
+test("release-year disambiguation selects the intended movie without popularity guessing",async()=>{
+ const client=new QlooRestClient({apiKey:"offline",fetchImpl:async url=>{
+  assert.equal(new URL(url).searchParams.get("types"),"urn:entity:movie");
+  return new Response(JSON.stringify({results:[
+   {name:"Example Film",entity_id:"older-id",properties:{release_year:1960}},
+   {name:"Example Film",entity_id:"modern-id",properties:{release_year:2023}}
+  ]}),{status:200});
+ }});
+ await assert.rejects(()=>client.resolveSeed({name:"Example Film",type:"movie"}),
+  /QLOO_AMBIGUOUS_SIGNAL/);
+ assert.equal(await client.resolveSeed({name:"Example Film",type:"movie",year:2023}),
+  "modern-id");
+ await assert.rejects(()=>client.resolveSeed({name:"Example Film",type:"artist",year:2023}),
+  /QLOO_INVALID_RELEASE_YEAR/);
+});

@@ -8,7 +8,7 @@ import {buildBridge,evaluatePlan,SLOTS} from "../src/engine.mjs";
 
 // Anchor categories are preregistered semantic facts, not Qloo ranking feedback.
 // Public user-entered names remain ambiguity-gated in the production agent.
-const A=(name,type)=>({name,type});
+const A=(name,type,year=null)=>({name,type,...(year?{year}:{})});
 const scenarios=[
  {name:"indie-vs-electronic",place:"New York",
   a:[A("Radiohead","artist"),A("The Grand Budapest Hotel","movie")],
@@ -17,7 +17,7 @@ const scenarios=[
   a:[A("Björk","artist"),A("Spirited Away","movie")],
   b:[A("Miles Davis","artist"),A("Casablanca","movie")]},
  {name:"global-pop-contrast",place:"Los Angeles",
-  a:[A("Taylor Swift","artist"),A("Barbie","movie")],
+  a:[A("Taylor Swift","artist"),A("Barbie","movie",2023)],
   b:[A("BTS","artist"),A("Parasite","movie")]}
 ];
 const slotType={music:"artist",food:"place",experience:"movie"};

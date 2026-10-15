@@ -25,7 +25,8 @@ const parseEntity=value=>{
  const name=x?.name??x?.title??x?.properties?.name;
  const id=x?.entity_id??x?.id;
  return typeof name==="string"&&typeof id==="string"&&name.trim()&&id.trim()?
-  {name:name.trim(),id:id.trim(),type:x?.type??null,subtype:x?.subtype??null}:null;
+  {name:name.trim(),id:id.trim(),type:x?.type??null,subtype:x?.subtype??null,
+   releaseYear:x?.properties?.release_year??x?.release_year??null}:null;
 };
 // Qloo Insights returns type='urn:entity' for a typed category request.
 // The subtype, when present, may carry the specific category URN.
@@ -38,16 +39,19 @@ const matchesCategory=(item,expected)=>{
  return !item?.type&&!item?.subtype;
 };
 export class QlooRestClient {
- constructor({apiKey=process.env.QLOO_API_KEY,fetchImpl=globalThis.fetch}={}){
+ constructor({apiKey=process.env.QLOO_API_KEY,fetchImpl=globalThis.fetch,maxRequests=26}={}){
   if(!apiKey||typeof apiKey!=="string")throw Error("QLOO_CREDENTIAL_MISSING");
   if(typeof fetchImpl!=="function")throw TypeError("Fetch required");
+  if(!Number.isInteger(maxRequests)||maxRequests<1||maxRequests>40)
+   throw Error('QLOO_INVALID_REQUEST_LIMIT');
+  this.maxRequests=maxRequests;
   this.key=apiKey.trim();this.fetchImpl=fetchImpl;this.requests=0;
   this.networkPacing=fetchImpl===globalThis.fetch;
   this.resolved=new Map();this.candidates=new Map();
  }
  async request(path,params={}){
   if(!["/search","/v2/insights"].includes(path))throw Error("QLOO_ENDPOINT_BLOCKED");
-  if(++this.requests>26)throw Error("QLOO_BOUNDED_CALL_LIMIT");
+  if(++this.requests>this.maxRequests)throw Error("QLOO_BOUNDED_CALL_LIMIT");
   const url=new URL(path,EVENT_BASE_URL);
   for(const [name,value] of Object.entries(params)){
    if(value!==undefined&&value!==null)
@@ -66,24 +70,28 @@ export class QlooRestClient {
  async resolveSeed(input){
   const name=typeof input==='string'?input:input?.name;
   const category=typeof input==='string'?null:input?.type;
+  const year=typeof input==='string'?null:(input?.year??null);
   if(typeof name!=='string'||!name.trim()||name.length>72||name.includes('@'))
    throw Error('QLOO_INVALID_SIGNALS');
   // Explicit type hints narrow known public artist/movie anchors, but never
   // guess which entity a genuinely ambiguous name denotes.
   if(category!==null&&category!==undefined&&!['artist','movie'].includes(category))
    throw Error('QLOO_INVALID_SIGNAL_TYPE');
+  if(year!==null&&(category!=='movie'||!Number.isInteger(year)||year<1888||year>2100))
+   throw Error('QLOO_INVALID_RELEASE_YEAR');
   const allowed=category?[types[category]]:['urn:entity:artist','urn:entity:movie'];
-  const n=normalize(name),cacheKey=n+'|'+allowed.join(',');
+  const n=normalize(name),cacheKey=n+'|'+allowed.join(',')+'|'+(year??'');
   if(this.resolved.has(cacheKey))return this.resolved.get(cacheKey);
   const data=await this.request('/search',{query:name,types:allowed,take:15});
   const matches=resultList(data).map(parseEntity).filter(Boolean)
    .filter(x=>normalize(x.name)===n&&(!x.type||x.type==='urn:entity'||allowed.includes(x.type))
-    &&(!x.subtype||!String(x.subtype).startsWith('urn:entity:')||allowed.includes(x.subtype)));
+    &&(!x.subtype||!String(x.subtype).startsWith('urn:entity:')||allowed.includes(x.subtype))
+    &&(year===null||Number(x.releaseYear)===year));
   const ids=new Set(matches.map(x=>x.id.toLowerCase()));
   if(ids.size!==1){
    const error=Error(ids.size?'QLOO_AMBIGUOUS_SIGNAL':'QLOO_SIGNAL_UNRESOLVED');
    // Public anchor input only; never attach Qloo candidate identities or API responses.
-   error.publicAnchor={name,category:category??'unspecified',exactMatches:ids.size};
+   error.publicAnchor={name,category:category??'unspecified',year,exactMatches:ids.size};
    throw error;
   }
   const id=matches[0].id;this.resolved.set(cacheKey,id);return id;

@@ -50,3 +50,18 @@ jobs:
           path: .qloo-private/holdout.enc.json
           if-no-files-found: warn
           retention-days: 7
+      - name: Evaluate multi-anchor robustness privately
+        if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[multi]')
+        env:
+          QLOO_API_KEY: ${{ secrets.QLOO_API_KEY }}
+          QLOO_RESULT_PUBLIC_KEY: evidence/ablation_results_public.pem
+          QLOO_RESULT_OUTPUT: .qloo-private/multianchor.enc.json
+        run: npm run benchmark:multi
+      - name: Preserve encrypted-only multi-anchor results
+        if: always() && (github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[multi]'))
+        uses: actions/upload-artifact@v4
+        with:
+          name: qloo-encrypted-multi-anchor
+          path: .qloo-private/multianchor.enc.json
+          if-no-files-found: warn
+          retention-days: 7

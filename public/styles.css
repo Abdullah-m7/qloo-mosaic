@@ -201,3 +201,40 @@ footer .brand{font-size:17px}footer p{font-size:11px;color:#89988c}footer>a:last
 .resilience-card button{margin-top:11px;padding:10px 12px;border:1px solid var(--lime);background:transparent;color:var(--lime);font-size:11px;font-weight:700;cursor:pointer}
 .resilience-card button:hover{background:#d5ff9120}
 @media(max-width:850px){.resilience-grid{grid-template-columns:1fr}.resilience-card{padding:15px}}
+
+/* Evidence-aware, nondominated cultural negotiation frontier. */
+.negotiation-panel{margin:26px 0 28px;border:1px solid #586e59;background:#17221b;color:#eff6e9;overflow:hidden}
+.negotiation-panel[hidden]{display:none}
+.negotiation-header{padding:19px 22px;background:#263a2b;display:flex;gap:14px;justify-content:space-between;align-items:center}
+.negotiation-header span{font-size:10px;letter-spacing:1.6px;font-weight:800;color:var(--lime)}
+.negotiation-header strong{font-size:10px;letter-spacing:.8px;color:#cfe0c5}
+.negotiation-intro{margin:0;padding:19px 22px 4px;font-size:13px;line-height:1.8;color:#bdcebd;max-width:930px}
+.negotiation-layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(280px,.9fr);gap:22px;padding:17px 22px 23px}
+.negotiation-chart-box{background:#121c15;border:1px solid #3c5743;padding:12px;min-width:0}
+.negotiation-chart{width:100%;max-width:540px;margin:auto}
+.negotiation-chart svg{display:block;width:100%;height:auto}
+.negotiation-chart [data-frontier-point]{cursor:pointer;transition:stroke-width .2s}
+.negotiation-chart [data-frontier-point]:focus{outline:none;stroke:#fff;stroke-width:4}
+.negotiation-caption{font-size:10px;line-height:1.7;color:#9eac9f;margin:3px 7px 7px}
+.negotiation-preview{padding:19px;background:#213025;border:1px solid #436047;min-width:0}
+.negotiation-preview-top{display:flex;justify-content:space-between;gap:9px;font-size:10px;color:var(--lime);font-weight:800;letter-spacing:1px}
+.negotiation-preview label{font-size:13px;display:block;margin:24px 0 10px;color:#e4f0dc;font-weight:700}
+.negotiation-preview input[type=range]{width:100%;accent-color:var(--lime);cursor:pointer}
+.negotiation-scale{display:flex;justify-content:space-between;font-size:10px;color:#9faf9d}
+.negotiation-scores{display:grid;grid-template-columns:1fr 1fr;margin:22px 0 15px;border-top:1px solid #4a5e49;border-bottom:1px solid #4a5e49}
+.negotiation-scores div{padding:12px 0}
+.negotiation-scores div+div{border-left:1px solid #4a5e49;padding-left:18px}
+.negotiation-scores span{display:block;font-size:9px;letter-spacing:1px;color:#a3b8a3}
+.negotiation-scores strong{font-size:29px;font-weight:600;font-family:var(--display);letter-spacing:-1px}
+.negotiation-options{font-size:12px;line-height:1.8;color:#d0ddc9;overflow-wrap:anywhere}
+.negotiation-option{margin:6px 0}
+.negotiation-option b{color:var(--lime);font-size:10px;letter-spacing:.8px}
+.negotiation-note{font-size:11px;line-height:1.65;color:#acbca8;margin:13px 0}
+#negotiation-reset{background:transparent;border:1px solid var(--lime);color:var(--lime);font-size:11px;font-weight:700;padding:10px 13px;cursor:pointer}
+#negotiation-reset:hover{background:#d5ff911c}
+.negotiation-control{padding:16px 22px 20px;border-top:1px solid #41604a;background:#1d2c22}
+.negotiation-control>span{font-size:10px;color:var(--peach);letter-spacing:1.2px;font-weight:800}
+.negotiation-control p{font-size:13px;color:#dfecdd;line-height:1.65;margin:8px 0}
+.negotiation-control small{font-size:11px;line-height:1.75;color:#9eb29e;display:block}
+@media(max-width:850px){.negotiation-layout{grid-template-columns:1fr}}
+@media(max-width:550px){.negotiation-header{align-items:flex-start;flex-direction:column}.negotiation-layout{padding:13px;gap:13px}.negotiation-intro{padding:17px 16px 4px}.negotiation-preview{padding:15px}.negotiation-control{padding:15px}.negotiation-scores strong{font-size:25px}}

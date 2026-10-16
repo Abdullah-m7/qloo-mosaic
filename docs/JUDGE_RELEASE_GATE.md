@@ -40,6 +40,7 @@
 - POST `/api/plan` using publicly known cultural entities returns
   `mode=qloo-live,source_mode=evidence-backed`, three Qloo-backed slots,
   and provenance IDs. It must NOT return synthetic fixture data.
+- Inspect the exact Pareto-efficient negotiation frontier and its interactive dial; verify the maximin recommendation, category-level alternatives and rank-blind alphabetical comparator are all derived from the same Qloo-grounded shortlist with zero additional provider calls. Do not claim held-out uplift from in-sample optimizing.
 - Inspect the three single-option resilience counterfactuals; confirm each is derived from the same verified shortlist, uses zero additional provider calls, and labels proxy changes without claiming real booking availability.
 - Veto a live recommendation; confirm a cached replan (zero extra Qloo calls).
 - Use typed public anchors such as `Movie: Barbie (2023)` to resolve known identity ambiguity by category and release year, without revealing an entity ID or a private profile. Verify malformed hints are rejected safely.
@@ -106,3 +107,17 @@ with `MOSAIC_PUBLIC_RELEASE_BLOCKED: RENDER_STILL_SAMPLE` before issuing
 any Qloo-funded planner requests. This confirms the remaining deployment
 and protected environment-key work; it does not negate the already-green
 GitHub event API and localhost HTTP smoke tests.
+
+## Negotiation frontier check — candidate version
+- The app returns an exact nondominated frontier from already validated
+  mutually ranked artist/place/movie options. The maximin recommendation
+  must remain present even if the displayed points are downsampled.
+- Judges can use the dial or focus the plotted points to preview changes to
+  both group-relative rank proxies and the selected cultural entities.
+- Check this in a clean 320px, 390px and desktop browser: the preview must not
+  call the Qloo API or overflow horizontally.
+- The separate alphabetical control chooses from **Qloo-discovered entities**
+  without their taste order. Its in-sample score difference is NOT an
+  independent Qloo-free LLM baseline and NOT measured preference uplift.
+- Run `npm run judge:check` against Render after credentialed deployment:
+  the check now refuses a public app without the negotiation frontier.

@@ -26,6 +26,7 @@ It does **not** book venues, reserve artists, license films or predict a real au
 4. **Verify cultural threads:** When available, call Qloo's entity tag tool at most once per selected category. A shared cross-category motif is shown **only if Qloo reports the same verified tag across two different chosen categories**. Otherwise the UI explicitly states *No cross-domain thread verified*.
 5. **Adapt and explain:** Reject options, change the taste anchors and inspect the tool trace. The planner reuses cached Qloo evidence for ordinary veto-based renegotiation; incomplete or ambiguous Qloo evidence causes abstention, **never a synthetic fallback disguised as Qloo**.
 6. **Stress-test the agreement:** Automatically remove each chosen category once and recompute the best feasible alternative using the **same** verified candidate rankings. Reveal how much the lower audience rank proxy would change or explicitly report no alternative. No extra Qloo calls, invented availability, or real-world robustness claims.
+7. **Expose the negotiation frontier:** Enumerate the exact Pareto-efficient group-rank trade-offs over the same grounded shortlist. A no-network dial lets people preview alternative agreements and compare the official maximin choice with an explicitly limited rank-blind alphabetical policy. The blind comparison still uses Qloo entity discovery, and optimization's in-sample advantage is **not** empirical human uplift.
 
 Unlike a conventional group recommender, the application exposes the cultural and decision-making process: whose preference shaped the result, how the compromise changes, and which cultural links are — or are not — supported.
 
@@ -40,7 +41,7 @@ The preview's example scores, tag availability and planning tokens are invented 
 | Area | Verified status |
 | --- | --- |
 | Responsive interface, working veto/undo and comparison controls | Tested in desktop and mobile Chrome |
-| Optimizer, provenance gates, bounded agent orchestration and cultural treaty | **100/100 local automated checks passed on the direct-REST branch**; offline tests mock Qloo, supplemented by a separate real API smoke run |
+| Optimizer, provenance gates, bounded agent orchestration and cultural treaty | **107/107 local automated checks passed on the direct-REST branch**; offline tests mock Qloo, supplemented by a separate real API smoke run |
 | Deterministic algorithmic falsification | 500 **synthetic** scenarios, 429 feasible; see below |
 | Public open-source repo and externally hosted Node app | Deployed; Node app is intentionally **sample mode** |
 | Qloo live API integration and real shared-tag evidence | **Real GitHub Actions Qloo Search/Insights/Rank agent smoke PASSED**; a public Render live integration and independent tag evidence remain pending |

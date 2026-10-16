@@ -9,6 +9,9 @@ Choose public music and film entities for Group A and B. For a film with multipl
 ## Demonstrate the nontrivial decision
 Compare the same candidate sets under three objectives: Group A-first, total-average, and maximize the lower group-preference proxy. Show the trade-off in both group rankings. Avoid calling ordinal rank percentiles satisfaction probabilities.
 
+## Demonstrate the negotiation frontier
+Open **The Negotiation Frontier**, move the dial from a Group-B-leaning compromise to a Group-A-leaning alternative, and inspect the exact artist, place and film labels and Qloo evidence identifiers. Point out the highlighted maximin plan and the independent **rank-blind alphabetical choice on the same discovered entities**. Explain that this is a sensitivity visualization of ordinal ranks, not independent evidence of human satisfaction or superior held-out performance. Previewing requires zero additional Qloo calls.
+
 ## Demonstrate adaptation
 Reject the first option; show another feasible plan or an explicit insufficient-evidence outcome. Undo the veto. Change the public cultural anchor or search location and show a different real Qloo-grounded result.
 

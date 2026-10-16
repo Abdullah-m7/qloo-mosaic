@@ -62,8 +62,16 @@ try{
     x.status==="feasible"&&Number.isFinite(x.worst_rank_loss)&&
      x.worst_rank_loss>=0&&x.worst_after<=first.bridge.worst)))
   throw Error("JUDGE_RESILIENCE_EVIDENCE_MISSING");
+ const atlas=first.negotiation;
+ if(atlas?.method!=="exact-nondominated-ordinal-frontier"||
+   atlas.calls!==0||!atlas.points?.length||!atlas.tasteBlind||
+   atlas.points?.length>10||!atlas.maximinId||
+   !atlas.points.some(p=>p.id===atlas.maximinId&&p.isMaximin)||
+   !atlas.tasteBlind.items?.every(x=>x.id&&x.evidence_id))
+  throw Error("JUDGE_NEGOTIATION_FRONTIER_INCOMPLETE");
  console.log("JUDGE_HTTP_LIVE_OK slots=3 rank_stages=3");
  console.log("JUDGE_HTTP_COUNTERFACTUAL_OK exclusions=3 extra_provider_calls=0");
+ console.log("JUDGE_HTTP_FRONTIER_OK blind_baseline=grounded extra_provider_calls=0");
  const veto=first.bridge.items[0].id;
  const next=await request({maxBudget:210,exclude:[veto]});
  if(next.mode!=="qloo-live"||next.status!=="ok"||

@@ -2,6 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import vm from "node:vm";
 import {readFileSync} from "node:fs";
+import {buildBridge} from "../src/engine.mjs";
+import {sample} from "../src/fixtures.mjs";
 
 const appSource=readFileSync(new URL("../public/app.js",import.meta.url),"utf8")
   .split("init().catch(e=>{")[0];
@@ -154,4 +156,41 @@ test("starting a new query immediately hides the previously copyable treaty",asy
  await p;
  assert.equal(element("resilience-panel").hidden,true);
  assert.match(element("plan-items").textContent,/Provider currently unavailable/);
+});
+
+test("negotiation dial previews real nondominated evidence without networking",()=>{
+ let fetches=0;
+ const {context,element}=makeView(async()=>{fetches++;throw Error("Unexpected network");});
+ const best=buildBridge({candidates:sample.candidates,maxBudget:210});
+ context.fixture={...best,mode:"synthetic",treaty:null};
+ vm.runInContext("render(fixture)",context);
+ const atlas=best.negotiation;
+ assert.equal(element("negotiation-panel").hidden,false);
+ assert.equal(Number(element("negotiation-slider").max),atlas.points.length-1);
+ assert.match(element("negotiation-chart").innerHTML,/<svg/);
+ assert.match(element("negotiation-chart").innerHTML,/data-frontier-index/);
+ assert.match(element("negotiation-blind").textContent,/in-sample/);
+ const pointIndex=atlas.points.length-1;
+ element("negotiation-slider").handlers.input({target:{value:String(pointIndex)}});
+ assert.equal(element("negotiation-slider").value,String(pointIndex));
+ assert.equal(element("negotiation-a").textContent,
+  (atlas.points[pointIndex].groupA*100).toFixed(1)+"%");
+ assert.match(element("negotiation-options").innerHTML,/evidence|SYN-/i);
+ assert.equal(fetches,0);
+ vm.runInContext('showUnavailable("No shared Qloo evidence")',context);
+ assert.equal(element("negotiation-panel").hidden,true);
+ assert.equal(element("negotiation-chart").innerHTML,"");
+});
+test("untrusted cultural option names cannot inject markup in frontier preview",()=>{
+ const candidates=sample.candidates.map(x=>({...x,label:x.id==="acoustic"?'<img src=x onerror=alert(1)>':x.label}));
+ const best=buildBridge({candidates,maxBudget:210});
+ const {context,element}=makeView();
+ context.fixture={...best,mode:"synthetic",treaty:null};
+ vm.runInContext("render(fixture)",context);
+ assert.ok(best.negotiation.points.length>=1);
+ for(let i=0;i<best.negotiation.points.length;i++){
+  vm.runInContext("showNegotiationPoint("+i+")",context);
+  assert.doesNotMatch(element("negotiation-options").innerHTML,/<img /i);
+ }
+ assert.equal(element("negotiation-panel").hidden,false);
 });

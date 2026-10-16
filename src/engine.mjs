@@ -1,4 +1,5 @@
 // MOSAIC: deterministic evidence-gated optimization of relative group preference proxies.
+import {buildNegotiationAtlas} from "./negotiation-atlas.mjs";
 // These values are NEVER Qloo absolute preference probabilities or attendance predictions.
 export const SLOTS = Object.freeze(["music", "food", "experience"]);
 const round = x => Math.round((x + Number.EPSILON) * 1000) / 1000;
@@ -64,6 +65,7 @@ export function buildBridge({candidates, maxBudget=210, exclude=[]}) {
   const majority = [...feasible].sort(byMajority)[0];
   const utilitarian = [...feasible].sort(byAverage)[0];
   const synthetic=available.every(x=>x.source==="synthetic-fixture");
+  const negotiation=buildNegotiationAtlas({feasible,bridge});
   // Counterfactual single-option vetoes on the SAME grounded candidate set.
   // Since 'ranked' already maximizes the exact objective, the first feasible
   // non-containing plan is the strongest defensible replacement for each item.
@@ -93,6 +95,7 @@ export function buildBridge({candidates, maxBudget=210, exclude=[]}) {
     status:"ok",
     source_mode: synthetic?"synthetic":"evidence-backed",
     bridge,
+    negotiation,
     resilience,
     baseline:majority, // retained for backward compatibility of the demo
     baselines:{majority, average:utilitarian},

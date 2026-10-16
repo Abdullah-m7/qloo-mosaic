@@ -16,6 +16,9 @@ const plan=(items=selected)=>({
  bridge:{items},
  trace:[{stage:"rank",slot:"music"},{stage:"rank",slot:"food"},
   {stage:"rank",slot:"experience"}],
+ negotiation:{method:"exact-nondominated-ordinal-frontier",calls:0,
+  maximinId:"balanced-1",points:[{id:"balanced-1",isMaximin:true,items}],
+  tasteBlind:{items}},
  resilience:{provider_calls:0,impacts:selected.map(x=>({removed:{id:x.id}}))}
 });
 test("release check refuses sample Render before calling any Qloo-funded planner",async()=>{
@@ -72,4 +75,15 @@ test("release probe accepts only HTTPS site roots without embedded credentials",
   await assert.rejects(checkPublicRelease({origin,fetchImpl:()=>{throw Error("must not call");}}),
    /INVALID_PUBLIC_RELEASE_URL/);
  }
+});
+
+test("release probe refuses live app missing nontrivial negotiation frontier",async()=>{
+ const mock=async(url)=>{
+  const p=new URL(url).pathname;
+  if(p==="/health")return json(health);
+  if(p==="/")return new Response('<title>MOSAIC</title><script src="/app.js"></script>');
+  if(p==="/api/plan")return json({...plan(),negotiation:null});
+  throw Error("Unexpected");
+ };
+ await assert.rejects(checkPublicRelease({fetchImpl:mock}),/RELEASE_NEGOTIATION_FRONTIER_MISSING/);
 });

@@ -57,6 +57,11 @@ export async function checkPublicRelease({
    x.source?.startsWith("qloo-rest:")),"RELEASE_MISSING_PROVENANCE");
  assert(first.trace?.filter(x=>x.stage==="rank").length===3,
   "RELEASE_RANKING_NOT_VERIFIED");
+ const negotiation=first.negotiation;
+ assert(negotiation?.method==="exact-nondominated-ordinal-frontier"&&
+  negotiation.calls===0&&negotiation.tasteBlind?.items?.length===3&&
+  negotiation.points?.some(x=>x.id===negotiation.maximinId&&x.isMaximin),
+  "RELEASE_NEGOTIATION_FRONTIER_MISSING");
  const impacts=first.resilience?.impacts;
  assert(first.resilience?.provider_calls===0&&Array.isArray(impacts)&&
   impacts.length===3&&impacts.every(x=>first.bridge.items.some(y=>y.id===x.removed?.id)),

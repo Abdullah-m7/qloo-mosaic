@@ -84,6 +84,88 @@ function renderResilience(result){
    '</article>';
  }).join("");
 }
+let activeNegotiationPoint=0;
+function negotiationPosition(value){
+ const v=Number(value);
+ return Number.isFinite(v)?Math.min(1,Math.max(0,v)):0;
+}
+function showNegotiationPoint(index){
+ const atlas=latest?.negotiation;
+ if(!atlas?.points?.length)return;
+ const i=Math.max(0,Math.min(atlas.points.length-1,Number(index)||0));
+ activeNegotiationPoint=i;
+ const p=atlas.points[i];
+ $("negotiation-slider").value=String(i);
+ $("negotiation-position").textContent=(i+1)+" / "+atlas.points.length;
+ $("negotiation-plan-type").textContent=p.isMaximin?
+   "MOSAIC BALANCED RECOMMENDATION":"EFFICIENT COMPROMISE · PREVIEW ONLY";
+ $("negotiation-a").textContent=(p.groupA*100).toFixed(1)+"%";
+ $("negotiation-b").textContent=(p.groupB*100).toFixed(1)+"%";
+ $("negotiation-options").innerHTML=p.items.map(x=>
+  '<p class="negotiation-option"><b>'+safe(x.slot.toUpperCase())+'</b> · '+
+  safe(x.label)+' <small>['+safe(x.evidence_id)+']</small></p>'
+ ).join("");
+ $("negotiation-preview-note").textContent=p.isMaximin?
+  "This plan maximizes the lower group's ordinal rank proxy on this list.":
+  "Exploratory preview: Group A regret "+(p.regretA*100).toFixed(1)+
+  "pp · Group B regret "+(p.regretB*100).toFixed(1)+
+  "pp from each group's own top-ranked feasible plan. The official recommendation is unchanged.";
+ // Both axes use 0–1 relative ordinal rank proxies, not satisfaction.
+ const sx=v=>(49+negotiationPosition(v)*274).toFixed(2);
+ const sy=v=>(231-negotiationPosition(v)*194).toFixed(2);
+ const dots=atlas.points.map((x,n)=>{
+  const active=n===i;
+  return '<circle data-frontier-index="'+n+'" tabindex="0" role="button" '+
+   'aria-label="Preview option '+(n+1)+' Group A '+(x.groupA*100).toFixed(1)+
+   ' percent rank, Group B '+(x.groupB*100).toFixed(1)+' percent rank" '+
+   'cx="'+sx(x.groupA)+'" cy="'+sy(x.groupB)+'" r="'+(active?9:6)+'" '+
+   'stroke="'+(active?'#ffa987':'#17221b')+'" stroke-width="'+(active?3:2)+'" '+
+   'fill="'+(x.isMaximin?'#d5ff91':'#a2d0b0')+'"><title>'+
+   (x.isMaximin?'Maximin recommendation':'Nondominated cultural compromise')+
+   '</title></circle>';
+ }).join("");
+ const blind=atlas.tasteBlind;
+ const blindDot=blind?'<rect x="'+(Number(sx(blind.groupA))-5)+'" y="'+
+  (Number(sy(blind.groupB))-5)+'" width="10" height="10" '+
+  'fill="#ffa987" stroke="#17221b" stroke-width="2" '+
+  'transform="rotate(45 '+sx(blind.groupA)+' '+sy(blind.groupB)+')">'+
+  '<title>Rank-blind alphabetical control</title></rect>':"";
+ $("negotiation-chart").innerHTML='<svg xmlns="http://www.w3.org/2000/svg" '+
+  'viewBox="0 0 355 267" role="img" aria-label="Nondominated Qloo-ranked options">'+
+  '<rect x="49" y="37" width="274" height="194" fill="#15231a" stroke="#3a5842"/>'+
+  '<line x1="49" y1="134" x2="323" y2="134" stroke="#3d5140" stroke-dasharray="3 5"/>'+
+  '<line x1="186" y1="37" x2="186" y2="231" stroke="#3d5140" stroke-dasharray="3 5"/>'+
+  '<text x="10" y="22" fill="#c5d3c0" font-size="11">B ↑</text>'+
+  '<text x="293" y="256" fill="#c5d3c0" font-size="11">A →</text>'+
+  '<text x="49" y="252" fill="#97ae9a" font-size="9">0</text>'+
+  '<text x="311" y="252" fill="#97ae9a" font-size="9">1</text>'+
+  blindDot+dots+'</svg>';
+}
+function renderNegotiation(result){
+ const panel=$("negotiation-panel");
+ const atlas=result?.negotiation;
+ if(result?.status!=="ok"||!atlas||!Array.isArray(atlas.points)||!atlas.points.length){
+  panel.hidden=true;
+  $("negotiation-chart").innerHTML="";
+  $("negotiation-options").innerHTML="";
+  return;
+ }
+ panel.hidden=false;
+ $("negotiation-slider").max=String(atlas.points.length-1);
+ $("negotiation-slider").disabled=atlas.points.length<2;
+ const blind=atlas.tasteBlind;
+ if(blind){
+  const optimized=result.bridge.worst;
+  const difference=(optimized-blind.worst)*100;
+  $("negotiation-blind").textContent=
+   "Taste-blind alphabetical plan: weakest audience "+(blind.worst*100).toFixed(1)+
+   "% vs MOSAIC "+(optimized*100).toFixed(1)+
+   "% ("+(difference>=0?"+":"")+difference.toFixed(1)+
+   "pp in-sample, not a tested real-world uplift).";
+ }
+ const idx=atlas.points.findIndex(p=>p.id===atlas.maximinId);
+ showNegotiationPoint(idx>=0?idx:0);
+}
 function showUnavailable(message){
  // A failed Qloo query must not leave a copyable agreement from an earlier run.
  latest=null;
@@ -94,6 +176,7 @@ function showUnavailable(message){
  $("tradeoff").textContent="No partial or invented plan is shown. Choose other public cultural anchors and retry.";
  $("treaty-panel").hidden=true;
  renderResilience(null);
+ renderNegotiation(null);
  $("agent-trace-panel").hidden=true;
  $("agent-trace").textContent="";
  $("ledger-items").textContent="No verified evidence-backed agreement was produced.";
@@ -128,6 +211,7 @@ function render(result){
  }
  renderTreaty(result);
  renderResilience(result);
+ renderNegotiation(result);
  const bridge=result.bridge;
  $("plan-title").textContent="A little of both. All together.";
  $("plan-cost").textContent=result.mode==="qloo-live"?"—":money(bridge.cost);
@@ -230,6 +314,24 @@ $("resilience-items").addEventListener("click",ev=>{
   const item=latest?.resilience?.impacts?.find(x=>x.removed?.id===b.dataset.resilienceVeto);
   if(item?.status==="feasible")addVeto(item.removed.id,item.removed.label);
  }
+});
+// Pure local negotiation previews: moving the dial cannot trigger Qloo calls.
+$("negotiation-slider").addEventListener("input",value=>{
+ const n=typeof value==="object"?value.target?.value:value;
+ showNegotiationPoint(n);
+});
+$("negotiation-chart").addEventListener("click",ev=>{
+ const b=ev.target.closest("[data-frontier-index]");
+ if(b)showNegotiationPoint(Number(b.dataset.frontierIndex));
+});
+$("negotiation-chart").addEventListener("keydown",ev=>{
+ if(ev.key!=="Enter"&&ev.key!==" ")return;
+ const b=ev.target.closest("[data-frontier-index]");
+ if(b){ev.preventDefault();showNegotiationPoint(Number(b.dataset.frontierIndex));}
+});
+$("negotiation-reset").addEventListener("click",()=>{
+ const idx=latest?.negotiation?.points?.findIndex(p=>p.id===latest.negotiation.maximinId);
+ showNegotiationPoint(idx>=0?idx:0);
 });
 $("rejection-list").addEventListener("click",ev=>{
  const undo=ev.target.closest("[data-undo]");

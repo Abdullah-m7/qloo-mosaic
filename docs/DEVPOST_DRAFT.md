@@ -38,6 +38,21 @@ a recommendation. Claimed links across categories require the exact
 same provider-verified tag in at least two selected categories; otherwise
 the interface plainly says that no such thread was verified.
 
+## The interactive negotiation frontier
+Instead of presenting one opaque recommendation, MOSAIC enumerates the
+**exact Pareto-efficient frontier** across the two audiences' relative
+ordinal rank proxies, with an interactive dial to preview multiple
+culturally grounded compromises. When one audience gains preference rank,
+the organizer can see which other group's rank changes and which actual
+Qloo-backed artist/place/film combination would be substituted.
+
+A separate **rank-blind alphabetical comparator** chooses from the exact
+same Qloo-discovered entities without using their taste ordering. We
+explain this limitation explicitly: it is not a fully Qloo-free LLM
+baseline, and outperforming it on the planner's own training objective
+is a mathematical property, not proof of better future human choices.
+No Qloo API calls are added by frontier exploration.
+
 ## Why Qloo matters
 Qloo is not a decorative API call. Its real entity discovery, audience-
 relative rankings and optional tag evidence are inputs to the planner.
@@ -75,3 +90,18 @@ not claim a measured real-world outcome.
 **Submission status:** Draft only. Do not submit until the public Render
 health endpoint reports `mode=live` and its planner returns verified
 Qloo evidence with no secrets in logs or browser network responses.
+
+## Intended users and business potential (hypotheses, not customer validation)
+MOSAIC is designed for community event organizers, arts-program producers,
+mixed-audience festivals and local cultural-marketing teams who need to
+justify decisions to more than one constituency. Organizers now have a
+three-option cultural activation plan, Qloo trace, scenario trade-offs,
+single-veto stress tests and a visual negotiation frontier in one
+transparent workflow instead of generic, unaccountable top-ten suggestions.
+
+A future organizer-facing service could charge for planning seats or event
+decision packages and integrate real venue availability, screening
+licensing, budgets and outcome feedback via authorized partner services.
+**This pricing/business model is an unvalidated product hypothesis.** No
+customer adoption, event attendance, revenue uplift, legal licensing
+or sponsor investment is asserted in this hackathon submission.

@@ -39,7 +39,7 @@ The preview's example scores, tag availability and planning tokens are invented 
 | Area | Verified status |
 | --- | --- |
 | Responsive interface, working veto/undo and comparison controls | Tested in desktop and mobile Chrome |
-| Optimizer, provenance gates, bounded agent orchestration and cultural treaty | **82/82 local automated checks passed on the direct-REST branch**; offline tests mock Qloo, supplemented by a separate real API smoke run |
+| Optimizer, provenance gates, bounded agent orchestration and cultural treaty | **83/83 local automated checks passed on the direct-REST branch**; offline tests mock Qloo, supplemented by a separate real API smoke run |
 | Deterministic algorithmic falsification | 500 **synthetic** scenarios, 429 feasible; see below |
 | Public open-source repo and externally hosted Node app | Deployed; Node app is intentionally **sample mode** |
 | Qloo live API integration and real shared-tag evidence | **Real GitHub Actions Qloo Search/Insights/Rank agent smoke PASSED**; a public Render live integration and independent tag evidence remain pending |

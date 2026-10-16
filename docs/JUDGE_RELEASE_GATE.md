@@ -63,3 +63,17 @@
   cleanup are unit-tested. Never log visitor IPs or event secrets.
 - These protections do not replace real anonymous browser, cold-start and
   event quota testing after Render is configured with the protected API key.
+
+## Protected judge HTTP simulation (16 October, validation candidate)
+- `scripts/judge-http-smoke.mjs` starts a temporary, **localhost-only**
+  Node server in live mode with the GitHub event secret. It uses exactly the
+  default cultural names appearing in the public UI, not simplified test-only
+  anchors; it never opens a public endpoint or logs provider payloads.
+- The run asserts Qloo-backed evidence, three plan categories and ranking
+  traces, then tests a veto and cache re-negotiation (zero extra Qloo calls),
+  and rejects a private/email-like anchor without falling back to fixtures.
+- CI runs this extra live HTTP scenario **only** for commits tagged
+  `[http-e2e]`, limiting event quota use. A green direct tool smoke does not
+  imply that the judge HTTP path is valid; require both as release evidence.
+- This still cannot prove Render's protected secret or public deployment;
+  that requires a separate production smoke test.

@@ -35,6 +35,11 @@ jobs:
           QLOO_API_KEY: ${{ secrets.QLOO_API_KEY }}
           QLOO_TEST_INSPECT: '1'
         run: node scripts/qloo-smoke.mjs
+      - name: Probe real judge-facing HTTP server without publishing
+        if: contains(github.event.head_commit.message, '[http-e2e]')
+        env:
+          QLOO_API_KEY: ${{ secrets.QLOO_API_KEY }}
+        run: node scripts/judge-http-smoke.mjs
       - name: Evaluate held-out Qloo ablation privately
         if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[ablation]')
         env:

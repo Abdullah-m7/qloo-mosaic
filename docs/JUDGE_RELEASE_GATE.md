@@ -42,6 +42,7 @@
   and provenance IDs. It must NOT return synthetic fixture data.
 - Inspect the three single-option resilience counterfactuals; confirm each is derived from the same verified shortlist, uses zero additional provider calls, and labels proxy changes without claiming real booking availability.
 - Veto a live recommendation; confirm a cached replan (zero extra Qloo calls).
+- Use typed public anchors such as `Movie: Barbie (2023)` to resolve known identity ambiguity by category and release year, without revealing an entity ID or a private profile. Verify malformed hints are rejected safely.
 - Use ambiguous public inputs; confirm a non-200 explanation and no leaked
   source, stale previous agreement, or fabricated ranking.
 - Inspect browser Network and logs: zero exposed Qloo credentials.

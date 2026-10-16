@@ -4,7 +4,7 @@
 Two audiences. One cultural night. Most recommendations prioritize a large group or optimize an overall average; MOSAIC explicitly negotiates a shared plan based on evidence, not generic popularity.
 
 ## Show live data, not only a pretty interface
-Choose public music and film entities for Group A and B. Enter a real location. Explain that Qloo discovers a shared candidate set and independently ranks identical options for each group. Present actual Qloo entity identifiers, not generic LLM-generated suggestions.
+Choose public music and film entities for Group A and B. For a film with multiple namesakes, show the optional release-year syntax (`Movie: Barbie (2023)`), or use `Artist: Radiohead` to specify a category without inventing an entity ID. Enter a real location. Explain that Qloo discovers a shared candidate set and independently ranks identical options for each group. Present actual Qloo entity identifiers, not generic LLM-generated suggestions.
 
 ## Demonstrate the nontrivial decision
 Compare the same candidate sets under three objectives: Group A-first, total-average, and maximize the lower group-preference proxy. Show the trade-off in both group rankings. Avoid calling ordinal rank percentiles satisfaction probabilities.

@@ -2,6 +2,25 @@
 export const EVENT_BASE_URL="https://hackathon.api.qloo.com";
 const types={artist:"urn:entity:artist",place:"urn:entity:place",movie:"urn:entity:movie"};
 const normalize=x=>String(x).trim().normalize("NFKC").toLowerCase();
+// Public, optional identity hints: "Artist: Radiohead" or "Movie: Barbie (2023)".
+// This is an explicit hint, NOT automatic disambiguation by popularity or rank.
+export function parsePublicTasteAnchor(input){
+ if(typeof input!=="string")return input;
+ const value=input.trim();
+ const prefix=/^(artist|movie)\s*:/i.exec(value);
+ if(!prefix)return {name:value,type:null,year:null};
+ const type=prefix[1].toLowerCase();
+ let name=value.slice(prefix[0].length).trim();
+ let year=null;
+ const suffix=/\s+\((\d{4})\)$/.exec(name);
+ if(suffix){
+  year=Number(suffix[1]);
+  name=name.slice(0,-suffix[0].length).trim();
+ }
+ if(!name)throw Error("QLOO_INVALID_SIGNALS");
+ if(year!==null&&type!=="movie")throw Error("QLOO_INVALID_RELEASE_YEAR");
+ return {name,type,year};
+}
 // A process-wide pacing gate prevents concurrent ranking calls from bursting the
 // event API. Pure injected-fetch unit tests do not touch this network gate.
 let nextRequestAt=0;
@@ -68,9 +87,10 @@ export class QlooRestClient {
   try{return await response.json();}catch{throw Error("QLOO_INVALID_JSON");}
  }
  async resolveSeed(input){
-  const name=typeof input==='string'?input:input?.name;
-  const category=typeof input==='string'?null:input?.type;
-  const year=typeof input==='string'?null:(input?.year??null);
+  const parsed=parsePublicTasteAnchor(input);
+  const name=parsed?.name;
+  const category=parsed?.type??null;
+  const year=parsed?.year??null;
   if(typeof name!=='string'||!name.trim()||name.length>72||name.includes('@'))
    throw Error('QLOO_INVALID_SIGNALS');
   // Explicit type hints narrow known public artist/movie anchors, but never
@@ -98,7 +118,11 @@ export class QlooRestClient {
  }
  async resolveSeeds(names){
   if(!Array.isArray(names)||names.length<1||names.length>10)throw Error("QLOO_INVALID_SIGNALS");
-  return Promise.all(names.map(name=>this.resolveSeed(name)));
+  const resolved=await Promise.all(names.map(name=>this.resolveSeed(name)));
+  // An aliased, year-qualified and unqualified name may resolve to the SAME
+  // public entity. Never give duplicated evidence an artificial signal weight.
+  const unique=new Map(resolved.map(id=>[id.toLowerCase(),id]));
+  return [...unique.values()];
  }
  async call(tool,args){
   if(tool==="qloo_recommend"){

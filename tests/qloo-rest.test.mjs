@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {QlooRestClient} from "../src/qloo-rest.mjs";
+import {QlooRestClient,parsePublicTasteAnchor} from "../src/qloo-rest.mjs";
 
 function fixture(){
  const calls=[];
@@ -164,4 +164,49 @@ test("partial ranked candidates are not imputed and report exact coverage",async
  assert.equal(rank.requested,3);
  assert.equal(rank.returned,2);
  assert.deepEqual(rank.results.map(x=>x.name),["Mosaic Artist","Lantern Artist"]);
+});
+
+test("typed cultural anchor syntax is explicit and preserves plain names",()=>{
+ assert.deepEqual(parsePublicTasteAnchor("Artist: Radiohead"),{name:"Radiohead",type:"artist",year:null});
+ assert.deepEqual(parsePublicTasteAnchor(" Movie: Barbie (2023) "),{name:"Barbie",type:"movie",year:2023});
+ assert.deepEqual(parsePublicTasteAnchor("The Grand Budapest Hotel"),{name:"The Grand Budapest Hotel",type:null,year:null});
+ assert.throws(()=>parsePublicTasteAnchor("Movie: "),/QLOO_INVALID_SIGNALS/);
+ assert.throws(()=>parsePublicTasteAnchor("Artist: Radiohead (2023)"),/QLOO_INVALID_RELEASE_YEAR/);
+});
+test("judge typed public film and artist anchors restrict Qloo Search without guessing",async()=>{
+ const requests=[];
+ const client=new QlooRestClient({apiKey:"offline-test",fetchImpl:async input=>{
+  const url=new URL(input);
+  requests.push({query:url.searchParams.get("query"),types:url.searchParams.get("types")});
+  if(url.searchParams.get("query")==="Barbie"){
+   return new Response(JSON.stringify({results:[
+    {name:"Barbie",entity_id:"film-2023",properties:{release_year:2023},type:"urn:entity"},
+    {name:"Barbie",entity_id:"older-film",properties:{release_year:1964},type:"urn:entity"}
+   ]}),{status:200});
+  }
+  return new Response(JSON.stringify({results:[
+   {name:"Radiohead",entity_id:"artist-radiohead",type:"urn:entity"}
+  ]}),{status:200});
+ }});
+ assert.equal(await client.resolveSeed("Movie: Barbie (2023)"),"film-2023");
+ assert.equal(await client.resolveSeed("Artist: Radiohead"),"artist-radiohead");
+ assert.deepEqual(requests,[
+  {query:"Barbie",types:"urn:entity:movie"},
+  {query:"Radiohead",types:"urn:entity:artist"}
+ ]);
+ await assert.rejects(()=>client.resolveSeed("Movie: Barbie (2099)"),/QLOO_SIGNAL_UNRESOLVED/);
+});
+
+test("typed and untyped aliases cannot double-weight a single Qloo entity",async()=>{
+ const client=new QlooRestClient({apiKey:"offline-test",fetchImpl:async url=>{
+  const request=new URL(url);
+  assert.equal(request.pathname,"/search");
+  assert.equal(request.searchParams.get("query"),"Radiohead");
+  return new Response(JSON.stringify({results:[
+   {name:"Radiohead",entity_id:"qloo-radiohead",type:"urn:entity"}
+  ]}),{status:200});
+ }});
+ const resolved=await client.resolveSeeds(["Radiohead","Artist: Radiohead"]);
+ assert.deepEqual(resolved,["qloo-radiohead"]);
+ assert.equal(client.requests,2);
 });

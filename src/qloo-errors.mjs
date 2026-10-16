@@ -2,9 +2,13 @@
 // Never relay raw provider payloads, user identifiers or HTTP headers.
 export function publicQlooFailure(error){
  const code=String(error?.message||"UNKNOWN");
+ if(["QLOO_INVALID_SIGNALS","QLOO_INVALID_SIGNAL_TYPE",
+   "QLOO_INVALID_RELEASE_YEAR"].includes(code))
+  return {httpStatus:422,status:"needs_input",code:"INVALID_TASTE_ANCHOR_HINT",
+   message:"Use a public entity name, Artist: Radiohead, or Movie: Barbie (2023). Only films can include release years."};
  if(code==="QLOO_AMBIGUOUS_SIGNAL")
   return {httpStatus:422,status:"needs_input",code:"AMBIGUOUS_CULTURAL_ANCHOR",
-   message:"That cultural name matches multiple Qloo entities. Use a more distinctive public artist or movie title."};
+   message:"That public name matches multiple Qloo entities. Specify its category or film year, e.g. Artist: Radiohead or Movie: Barbie (2023)."};
  if(code==="QLOO_SIGNAL_UNRESOLVED")
   return {httpStatus:422,status:"needs_input",code:"CULTURAL_ANCHOR_NOT_FOUND",
    message:"Qloo could not uniquely identify that public cultural name. Try a better-known artist or movie."};

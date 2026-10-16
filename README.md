@@ -40,7 +40,7 @@ The preview's example scores, tag availability and planning tokens are invented 
 | Area | Verified status |
 | --- | --- |
 | Responsive interface, working veto/undo and comparison controls | Tested in desktop and mobile Chrome |
-| Optimizer, provenance gates, bounded agent orchestration and cultural treaty | **94/94 local automated checks passed on the direct-REST branch**; offline tests mock Qloo, supplemented by a separate real API smoke run |
+| Optimizer, provenance gates, bounded agent orchestration and cultural treaty | **100/100 local automated checks passed on the direct-REST branch**; offline tests mock Qloo, supplemented by a separate real API smoke run |
 | Deterministic algorithmic falsification | 500 **synthetic** scenarios, 429 feasible; see below |
 | Public open-source repo and externally hosted Node app | Deployed; Node app is intentionally **sample mode** |
 | Qloo live API integration and real shared-tag evidence | **Real GitHub Actions Qloo Search/Insights/Rank agent smoke PASSED**; a public Render live integration and independent tag evidence remain pending |
@@ -74,7 +74,7 @@ The offline property experiment generates 500 deterministic score assignments (s
 
 ## Live Qloo setup — after secure credential provisioning
 
-The experimental branch uses a dependency-free, bounded REST tool executor over the documented Qloo `/search` and `/v2/insights` GET endpoints. It resolves public cultural seeds, ranks identical candidate shortlists for each audience and optionally checks shared tag evidence. The direct REST agent has been verified against the event API in GitHub Actions. This does not imply that the publicly hosted Render application is live or that the exploratory recommendation metrics show uplift.
+The experimental branch uses a dependency-free, bounded REST tool executor over the documented Qloo `/search` and `/v2/insights` GET endpoints. It resolves public cultural seeds, ranks identical candidate shortlists for each audience and optionally checks shared tag evidence. For ambiguous names, use explicit public identity hints in the live UI, such as `Artist: Radiohead; Movie: Barbie (2023)`; the stated film release year must match Qloo identity metadata, otherwise the agent abstains. The direct REST agent has been verified against the event API in GitHub Actions. This does not imply that the publicly hosted Render application is live or that the exploratory recommendation metrics show uplift.
 
 The key is a **hackathon-only secret**. Configure it in your server's secure environment as `QLOO_API_KEY`, never in a browser, public repository, example URL or screenshot. The service pins `QLOO_BASE_URL=https://hackathon.api.qloo.com` instead of the production Qloo API endpoint.
 

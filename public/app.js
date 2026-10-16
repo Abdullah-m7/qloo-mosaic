@@ -269,7 +269,7 @@ async function init(){
  const enabled=runtimeMode==="live";
  for(const name of ["group-a","group-b","location"])$(name).disabled=!enabled;
  $("seed-help").textContent=enabled?
- "Enter 1–5 publicly known cultural entities for each audience, separated with semicolons. No names, personal data or emails.":
+ "Enter 1–5 public artists or movies per audience, separated with semicolons. To clarify an ambiguous title, use Movie: Barbie (2023) or Artist: Radiohead. No attendee names, emails or private profiles.":
  "Sample mode: fixed fictional audience preferences. Custom seeds become available when the Qloo event key is configured on the server.";
  if(enabled){
   document.querySelector('label[for="budget"]').style.display="none";

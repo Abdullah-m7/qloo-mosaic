@@ -40,6 +40,11 @@ jobs:
         env:
           QLOO_API_KEY: ${{ secrets.QLOO_API_KEY }}
         run: node scripts/judge-http-smoke.mjs
+      - name: Check documented Qloo explanation metadata safely
+        if: contains(github.event.head_commit.message, '[explainability]')
+        env:
+          QLOO_API_KEY: ${{ secrets.QLOO_API_KEY }}
+        run: node scripts/qloo-explainability-probe.mjs
       - name: Evaluate held-out Qloo ablation privately
         if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[ablation]')
         env:

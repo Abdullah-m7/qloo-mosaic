@@ -34,7 +34,9 @@ export function extractItems(envelope){
     const name=entity?.name??entity?.title??entity?.properties?.name??x?.entity_name;
     const uuid=entity?.id??entity?.entity_id??x?.entity_id;
     return {name:typeof name==="string"?name:null,
-      id:typeof uuid==="string"?uuid:null};
+      id:typeof uuid==="string"?uuid:null,
+      ...(Array.isArray(x?.contributors)&&x.contributors.length?
+        {contributors:x.contributors}:{})};
   }).filter(x=>x.name&&x.name.length<=160);
 }
 export function percentileRanks(orderedNames,expected){
@@ -89,8 +91,12 @@ export async function discoverCulturalEvidence({a,b,place,call}){
       call("qloo_rank",{options:names,option_type:type,signals:a}),
       call("qloo_rank",{options:names,option_type:type,signals:b})
     ]);
-    const leftNames=extractItems(left).map(x=>x.name);
-    const rightNames=extractItems(right).map(x=>x.name);
+    const leftItems=extractItems(left);
+    const rightItems=extractItems(right);
+    const leftNames=leftItems.map(x=>x.name);
+    const rightNames=rightItems.map(x=>x.name);
+    const leftReasons=new Map(leftItems.map(x=>[normalized(x.name),x.contributors]));
+    const rightReasons=new Map(rightItems.map(x=>[normalized(x.name),x.contributors]));
     const leftSet=new Set(leftNames.map(normalized));
     const rightSet=new Set(rightNames.map(normalized));
     const shared=names.filter(x=>leftSet.has(normalized(x))&&rightSet.has(normalized(x)));
@@ -109,7 +115,11 @@ export async function discoverCulturalEvidence({a,b,place,call}){
         cost:0,scoreA:record.scoreA,scoreB:record.scoreB,
         source:"qloo-rest:insights+rank",
         qloo_entity_id:source.id,
-        evidence_id:"QL-"+source.id.replace(/[^a-zA-Z0-9]/g,"").slice(0,12)
+        evidence_id:"QL-"+source.id.replace(/[^a-zA-Z0-9]/g,"").slice(0,12),
+        qloo_explanations:{
+          groupA:leftReasons.get(normalized(record.name))??[],
+          groupB:rightReasons.get(normalized(record.name))??[]
+        }
       });
     }
   }

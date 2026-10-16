@@ -12,6 +12,9 @@ Compare the same candidate sets under three objectives: Group A-first, total-ave
 ## Demonstrate the negotiation frontier
 Open **The Negotiation Frontier**, move the dial from a Group-B-leaning compromise to a Group-A-leaning alternative, and inspect the exact artist, place and film labels and Qloo evidence identifiers. Point out the highlighted maximin plan and the independent **rank-blind alphabetical choice on the same discovered entities**. Explain that this is a sensitivity visualization of ordinal ranks, not independent evidence of human satisfaction or superior held-out performance. Previewing requires zero additional Qloo calls.
 
+## Trace Qloo's own explanation
+On the live three-category plan, expand the per-item `QLOO SOURCE CONTRIBUTIONS` rows for both audiences. These show only public input anchors matched against the provider's `query.explainability` records. If an item has no provider-level explanation, point out the explicit unavailable state. Do not call normalized contribution scores predicted satisfaction, attendee probabilities, or causality.
+
 ## Demonstrate adaptation
 Reject the first option; show another feasible plan or an explicit insufficient-evidence outcome. Undo the veto. Change the public cultural anchor or search location and show a different real Qloo-grounded result.
 

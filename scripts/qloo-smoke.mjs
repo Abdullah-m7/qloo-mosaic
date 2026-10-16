@@ -13,6 +13,13 @@ try{
  if(plan.status!=="ok")throw Error("QLOO_PLAN_"+String(plan.status));
  const counts=plan.trace?.filter(x=>x.tool==="qloo_rank").length??0;
  console.log("QLOO_AGENT_OK slots="+plan.bridge.items.length+" rank_stages="+counts);
+ const explain=plan.bridge.items.map(item=>item.qloo_explanations||{});
+ const explained=explain.filter(groups=>
+  ["groupA","groupB"].some(g=>Array.isArray(groups[g])&&groups[g].length>0)).length;
+ const groupEntries=explain.reduce((sum,groups)=>sum+
+  ["groupA","groupB"].reduce((n,g)=>n+(groups[g]?.length||0),0),0);
+ console.log("QLOO_PROVIDER_EXPLANATION_META selected_items="+explain.length+
+  " explained_items="+explained+" public_anchor_contributions="+groupEntries);
  const tags=(plan.trace||[]).filter(x=>x.stage==="enrich");
  if(tags.length!==3||tags.some(x=>x.calls!==0||x.tool!=="cached-qloo-discovery-tags"))
   throw Error("QLOO_TAG_SOURCE_NOT_GROUNDED");

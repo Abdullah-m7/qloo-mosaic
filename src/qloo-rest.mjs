@@ -47,6 +47,27 @@ const parseEntity=value=>{
   {name:name.trim(),id:id.trim(),type:x?.type??null,subtype:x?.subtype??null,
    releaseYear:x?.properties?.release_year??x?.release_year??null}:null;
 };
+// Translate the provider's documented per-result explainability into
+// labeled, public-anchor contribution evidence. Never emit provider
+// identifiers, nonmatching entities, private profiles or ungrounded scores.
+export function extractProviderContributions(raw,anchorsById){
+ const input=raw?.query?.explainability?.["signal.interests.entities"];
+ if(!Array.isArray(input)||!(anchorsById instanceof Map))return [];
+ const seen=new Set(),out=[];
+ for(const c of input){
+  const id=typeof c?.entity_id==="string"?c.entity_id.toLowerCase():"";
+  const name=anchorsById.get(id);
+  const rawScore=c?.score;
+  if(typeof rawScore!=="number"&&
+   !(typeof rawScore==="string"&&rawScore.trim()))continue;
+  const n=Number(rawScore);
+  if(!id||!name||typeof name!=="string"||name.length>72||
+   name.includes("@")||!Number.isFinite(n)||n<0||n>1||seen.has(id))continue;
+  seen.add(id);out.push({anchor:name,contribution:Math.round(n*1000)/1000});
+ }
+ return out.sort((a,b)=>b.contribution-a.contribution||
+  a.anchor.localeCompare(b.anchor)).slice(0,8);
+}
 // Qloo Insights returns type='urn:entity' for a typed category request.
 // The subtype, when present, may carry the specific category URN.
 const matchesCategory=(item,expected)=>{
@@ -127,13 +148,24 @@ export class QlooRestClient {
   const unique=new Map(resolved.map(id=>[id.toLowerCase(),id]));
   return [...unique.values()];
  }
+ async influenceSourceNames(signals){
+  const names=new Map();
+  for(const input of signals){
+   const id=await this.resolveSeed(input); // cached by resolveSeeds, no new API
+   const anchor=parsePublicTasteAnchor(input)?.name;
+   if(typeof anchor==="string"&&anchor&&!anchor.includes("@"))
+    names.set(id.toLowerCase(),anchor);
+  }
+  return names;
+ }
  async call(tool,args){
   if(tool==="qloo_recommend"){
    const type=types[args.target_type];
    if(!type)throw Error("QLOO_INVALID_TARGET");
    const signals=await this.resolveSeeds(args.signals);
    const query={"filter.type":type,"signal.interests.entities":signals,
-    sort_by:'affinity',take:Math.min(8,Math.max(2,Number(args.limit)||5))};
+    sort_by:'affinity',"feature.explainability":"true",
+    take:Math.min(8,Math.max(2,Number(args.limit)||5))};
    if(args.filter_location&&type===types.place)
     query["filter.location.query"]=args.filter_location;
    const data=await this.request("/v2/insights",query);
@@ -176,16 +208,21 @@ export class QlooRestClient {
    if(new Set(options.map(x=>x.id.toLowerCase())).size!==options.length)
     throw Error("QLOO_DUPLICATE_OPTION_IDS");
    const signals=await this.resolveSeeds(args.signals);
+   // IDs are already cached after resolveSeeds. These are known public
+   // profile anchors, not unverified demographic or personal characteristics.
+   const knownAnchors=await this.influenceSourceNames(args.signals);
    const data=await this.request("/v2/insights",{"filter.type":type,
     "filter.results.entities":options.map(x=>x.id),
-    "signal.interests.entities":signals,sort_by:'affinity',take:options.length});
+    "signal.interests.entities":signals,sort_by:'affinity',
+    "feature.explainability":"true",take:options.length});
    const byId=new Map(options.map(x=>[x.id.toLowerCase(),x]));
    const seen=new Set(),results=[];
    for(const raw of resultList(data)){
     const item=parseEntity(raw);
     const id=item?.id.toLowerCase();
     if(!id||!byId.has(id)||seen.has(id))continue;
-    seen.add(id);results.push({name:byId.get(id).name,id:item.id});
+    seen.add(id);results.push({name:byId.get(id).name,id:item.id,
+     contributors:extractProviderContributions(raw,knownAnchors)});
    }
    // A provider may rank only part of the requested shortlist.
    // Preserve the grounded subset; callers must intersect audience coverage.

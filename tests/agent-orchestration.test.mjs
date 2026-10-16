@@ -84,3 +84,36 @@ test("agent never receives private user identifiers from the sample driver",asyn
  await discoverCulturalEvidence({a:GROUP_A,b:GROUP_B,place:"Jeddah",call:mock.tool});
  assert.ok(mock.logs.every(x=>!JSON.stringify(x.args).includes("@")));
 });
+
+test("agent assigns only real per-audience contributor metadata to grounded options",async()=>{
+ const tool=async(name,args)=>{
+  if(name==="qloo_recommend"){
+   return {status:"ok",results:[
+    {name:"Common A",id:args.target_type+"1"},
+    {name:"Common B",id:args.target_type+"2"}
+   ]};
+  }
+  if(name==="qloo_rank"){
+   const a=args.signals.includes("Radiohead");
+   return {status:"ok",results:[
+    {name:a?"Common A":"Common B",contributors:[
+      {anchor:a?"Radiohead":"Daft Punk",contribution:a?.743:.681}
+    ]},
+    {name:a?"Common B":"Common A",contributors:[]}
+   ]};
+  }
+  throw Error("Unexpected");
+ };
+ const {candidates}=await discoverCulturalEvidence({
+  a:["Radiohead"],b:["Daft Punk"],place:"New York",call:tool
+ });
+ assert.equal(candidates.length,6);
+ for(const slot of ["music","food","experience"]){
+  const a=candidates.find(x=>x.slot===slot&&x.label==="Common A");
+  const b=candidates.find(x=>x.slot===slot&&x.label==="Common B");
+  assert.deepEqual(a.qloo_explanations.groupA,[{anchor:"Radiohead",contribution:.743}]);
+  assert.deepEqual(a.qloo_explanations.groupB,[]);
+  assert.deepEqual(b.qloo_explanations.groupA,[]);
+  assert.deepEqual(b.qloo_explanations.groupB,[{anchor:"Daft Punk",contribution:.681}]);
+ }
+});

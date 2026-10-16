@@ -238,3 +238,10 @@ footer .brand{font-size:17px}footer p{font-size:11px;color:#89988c}footer>a:last
 .negotiation-control small{font-size:11px;line-height:1.75;color:#9eb29e;display:block}
 @media(max-width:850px){.negotiation-layout{grid-template-columns:1fr}}
 @media(max-width:550px){.negotiation-header{align-items:flex-start;flex-direction:column}.negotiation-layout{padding:13px;gap:13px}.negotiation-intro{padding:17px 16px 4px}.negotiation-preview{padding:15px}.negotiation-control{padding:15px}.negotiation-scores strong{font-size:25px}}
+
+/* First-party provider explanation metadata: not preference probabilities. */
+.qloo-contributors{margin:13px 0 7px;border-top:1px solid #3d5145;padding:12px 0 2px}
+.qloo-contributors>b{color:var(--lime);font-size:9px;letter-spacing:1.25px}
+.qloo-contributors p{font-size:11px;color:#c9d7c6;line-height:1.6;margin:8px 0;overflow-wrap:anywhere}
+.qloo-contributors p strong{color:#f5ffe8;margin-right:7px}
+.qloo-contributors small{display:block;margin-top:7px;color:#9aaf9e;font-size:10px;line-height:1.6}

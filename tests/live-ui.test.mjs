@@ -194,3 +194,38 @@ test("untrusted cultural option names cannot inject markup in frontier preview",
  }
  assert.equal(element("negotiation-panel").hidden,false);
 });
+
+test("live card lists only validated Qloo source contributions for each audience",()=>{
+ const {context,element}=makeView();
+ const item={
+  id:"music:a",slot:"music",label:"Public Artist",cost:0,evidence_id:"QL-a",
+  source:"qloo-rest:insights+rank",qloo_explanations:{
+   groupA:[{anchor:"Radiohead",contribution:.654},{anchor:"<script>alert(1)</script>",contribution:.2}],
+   groupB:[{anchor:"Daft Punk",contribution:.42},{anchor:"Invalid",contribution:2}]
+  }
+ };
+ const plan={items:[item],worst:.5,mean:.6,groupA:.5,groupB:.7};
+ context.fixture={mode:"qloo-live",status:"ok",bridge:plan,
+  baselines:{majority:plan,average:plan},trace:[],treaty:null};
+ vm.runInContext("render(fixture)",context);
+ const html=element("plan-items").innerHTML;
+ assert.match(html,/QLOO SOURCE CONTRIBUTIONS/);
+ assert.match(html,/Radiohead: 0\.654/);
+ assert.match(html,/Daft Punk: 0\.420/);
+ assert.match(html,/&lt;script&gt;alert\(1\)&lt;\/script&gt;/);
+ assert.doesNotMatch(html,/<script>/);
+ assert.doesNotMatch(html,/Invalid: 2/);
+ assert.match(html,/not probabilities/);
+});
+test("synthetic demo never renders provider explanation metrics",()=>{
+ const {context,element}=makeView();
+ const item={id:"m",slot:"music",label:"Sample",cost:20,
+  evidence_id:"SYN-M",source:"synthetic-fixture",qloo_explanations:{
+   groupA:[{anchor:"Radiohead",contribution:.75}]
+  }};
+ const plan={items:[item],worst:.5,mean:.6,groupA:.5,groupB:.7};
+ context.fixture={mode:"synthetic",status:"ok",bridge:plan,
+  baselines:{majority:plan,average:plan},trace:[],treaty:null};
+ vm.runInContext("render(fixture)",context);
+ assert.doesNotMatch(element("plan-items").innerHTML,/QLOO SOURCE CONTRIBUTIONS/);
+});

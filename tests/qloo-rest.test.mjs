@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import {QlooRestClient,parsePublicTasteAnchor} from "../src/qloo-rest.mjs";
+import {QlooRestClient,parsePublicTasteAnchor,extractProviderContributions} from "../src/qloo-rest.mjs";
 
 function fixture(){
  const calls=[];
@@ -241,4 +241,53 @@ test("Qloo's actual discovery tags verify cross-domain threads without extra API
  await assert.rejects(()=>client.call("qloo_entity_tags",{entities:["not-discovered"]}),
   /QLOO_TAG_METADATA_UNAVAILABLE/);
  assert.equal(client.requests,before);
+});
+
+test("Qloo explanation metadata is bound only to known public signal IDs",()=>{
+ const input={query:{explainability:{"signal.interests.entities":[
+  {entity_id:"SEED-A",score:.7421},
+  {entity_id:"seed-b",score:".3553"},
+  {entity_id:"private-id",score:.9},
+  {entity_id:"seed-b",score:.7},
+  {entity_id:"seed-a",score:null},
+  {entity_id:"seed-a",score:1.2}
+ ]}}};
+ const found=extractProviderContributions(input,new Map([
+  ["seed-a","Radiohead"],["seed-b","Daft Punk"]
+ ]));
+ assert.deepEqual(found,[
+  {anchor:"Radiohead",contribution:.742},
+  {anchor:"Daft Punk",contribution:.355}
+ ]);
+ assert.equal(JSON.stringify(found).includes("private-id"),false);
+ assert.deepEqual(extractProviderContributions({query:{explainability:{}}},new Map()),[]);
+});
+test("rank requests carry optional provider explainability without extra API calls",async()=>{
+ const calls=[];
+ const fetchImpl=async url=>{
+  const request=new URL(url);
+  calls.push(request);
+  if(request.pathname==="/search"){
+   const label=request.searchParams.get("query");
+   return new Response(JSON.stringify({results:[{name:label,entity_id:"signal-id"}]}),{status:200});
+  }
+  const ranked=request.searchParams.has("filter.results.entities");
+  const choices=ranked?
+   [{name:"A",entity_id:"option-a",query:{explainability:{
+    "signal.interests.entities":[{entity_id:"signal-id",score:.65}]}}},
+    {name:"B",entity_id:"option-b"}]:
+   [{name:"A",entity_id:"option-a"},{name:"B",entity_id:"option-b"}];
+  assert.equal(request.searchParams.get("feature.explainability"),"true");
+  return new Response(JSON.stringify({results:choices}),{status:200});
+ };
+ const client=new QlooRestClient({apiKey:"offline-test",fetchImpl});
+ await client.call("qloo_recommend",{target_type:"artist",signals:["Radiohead"],limit:2});
+ const r=await client.call("qloo_rank",{
+  option_type:"artist",options:["A","B"],signals:["Radiohead"]
+ });
+ assert.deepEqual(r.results[0].contributors,[{anchor:"Radiohead",contribution:.65}]);
+ assert.deepEqual(r.results[1].contributors,[]);
+ assert.equal(calls.length,3); // one signal lookup, two Insights requests
+ assert.equal(client.requests,3);
+ assert.ok(calls.every(x=>!x.search.includes("offline-test")));
 });

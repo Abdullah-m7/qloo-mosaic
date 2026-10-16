@@ -69,6 +69,11 @@ try{
    !atlas.points.some(p=>p.id===atlas.maximinId&&p.isMaximin)||
    !atlas.tasteBlind.items?.every(x=>x.id&&x.evidence_id))
   throw Error("JUDGE_NEGOTIATION_FRONTIER_INCOMPLETE");
+ const explanationCount=first.bridge.items.reduce((count,item)=>count+
+  ["groupA","groupB"].reduce((n,k)=>n+
+   (Array.isArray(item.qloo_explanations?.[k])?item.qloo_explanations[k].length:0),0),0);
+ console.log("JUDGE_HTTP_EXPLANATION_META categories="+first.bridge.items.length+
+  " verified_contributions="+explanationCount);
  console.log("JUDGE_HTTP_LIVE_OK slots=3 rank_stages=3");
  console.log("JUDGE_HTTP_COUNTERFACTUAL_OK exclusions=3 extra_provider_calls=0");
  console.log("JUDGE_HTTP_FRONTIER_OK blind_baseline=grounded extra_provider_calls=0");

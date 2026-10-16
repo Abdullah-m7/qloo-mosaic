@@ -57,6 +57,21 @@ function renderTreaty(result){
  $("treaty-note").textContent=explanation;
  $("copy-feedback").textContent="";
 }
+function renderQlooContributors(item,mode){
+ if(mode!=="qloo-live")return "";
+ const reasons=item?.qloo_explanations||{};
+ const groups=[["groupA","A"],["groupB","B"]].map(([key,label])=>{
+  const valid=Array.isArray(reasons[key])?reasons[key].filter(x=>
+   typeof x?.anchor==="string"&&x.anchor.length<=72&&
+   Number.isFinite(x?.contribution)&&x.contribution>=0&&x.contribution<=1):[];
+  const content=valid.length?
+   valid.slice(0,4).map(x=>safe(x.anchor)+": "+Number(x.contribution).toFixed(3)).join(" · "):
+   "No per-anchor attribution supplied";
+  return '<p><strong>Group '+label+'</strong> '+content+'</p>';
+ }).join("");
+ return '<aside class="qloo-contributors"><b>QLOO SOURCE CONTRIBUTIONS</b>'+
+  groups+'<small>Provider-normalized explanation values (0–1), not probabilities, measured satisfaction, or causal influence.</small></aside>';
+}
 function renderResilience(result){
  const panel=$("resilience-panel"),list=$("resilience-items");
  const impacts=result?.resilience?.impacts;
@@ -222,6 +237,7 @@ function render(result){
   '</span><strong>'+safe(o.label)+'</strong><div class="under"><span>'+
   (result.mode==="qloo-live"?"No verified price":money(o.cost))+
   '</span><small>Evidence '+safe(o.evidence_id)+'</small></div>'+
+  renderQlooContributors(o,result.mode)+
   '<button class="card-veto" data-veto="'+safe(o.id)+'" aria-label="Reject '+safe(o.label)+'">Reject option ↗</button></article>'
  ).join("");
  bar("newA",bridge.groupA);bar("newB",bridge.groupB);

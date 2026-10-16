@@ -62,6 +62,17 @@ Without those inputs, MOSAIC cannot legitimately produce a live
 evidence-backed agreement. Synthetic mode is labeled as an offline
 illustration and must not be mistaken for the live judge experience.
 
+## Qloo-backed, per-audience explanations
+For each shortlisted option, the server asks Qloo for documented
+`feature.explainability=true` metadata as part of the existing Insights
+ranking calls. When Qloo supplies per-entity contributions, MOSAIC
+maps them back only to the organizer's **public taste anchors** and
+labels the two audience contributions separately. If the provider
+cannot explain an item, the UI says so instead of attributing an
+unverified cultural connection. Normalized provider scores are
+explanation metadata, not satisfaction percentages or causal influence.
+No additional calls are needed for this feature.
+
 ## Engineering and responsible deployment
 Node.js 24, minimal client-side JavaScript, server-side Qloo event REST
 integration, immutable event hostname, bounded tool requests, short-lived

@@ -14,7 +14,7 @@
 - Responsive UI with two audience scenarios, veto/undo, alternative baseline comparisons, and a Cultural Bridge Agreement explaining trade-offs between two group-level ordinal preference proxies.
 - The isolated direct-REST branch implements read-only Qloo entity lookup, Insights and matched-list ranking against the official event API. A real end-to-end agent smoke test has passed in GitHub Actions; Render is still in sample mode.
 - Cross-domain cultural thread is shown only if Qloo returns identical tag IDs in more than one selected category; missing or inadequate data yields an explicit `no shared tag verified` state.
-- Original 50/50 checks passed on October 12. The current isolated branch passes 73/73 local checks; network-dependent behavior is separately validated with an event-key-backed GitHub Actions smoke test.
+- Original 50/50 checks passed on October 12. The current isolated branch passes 82/82 local checks; network-dependent behavior is separately validated with an event-key-backed GitHub Actions smoke test.
 - 500 deterministic synthetic assignments: 429 feasible; maximin wins or ties the baseline worst-off proxy in all feasible cases, as **guaranteed by that mathematical objective**. No empirical product impact is claimed.
 - Desktop 1440px and 390px mobile Chrome tests verified proposed treaty updates on veto, no JS errors and no horizontal overflow.
 - Production clean-room install was tested from a public GitHub clone.

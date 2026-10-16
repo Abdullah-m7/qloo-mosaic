@@ -49,3 +49,17 @@
 
 **Deadline:** October 30, 2026 at 11:45 PM EDT (October 31 at
 06:45 AM Asia/Riyadh). Keep the public application available during judging.
+
+## Live judging reliability hardening (16 October)
+- Render's public Cloudflare `CF-Connecting-IP` is validated as a single IP
+  before being trusted for per-visitor request quotas only when
+  `RENDER=true`. Locally, the server uses the socket peer and ignores
+  spoofable forwarded headers. This avoids treating all judges as one client.
+- Identical concurrent public planner requests are coalesced into a single
+  Qloo call; up to three distinct contexts may be in flight. Busy responses
+  fail closed without triggering extra provider calls. The limiter's
+  ephemeral client map is bounded to avoid memory growth.
+- Same-context coalescing, 429 handling, authentic IP selection and failed-job
+  cleanup are unit-tested. Never log visitor IPs or event secrets.
+- These protections do not replace real anonymous browser, cold-start and
+  event quota testing after Render is configured with the protected API key.

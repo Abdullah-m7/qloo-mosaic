@@ -7,6 +7,8 @@ import {sample} from "./src/fixtures.mjs";
 import {liveBridge,validateSeeds,validateLocation,DEFAULT_SEEDS} from "./src/qloo.mjs";
 import {createTreaty} from "./src/treaty.mjs";
 import {publicQlooFailure} from "./src/qloo-errors.mjs";
+import {clientIdentity,createRateLimiter} from "./src/rate-limit.mjs";
+import {createSingleFlight} from "./src/single-flight.mjs";
 const root=path.dirname(fileURLToPath(import.meta.url));
 const publicDir=path.join(root,"public");
 const port=Number(process.env.PORT||8788);
@@ -15,7 +17,8 @@ if(!["sample","live"].includes(mode))throw Error("Invalid QLOO_MODE");
 const typeMap={".html":"text/html; charset=utf-8",".css":"text/css; charset=utf-8",".js":"application/javascript; charset=utf-8",".svg":"image/svg+xml"};
 const cache=new Map();
 const evidenceCache=new Map();
-const calls=new Map();
+const limited=createRateLimiter();
+const liveJobs=createSingleFlight({maxActive:3});
 function json(res,status,data){
  res.writeHead(status,{"content-type":"application/json; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff"});
  res.end(JSON.stringify(data));
@@ -27,12 +30,6 @@ async function getBody(req){
    if(text.length>16000)throw Error("Payload too large");
  }
  return JSON.parse(text||"{}");
-}
-function limited(ip){
- const now=Date.now(),r=calls.get(ip)??{start:now,count:0};
- if(now-r.start>3600000){r.start=now;r.count=0;}
- r.count++;calls.set(ip,r);
- return r.count>12;
 }
 const server=http.createServer(async(req,res)=>{
  try{
@@ -69,11 +66,12 @@ const server=http.createServer(async(req,res)=>{
         cache.set(key,{time:Date.now(),value:result});
         return json(res,200,result);
       }
-      if(limited(req.socket.remoteAddress??"unknown"))
+      if(limited(clientIdentity(req)))
         return json(res,429,{status:"blocked",code:"DEMO_REQUEST_LIMIT",
           message:"This live demo has reached its temporary request limit. Please try again later."});
       try{
-        const result=await liveBridge({maxBudget:budget,exclude,...context});
+        // Identical public cultural requests share one bounded Qloo operation.
+        const result=await liveJobs.run(key,()=>liveBridge({maxBudget:budget,exclude,...context}));
         const {candidates,tagEvidence,...safeResult}=result;
         if(Array.isArray(candidates)&&candidates.length&&result.status==="ok"){
           evidenceCache.set(contextKey,{time:Date.now(),candidates,scenario:result.scenario,

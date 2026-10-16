@@ -12,6 +12,9 @@ export function publicQlooFailure(error){
   code.startsWith("Insufficient verifiable Qloo candidates"))
   return {httpStatus:422,status:"blocked",code:"INSUFFICIENT_MUTUAL_QLOO_EVIDENCE",
    message:"Qloo did not rank enough shared options for both audiences. Try different public cultural anchors."};
+ if(code==="DEMO_BUSY")
+  return {httpStatus:503,status:"blocked",code:"DEMO_BUSY",
+   message:"The live Qloo demo is currently processing other plans. Please try again shortly."};
  if(code==="QLOO_HTTP_429"||code==="QLOO_BOUNDED_CALL_LIMIT")
   return {httpStatus:429,status:"blocked",code:"QLOO_REQUEST_LIMIT",
    message:"The Qloo event API is temporarily rate-limiting requests. Try again after the quota recovers."};

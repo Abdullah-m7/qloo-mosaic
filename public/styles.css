@@ -185,3 +185,19 @@ footer .brand{font-size:17px}footer p{font-size:11px;color:#89988c}footer>a:last
 .copy-feedback{min-height:16px;font-size:11px;color:#345b38!important}
 @media(max-width:850px){.treaty-section{padding:70px 22px}.treaty-top{display:block}.treaty-aside{margin-top:20px}}
 @media(max-width:550px){.treaty-top h2{font-size:45px;letter-spacing:-2px}.treaty-metrics{grid-template-columns:1fr}.treaty-metric{border-right:0;border-bottom:1px solid #b3bbb0;min-height:118px;padding:20px}.treaty-metric:last-child{border-bottom:0}.treaty-metric strong{margin:5px 0;font-size:41px}.treaty-under{grid-template-columns:1fr}.treaty-under>div{padding:23px}.treaty-under>div:first-child{border-right:0;border-bottom:1px solid #b3bbb0}}
+
+/* Evidence-backed treaty stress test: calculations reuse the current shortlist. */
+.resilience-panel{background:#1d2722;border:1px solid #4d6455;margin:20px 0 22px}
+.resilience-panel[hidden]{display:none}
+.resilience-panel .ledger-head span{font-size:9px;color:var(--lime);text-align:right}
+.resilience-intro{padding:18px 21px 9px;margin:0;color:#bfcec0;font-size:12px;line-height:1.8;max-width:920px}
+.resilience-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:12px 20px 20px}
+.resilience-card{border:1px solid #3e5346;background:#19241d;padding:17px;min-width:0}
+.resilience-card .resilience-slot{display:block;color:var(--lime);font-size:10px;letter-spacing:1.4px;text-transform:uppercase}
+.resilience-card h4{font-family:var(--display);font-size:17px;line-height:1.4;margin:10px 0;overflow-wrap:anywhere}
+.resilience-card p{font-size:12px;color:#c5d1c7;line-height:1.65;margin:7px 0}
+.resilience-card .resilience-loss{font-size:22px;font-family:var(--display);color:var(--cream);font-weight:700}
+.resilience-card .resilience-alt{color:#a5bbaa;font-size:11px;line-height:1.6}
+.resilience-card button{margin-top:11px;padding:10px 12px;border:1px solid var(--lime);background:transparent;color:var(--lime);font-size:11px;font-weight:700;cursor:pointer}
+.resilience-card button:hover{background:#d5ff9120}
+@media(max-width:850px){.resilience-grid{grid-template-columns:1fr}.resilience-card{padding:15px}}

@@ -26,7 +26,11 @@ experience and its Qloo entity evidence; contrasts that decision with an
 Audience-A-first choice and an average-first choice; explains which
 audience makes which trade-off; and exposes an auditable tool trace.
 Organizers can reject an option and re-negotiate using cached Qloo
-evidence instead of initiating unnecessary new calls.
+evidence instead of initiating unnecessary new calls. MOSAIC also
+stress-tests the agreement: it hypothetically excludes each chosen item,
+searches for the strongest feasible alternative, and shows the ordinal
+rank-proxy impact. The calculation is deterministic and makes no
+additional Qloo API calls. It is not a prediction of booking availability.
 
 If Qloo does not uniquely resolve a public cultural anchor, or if both
 audiences have too few mutually ranked options, MOSAIC refuses to invent

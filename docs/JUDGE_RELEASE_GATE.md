@@ -40,6 +40,7 @@
 - POST `/api/plan` using publicly known cultural entities returns
   `mode=qloo-live,source_mode=evidence-backed`, three Qloo-backed slots,
   and provenance IDs. It must NOT return synthetic fixture data.
+- Inspect the three single-option resilience counterfactuals; confirm each is derived from the same verified shortlist, uses zero additional provider calls, and labels proxy changes without claiming real booking availability.
 - Veto a live recommendation; confirm a cached replan (zero extra Qloo calls).
 - Use ambiguous public inputs; confirm a non-200 explanation and no leaked
   source, stale previous agreement, or fabricated ranking.

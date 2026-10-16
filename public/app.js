@@ -5,6 +5,7 @@ const safe=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"
 const vetoes=new Map();
 let latest=null, baselineType="majority";
 let runtimeMode=null;
+let requestRevision=0;
 function bar(name,value){
  $(name).style.width=percent(value);
  $(name+"T").textContent=percent(value);
@@ -56,6 +57,33 @@ function renderTreaty(result){
  $("treaty-note").textContent=explanation;
  $("copy-feedback").textContent="";
 }
+function renderResilience(result){
+ const panel=$("resilience-panel"),list=$("resilience-items");
+ const impacts=result?.resilience?.impacts;
+ if(result?.status!=="ok"||!Array.isArray(impacts)||impacts.length!==3){
+  panel.hidden=true;
+  list.textContent="";
+  return;
+ }
+ panel.hidden=false;
+ $("resilience-mode").textContent="SAME RANK EVIDENCE · ZERO EXTRA API CALLS";
+ list.innerHTML=impacts.map(item=>{
+  const removed=item?.removed||{};
+  const feasible=item.status==="feasible"&&Number.isFinite(item.worst_rank_loss);
+  const loss=feasible?(100*item.worst_rank_loss).toFixed(1)+" pp":"No viable alternative";
+  const changes=Array.isArray(item.changes)?item.changes.map(x=>
+   safe(x.slot)+" → "+safe(x.label)).join(" · "):"";
+  return '<article class="resilience-card"><span class="resilience-slot">'+safe(removed.slot)+
+   ' / IF REJECTED</span><h4>'+safe(removed.label)+'</h4>'+
+   '<p class="resilience-loss">'+safe(loss)+'</p><p>'+
+   (feasible?"Worst-group rank proxy loss":"No fully supported replacement plan")+
+   '</p><p class="resilience-alt">'+
+   (feasible?"Updated choices: "+changes:"This option is required by the current evidence and constraints.")+
+   '</p>'+(feasible?'<button type="button" data-resilience-veto="'+safe(removed.id)+
+   '" aria-label="Reject '+safe(removed.label)+' and renegotiate">Apply veto ↗</button>':"")+
+   '</article>';
+ }).join("");
+}
 function showUnavailable(message){
  // A failed Qloo query must not leave a copyable agreement from an earlier run.
  latest=null;
@@ -65,6 +93,7 @@ function showUnavailable(message){
  $("gain").textContent="EVIDENCE INCOMPLETE";
  $("tradeoff").textContent="No partial or invented plan is shown. Choose other public cultural anchors and retry.";
  $("treaty-panel").hidden=true;
+ renderResilience(null);
  $("agent-trace-panel").hidden=true;
  $("agent-trace").textContent="";
  $("ledger-items").textContent="No verified evidence-backed agreement was produced.";
@@ -98,6 +127,7 @@ function render(result){
   $("ledger-mode").textContent="QLOO TOOL TRACE";
  }
  renderTreaty(result);
+ renderResilience(result);
  const bridge=result.bridge;
  $("plan-title").textContent="A little of both. All together.";
  $("plan-cost").textContent=result.mode==="qloo-live"?"—":money(bridge.cost);
@@ -137,7 +167,12 @@ function render(result){
  bridge.items.map(x=>'<option value="'+safe(x.id)+'">'+safe(x.label)+'</option>').join("");
 }
 async function run(){
+ const revision=++requestRevision;
  const button=$("run");button.disabled=true;button.textContent="Renegotiating…";
+ // Existing evidence cannot be copied or misread while a new veto/profile is pending.
+ showUnavailable("Checking verified cultural alternatives. Please wait…");
+ $("plan-title").textContent="Evaluating cultural evidence…";
+ $("gain").textContent="REQUEST IN PROGRESS";
  try{
   const payload={maxBudget:Number($("budget").value),exclude:[...vetoes.keys()]};
   if(runtimeMode==="live"){
@@ -147,12 +182,18 @@ async function run(){
   }
   const r=await fetch("/api/plan",{method:"POST",headers:{"content-type":"application/json"},body:JSON.stringify(payload)});
   const data=await r.json();
+  // Requests may return out of order while a person changes their anchors.
+  // Never show an older treaty against newer visible audience preferences.
+  if(revision!==requestRevision)return;
   if(!r.ok)throw Error(data.message||"Unable to plan");
   render(data);
  }catch(e){
-  showUnavailable(e?.message||"Unable to produce a verified plan.");
+  if(revision===requestRevision)
+   showUnavailable(e?.message||"Unable to produce a verified plan.");
  }finally{
-  button.disabled=false;button.innerHTML='Find common ground <span>↗</span>';
+  if(revision===requestRevision){
+   button.disabled=false;button.innerHTML='Find common ground <span>↗</span>';
+  }
  }
 }
 function addVeto(id,label){
@@ -161,6 +202,19 @@ function addVeto(id,label){
  run();
 }
 $("budget").addEventListener("input",()=>{$("budget-value").textContent=money($("budget").value);});
+// Editing cultural context invalidates any previous treaty and its veto IDs.
+function inputsChanged(){
+ requestRevision++;
+ vetoes.clear();
+ renderVetoes();
+ showUnavailable("Cultural anchors changed. Run the planner for a new verified agreement.");
+ const button=$("run");
+ button.disabled=false;
+ button.innerHTML='Find common ground <span>↗</span>';
+}
+for(const field of ["group-a","group-b","location"]){
+ $(field).addEventListener("input",inputsChanged);
+}
 $("run").addEventListener("click",run);
 $("exclude").addEventListener("change",ev=>{
  const id=ev.target.value;
@@ -169,6 +223,13 @@ $("exclude").addEventListener("change",ev=>{
 $("plan-items").addEventListener("click",ev=>{
  const b=ev.target.closest("[data-veto]");
  if(b)addVeto(b.dataset.veto,b.closest(".plan-card")?.querySelector("strong")?.textContent);
+});
+$("resilience-items").addEventListener("click",ev=>{
+ const b=ev.target.closest("[data-resilience-veto]");
+ if(b){
+  const item=latest?.resilience?.impacts?.find(x=>x.removed?.id===b.dataset.resilienceVeto);
+  if(item?.status==="feasible")addVeto(item.removed.id,item.removed.label);
+ }
 });
 $("rejection-list").addEventListener("click",ev=>{
  const undo=ev.target.closest("[data-undo]");

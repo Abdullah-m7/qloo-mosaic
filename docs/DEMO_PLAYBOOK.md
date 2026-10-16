@@ -12,6 +12,9 @@ Compare the same candidate sets under three objectives: Group A-first, total-ave
 ## Demonstrate adaptation
 Reject the first option; show another feasible plan or an explicit insufficient-evidence outcome. Undo the veto. Change the public cultural anchor or search location and show a different real Qloo-grounded result.
 
+## Stress-test the cultural agreement
+Show the three single-option removal stress cards: artist, place and film experience. Explain which alternative the deterministic optimizer chooses and how the lower group-relative rank proxy moves. Apply a veto from the card, then show the cached live re-plan. Explicitly state these are same-evidence counterfactuals, not real booking or attendance forecasts.
+
 ## Prove engineering rigor
 Show source provenance, no untrusted raw personal data, clean API-key isolation, test suite, an intentionally failing no-credential mode, and the independent public GitHub repository.
 

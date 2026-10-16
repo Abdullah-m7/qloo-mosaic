@@ -54,7 +54,16 @@ try{
   throw Error("JUDGE_LIVE_PROVENANCE_INCOMPLETE");
  const ranks=(first.trace??[]).filter(x=>x.stage==="rank");
  if(ranks.length!==3)throw Error("JUDGE_RANK_TRACE_INCOMPLETE");
+ const stress=first.resilience;
+ if(stress?.method!=="single-option-veto"||stress.provider_calls!==0||
+  stress.impacts?.length!==3||
+  !stress.impacts.every(x=>first.bridge.items.some(y=>y.id===x.removed?.id)&&
+   (x.status==="unavailable"&&x.worst_after===null||
+    x.status==="feasible"&&Number.isFinite(x.worst_rank_loss)&&
+     x.worst_rank_loss>=0&&x.worst_after<=first.bridge.worst)))
+  throw Error("JUDGE_RESILIENCE_EVIDENCE_MISSING");
  console.log("JUDGE_HTTP_LIVE_OK slots=3 rank_stages=3");
+ console.log("JUDGE_HTTP_COUNTERFACTUAL_OK exclusions=3 extra_provider_calls=0");
  const veto=first.bridge.items[0].id;
  const next=await request({maxBudget:210,exclude:[veto]});
  if(next.mode!=="qloo-live"||next.status!=="ok"||

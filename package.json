@@ -12,6 +12,7 @@
     "benchmark": "node scripts/benchmark.mjs",
     "build:preview": "node scripts/build-static-preview.mjs",
     "benchmark:live": "node scripts/live-ablation.mjs",
-    "benchmark:multi": "node scripts/multi-anchor-ablation.mjs"
+    "benchmark:multi": "node scripts/multi-anchor-ablation.mjs",
+    "judge:check": "node scripts/public-release-check.mjs"
   }
 }

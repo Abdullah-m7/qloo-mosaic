@@ -40,7 +40,7 @@ The preview's example scores, tag availability and planning tokens are invented 
 | Area | Verified status |
 | --- | --- |
 | Responsive interface, working veto/undo and comparison controls | Tested in desktop and mobile Chrome |
-| Optimizer, provenance gates, bounded agent orchestration and cultural treaty | **90/90 local automated checks passed on the direct-REST branch**; offline tests mock Qloo, supplemented by a separate real API smoke run |
+| Optimizer, provenance gates, bounded agent orchestration and cultural treaty | **94/94 local automated checks passed on the direct-REST branch**; offline tests mock Qloo, supplemented by a separate real API smoke run |
 | Deterministic algorithmic falsification | 500 **synthetic** scenarios, 429 feasible; see below |
 | Public open-source repo and externally hosted Node app | Deployed; Node app is intentionally **sample mode** |
 | Qloo live API integration and real shared-tag evidence | **Real GitHub Actions Qloo Search/Insights/Rank agent smoke PASSED**; a public Render live integration and independent tag evidence remain pending |
@@ -60,6 +60,15 @@ QLOO_MODE=sample npm start
 ```
 
 Open http://localhost:8788. Run `npm run build:preview` to generate the static synthetic-only UI in `dist-preview/`.
+
+**Production release gate:** After the protected Qloo secret is provisioned
+and the candidate is deployed on Render, run `npm run judge:check`. This
+read-only, anonymous visitor probe verifies the public live health mode,
+UI access, three real Qloo-backed categories, audited single-option
+stress tests, cached veto re-planning and invalid-input refusal. It exits
+with `RENDER_STILL_SAMPLE` while the public service is synthetic; that is
+an expected **release blocker**, not a failed algorithm experiment.
+The public probe never holds or transmits an event API credential.
 
 The offline property experiment generates 500 deterministic score assignments (seed `20261012`). For 429 scenarios a feasible plan exists. In **all 429**, maximin's worst-group proxy was at least as high as the one-sided and mean-first alternatives — **a mathematical consequence of the optimization objective**, not proof of product quality. Average worst-group rank-proxy improvement over the one-sided alternative was 0.132, and relative to mean-first it was 0.024. Private exploratory holdout ablations using **real Qloo-ranked candidates** have now been run; they do not establish reliable out-of-sample preference improvement. Numeric research results are stored as encrypted, access-controlled artifacts, not in this public repository.
 

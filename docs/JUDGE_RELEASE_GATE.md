@@ -78,3 +78,30 @@
   imply that the judge HTTP path is valid; require both as release evidence.
 - This still cannot prove Render's protected secret or public deployment;
   that requires a separate production smoke test.
+
+## Public release probe — no browser-side credential
+Run `npm run judge:check` after the existing Render service receives its
+protected `QLOO_API_KEY`, the verified branch is deployed, and
+`QLOO_MODE=live` is confirmed. The checker uses **only public HTTPS**
+endpoints and holds no Qloo credential. It asserts:
+- `/health` returns product MOSAIC, `mode=live`, `version=0.3.0`;
+- the page is actually served; the default public anchor request creates
+  three Qloo-sourced, ID-backed categories with rank provenance;
+- three exclusion counterfactuals exist and report zero additional
+  provider calls;
+- veto re-planning reuses cached evidence, while email-like input
+  is rejected without synthetic fallback;
+- response timings are reported without printing personal identifiers,
+  event keys, raw Qloo results or private research metrics.
+
+The current live link is intentionally still synthetic, so the probe must
+return `MOSAIC_PUBLIC_RELEASE_BLOCKED: RENDER_STILL_SAMPLE` until the
+production secret/deployment gate is passed. A passing Actions smoke in
+a separate runner is NOT a substitute for this public release gate.
+
+**Observed result, 16 October 2026:** the read-only checker was run
+against https://mosaic-agent-2026.onrender.com/ and deliberately blocked
+with `MOSAIC_PUBLIC_RELEASE_BLOCKED: RENDER_STILL_SAMPLE` before issuing
+any Qloo-funded planner requests. This confirms the remaining deployment
+and protected environment-key work; it does not negate the already-green
+GitHub event API and localhost HTTP smoke tests.

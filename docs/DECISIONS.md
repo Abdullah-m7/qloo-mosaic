@@ -59,3 +59,14 @@ site and never needs a local copy of the provider key.
 
 See `docs/JUDGE_RELEASE_GATE.md` and `docs/DEVPOST_DRAFT.md` for the
 remaining judge access checks and draft submission story.
+
+## Source-tag evidence optimization (16 October)
+The Qloo Insights discovery response includes tags on each returned entity.
+The direct REST adapter temporarily caches their canonical IDs and public
+names in memory, indexed by Qloo entity ID. An internal `qloo_entity_tags`
+interface only reads that provider-owned cache. It makes **zero** extra
+network requests. If a chosen entity has no cached tags, we abstain from
+source-tag claims instead of calling undocumented recommendation endpoints.
+The public treaty exposes no more than four motifs with exact tag-ID matches
+between two or more selected categories; full tag lists and provider data
+are not included in public HTTP responses or Git history.

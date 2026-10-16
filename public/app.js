@@ -232,11 +232,12 @@ function render(result){
   panel.hidden=result.mode!=="qloo-live"||steps.length===0;
   $("agent-trace").innerHTML=steps.map((step,i)=>{
    const status=step.stage==="discover" ? "DISCOVER" : step.stage==="rank" ? "RANK" :
-     step.stage==="renegotiate" ? "REPLAN" : "OPTIMIZE";
+     step.stage==="enrich" ? "VERIFY" : step.stage==="renegotiate" ? "REPLAN" : "OPTIMIZE";
    const label=step.stage==="discover" ? safe(step.slot)+" · "+safe(step.strategy) +
      " · "+safe(step.count)+" candidate(s)" :
      step.stage==="rank" ? safe(step.slot)+" · "+safe(step.candidates)+" mutually ranked"+
        (step.discarded>0?" · "+safe(step.discarded)+" excluded for missing evidence":"") :
+     step.stage==="enrich" ? safe(step.slot)+" · "+safe(step.count)+" grounded Qloo tags, reused from discovery · 0 new API calls" :
      step.stage==="renegotiate" ? "Cached Qloo evidence · zero extra API calls" :
      safe(step.candidates)+" options · worst-group objective";
    return '<li><span class="trace-index">'+String(i+1).padStart(2,"0")+'</span><b>'+

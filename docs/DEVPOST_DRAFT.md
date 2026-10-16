@@ -32,6 +32,8 @@ searches for the strongest feasible alternative, and shows the ordinal
 rank-proxy impact. The calculation is deterministic and makes no
 additional Qloo API calls. It is not a prediction of booking availability.
 
+MOSAIC also reuses Qloo's **actual source tag IDs** attached to each discovered entity to test whether the selected artist, place and film share a genuine cultural motif, without any extra provider calls. If an exact cross-category ID match does not exist, the agent makes no cultural-link claim.
+
 If Qloo does not uniquely resolve a public cultural anchor, or if both
 audiences have too few mutually ranked options, MOSAIC refuses to invent
 a recommendation. Claimed links across categories require the exact

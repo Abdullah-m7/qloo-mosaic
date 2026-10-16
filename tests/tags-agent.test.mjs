@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import {enrichSelectedTags} from "../src/qloo.mjs";
-import {deriveCulturalMotifs} from "../src/treaty.mjs";
+import {deriveCulturalMotifs,extractTagFacts} from "../src/treaty.mjs";
 
 const selected=[
  {id:"music:art1",slot:"music",qloo_entity_id:"art1"},
@@ -46,4 +46,19 @@ test("prevents unbounded enrichment and ungrounded identities",async()=>{
  await assert.rejects(()=>enrichSelectedTags({
   selected:[{id:"orphan",slot:"music"}],call:async()=>({})
  }),/lacks original Qloo identity/);
+});
+
+test("late provider tags are retained for exact cross-category motif checks",()=>{
+ const filler=Array.from({length:89},(_,i)=>({id:"urn:tag:source-"+i,name:"Cultural descriptor "+i}));
+ const overlap={id:"urn:tag:shared-after-eighty",name:"Shared cultural thread"};
+ const artist=extractTagFacts({results:[...filler,overlap]});
+ const movie=extractTagFacts({results:[overlap]});
+ assert.equal(artist.length,90);
+ const motifs=deriveCulturalMotifs([
+  {optionId:"music:artist1",slot:"music",tags:artist},
+  {optionId:"experience:movie1",slot:"experience",tags:movie}
+ ]);
+ assert.equal(motifs.length,1);
+ assert.equal(motifs[0].id,overlap.id);
+ assert.deepEqual(motifs[0].slots,["experience","music"]);
 });

@@ -13,6 +13,11 @@ try{
  if(plan.status!=="ok")throw Error("QLOO_PLAN_"+String(plan.status));
  const counts=plan.trace?.filter(x=>x.tool==="qloo_rank").length??0;
  console.log("QLOO_AGENT_OK slots="+plan.bridge.items.length+" rank_stages="+counts);
+ const tags=(plan.trace||[]).filter(x=>x.stage==="enrich");
+ if(tags.length!==3||tags.some(x=>x.calls!==0||x.tool!=="cached-qloo-discovery-tags"))
+  throw Error("QLOO_TAG_SOURCE_NOT_GROUNDED");
+ console.log("QLOO_TAG_SOURCE_OK slots=3 provider_calls=0 verified_slots="+
+  tags.filter(x=>x.status==="verified").length);
  const typed=new QlooRestClient({maxRequests:2});
  try{
   const entityId=await typed.resolveSeed("Movie: Barbie (2023)");

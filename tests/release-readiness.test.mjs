@@ -15,7 +15,10 @@ const plan=(items=selected)=>({
  status:"ok",mode:"qloo-live",source_mode:"evidence-backed",
  bridge:{items},
  trace:[{stage:"rank",slot:"music"},{stage:"rank",slot:"food"},
-  {stage:"rank",slot:"experience"}],
+  {stage:"rank",slot:"experience"},
+  ...["music","food","experience"].map(slot=>({
+   stage:"enrich",slot,tool:"cached-qloo-discovery-tags",calls:0,status:"verified"
+  }))],
  negotiation:{method:"exact-nondominated-ordinal-frontier",calls:0,
   maximinId:"balanced-1",points:[{id:"balanced-1",isMaximin:true,items}],
   tasteBlind:{items}},
@@ -86,4 +89,16 @@ test("release probe refuses live app missing nontrivial negotiation frontier",as
   throw Error("Unexpected");
  };
  await assert.rejects(checkPublicRelease({fetchImpl:mock}),/RELEASE_NEGOTIATION_FRONTIER_MISSING/);
+});
+
+test("public release refuses a provider-tag story without grounded cache provenance",async()=>{
+ const mock=async url=>{
+  const pathname=new URL(url).pathname;
+  if(pathname==="/health")return json(health);
+  if(pathname==="/")return new Response('<title>MOSAIC</title><script src="/app.js"></script>');
+  if(pathname==="/api/plan")return json({...plan(),
+   trace:plan().trace.filter(x=>x.stage!=="enrich")});
+  throw Error("Unknown");
+ };
+ await assert.rejects(checkPublicRelease({fetchImpl:mock}),/RELEASE_TAG_PROVENANCE_UNVERIFIED/);
 });

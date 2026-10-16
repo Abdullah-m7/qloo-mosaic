@@ -72,6 +72,11 @@ try{
  console.log("JUDGE_HTTP_LIVE_OK slots=3 rank_stages=3");
  console.log("JUDGE_HTTP_COUNTERFACTUAL_OK exclusions=3 extra_provider_calls=0");
  console.log("JUDGE_HTTP_FRONTIER_OK blind_baseline=grounded extra_provider_calls=0");
+ const enrichment=(first.trace||[]).filter(x=>x.stage==="enrich");
+ if(enrichment.length!==3||enrichment.some(x=>
+   x.tool!=="cached-qloo-discovery-tags"||x.calls!==0))
+  throw Error("JUDGE_QLOO_TAG_PROVENANCE_INCOMPLETE");
+ console.log("JUDGE_QLOO_TAG_CACHE_OK slots=3 additional_calls=0");
  const veto=first.bridge.items[0].id;
  const next=await request({maxBudget:210,exclude:[veto]});
  if(next.mode!=="qloo-live"||next.status!=="ok"||

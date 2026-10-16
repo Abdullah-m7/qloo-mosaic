@@ -210,3 +210,35 @@ test("typed and untyped aliases cannot double-weight a single Qloo entity",async
  assert.deepEqual(resolved,["qloo-radiohead"]);
  assert.equal(client.requests,2);
 });
+
+test("Qloo's actual discovery tags verify cross-domain threads without extra API calls",async()=>{
+ const common={id:"urn:tag:ambient-overlap",name:"Ambient overlap",type:"urn:tag"};
+ const many=Array.from({length:90},(_,i)=>({
+  id:"urn:tag:local-"+i,name:"Local descriptor "+i,type:"urn:tag"
+ }));
+ const fetchImpl=async url=>{
+  const u=new URL(url);
+  if(u.pathname==="/search")
+   return new Response(JSON.stringify({results:[{name:"Radiohead",entity_id:"anchor-1"}]}),{status:200});
+  const type=u.searchParams.get("filter.type");
+  assert.ok(["urn:entity:artist","urn:entity:place"].includes(type));
+  const artist=type==="urn:entity:artist";
+  const row={name:artist?"Example Music":"Example Space",
+   entity_id:artist?"entity-music":"entity-space",type:"urn:entity",
+   tags:artist?[...many,common]:[{...common}]};
+  return new Response(JSON.stringify({results:[row]}),{status:200});
+ };
+ const client=new QlooRestClient({apiKey:"offline-test",fetchImpl});
+ await client.call("qloo_recommend",{target_type:"artist",signals:["Radiohead"]});
+ await client.call("qloo_recommend",{target_type:"place",signals:["Radiohead"]});
+ const before=client.requests;
+ const music=await client.call("qloo_entity_tags",{entities:["entity-music"]});
+ const place=await client.call("qloo_entity_tags",{entities:["entity-space"]});
+ assert.equal(client.requests,before);
+ assert.equal(music.results.length,91);
+ assert.equal(place.results.length,1);
+ assert.equal(music.results.at(-1).id,common.id);
+ await assert.rejects(()=>client.call("qloo_entity_tags",{entities:["not-discovered"]}),
+  /QLOO_TAG_METADATA_UNAVAILABLE/);
+ assert.equal(client.requests,before);
+});

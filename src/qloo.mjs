@@ -131,11 +131,11 @@ export async function enrichSelectedTags({selected,call}){
       });
       const verified=extractTagFacts(result);
       tagEvidence.push({optionId:option.id,slot:option.slot,tags:verified});
-      trace.push({stage:"enrich",tool:"qloo_entity_tags",slot:option.slot,
-        status:verified.length?"verified":"no_tags",count:verified.length});
+      trace.push({stage:"enrich",tool:"cached-qloo-discovery-tags",slot:option.slot,
+        calls:0,status:verified.length?"verified":"no_tags",count:verified.length});
     }catch{
-      trace.push({stage:"enrich",tool:"qloo_entity_tags",slot:option.slot,
-        status:"unavailable",count:0});
+      trace.push({stage:"enrich",tool:"cached-qloo-discovery-tags",slot:option.slot,
+        calls:0,status:"unavailable",count:0});
     }
   }
   return {tagEvidence,trace};
@@ -154,8 +154,8 @@ export async function liveBridge({maxBudget=210,exclude=[],groupA,groupB,locatio
       a,b,place,call
     });
     const result=buildBridge({candidates:all,maxBudget,exclude});
-    // No more than three enrichment queries; incomplete Qloo tags do not
-    // manufacture cross-domain cultural overlap.
+    // Reuse provider tag IDs from already discovered Qloo entities. No extra
+    // API queries, and missing tags never manufacture cultural overlap.
     const tagStep=result.status==="ok"?
       await enrichSelectedTags({selected:result.bridge.items,call}):
       {tagEvidence:[],trace:[]};

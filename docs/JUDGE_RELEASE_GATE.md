@@ -121,3 +121,17 @@ GitHub event API and localhost HTTP smoke tests.
   independent Qloo-free LLM baseline and NOT measured preference uplift.
 - Run `npm run judge:check` against Render after credentialed deployment:
   the check now refuses a public app without the negotiation frontier.
+
+## Qloo explainability and real source-tag provenance
+Qloo's documented `feature.explainability=true` was verified with the
+hackathon key in a protected GitHub Actions diagnostic: per-result and
+aggregate metadata were present. Returned discovery entities also contained
+real tag IDs, names and types. We now reuse the provider-returned tags from
+those grounded entities for cultural thread verification without additional
+Insights requests or invalid `urn:tag` recommendation calls. Identical tag
+IDs across **different** selected categories are required to make a shared
+thread claim; otherwise the UI states no verified thread. The default live
+HTTP judge smoke requires three cached tag provenance stages, each recording
+zero additional provider calls. Per-anchor explainability details will only
+be publicly surfaced if their exact data schema is validated; no fabricated
+contribution numbers or interpretive labels may be shown.

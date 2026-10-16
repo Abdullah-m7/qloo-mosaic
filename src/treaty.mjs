@@ -80,5 +80,7 @@ export function extractTagFacts(envelope){
     else if(Array.isArray(item?.results))for(const t of item.results)add(t);
     else add(item);
   }
-  return out.slice(0,20);
+  // Discovery may include dozens of genuine provider tags per entity. Keep
+  // enough to detect intersections; the public treaty exposes only up to 4.
+  return out.slice(0,150);
 }

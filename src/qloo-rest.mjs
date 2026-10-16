@@ -67,6 +67,9 @@ export class QlooRestClient {
   this.key=apiKey.trim();this.fetchImpl=fetchImpl;this.requests=0;
   this.networkPacing=fetchImpl===globalThis.fetch;
   this.resolved=new Map();this.candidates=new Map();
+  // Provider-returned tags from exact discovered Qloo entities, held only
+  // for this one bounded agent cycle; never fetch unrelated tag suggestions.
+  this.entityTags=new Map();
  }
  async request(path,params={}){
   if(!["/search","/v2/insights"].includes(path))throw Error("QLOO_ENDPOINT_BLOCKED");
@@ -149,7 +152,18 @@ export class QlooRestClient {
       success:data?.success??null,
       hasError:Boolean(data?.error||data?.errors)}));
    }
-   for(const item of results)this.candidates.set(type+"|"+normalize(item.name),item.id);
+   for(const record of raw){
+    const item=parseEntity(record);
+    if(!item||!matchesCategory(item,type))continue;
+    this.candidates.set(type+"|"+normalize(item.name),item.id);
+    const tags=Array.isArray(record?.tags)?record.tags:
+     Array.isArray(record?.entity?.tags)?record.entity.tags:[];
+    const valid=tags.map(x=>({id:x?.id??x?.urn??x?.tag_id,
+      name:x?.name??x?.label}))
+      .filter(x=>typeof x.id==="string"&&x.id.length<180&&
+       typeof x.name==="string"&&x.name.length<120);
+    this.entityTags.set(item.id.toLowerCase(),valid.slice(0,150));
+   }
    return {status:"ok",results};
   }
   if(tool==="qloo_rank"){
@@ -179,15 +193,15 @@ export class QlooRestClient {
    return {status:"ok",results,requested:options.length,returned:results.length};
   }
   if(tool==="qloo_entity_tags"){
-   if(!Array.isArray(args.entities)||args.entities.length!==1)
+   if(!Array.isArray(args.entities)||args.entities.length!==1||
+    typeof args.entities[0]!=="string")
     throw Error("QLOO_INVALID_TAG_REQUEST");
-   // Optional; gracefully abstain when the event tenant disallows urn:tag.
-   const data=await this.request("/v2/insights",{"filter.type":"urn:tag",
-    "signal.interests.entities":args.entities,take:Math.min(10,Number(args.limit)||10)});
-   const results=resultList(data,"tags").map(x=>({
-    id:x?.id??x?.tag_id,name:x?.name,type:x?.type??x?.subtype
-   })).filter(x=>typeof x.id==="string"&&typeof x.name==="string");
-   return {status:"ok",results};
+   // Qloo's actual /v2/insights entity rows include source tag IDs and
+   // names. Reuse that exact evidence instead of an unsupported urn:tag
+   // recommendation call. No extra API requests, aliases or invented tags.
+   const grounded=this.entityTags.get(args.entities[0].toLowerCase());
+   if(!grounded)throw Error("QLOO_TAG_METADATA_UNAVAILABLE");
+   return {status:"ok",results:grounded};
   }
   throw Error("QLOO_TOOL_NOT_ALLOWLISTED");
  }

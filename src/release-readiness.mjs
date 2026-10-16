@@ -57,6 +57,10 @@ export async function checkPublicRelease({
    x.source?.startsWith("qloo-rest:")),"RELEASE_MISSING_PROVENANCE");
  assert(first.trace?.filter(x=>x.stage==="rank").length===3,
   "RELEASE_RANKING_NOT_VERIFIED");
+ assert(first.trace?.filter(x=>x.stage==="enrich").length===3&&
+  first.trace.filter(x=>x.stage==="enrich").every(x=>
+   x.tool==="cached-qloo-discovery-tags"&&x.calls===0),
+  "RELEASE_TAG_PROVENANCE_UNVERIFIED");
  const negotiation=first.negotiation;
  assert(negotiation?.method==="exact-nondominated-ordinal-frontier"&&
   negotiation.calls===0&&negotiation.tasteBlind?.items?.length===3&&

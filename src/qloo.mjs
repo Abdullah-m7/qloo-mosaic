@@ -4,6 +4,7 @@ export {EVENT_BASE_URL} from "./qloo-rest.mjs";
 import {buildBridge} from "./engine.mjs";
 import {createTreaty,extractTagFacts} from "./treaty.mjs";
 import {summarizeThreadOpportunity} from "./thread-opportunity.mjs";
+import {findVerifiedThreadChoice} from "./thread-choice.mjs";
 
 // The event base URL is pinned by qloo-rest.mjs.
 const types=[["music","artist"],["food","place"],["experience","movie"]];
@@ -166,6 +167,14 @@ export async function liveBridge({maxBudget=210,exclude=[],groupA,groupB,locatio
     });
     const result=buildBridge({candidates:all,maxBudget,exclude});
     const threadOpportunity=summarizeThreadOpportunity(all,client.entityTags);
+    // This cache is server-only; the public response excludes raw candidate tag arrays.
+    const threadTagIndex=new Map([...client.entityTags.entries()].filter(([id])=>
+      all.some(x=>x.qloo_entity_id?.toLowerCase()===id)));
+    const threadChoice=result.status==="ok"?
+      findVerifiedThreadChoice({candidates:all,tagIndex:threadTagIndex,
+        bridge:result.bridge,exclude,maxBudget}):
+      {status:"no_verified_thread",method:"bounded-exact-qloo-tag-intersection",
+       provider_calls:0};
     // Reuse provider tag IDs from already discovered Qloo entities. No extra
     // API queries, and missing tags never manufacture cultural overlap.
     const tagStep=result.status==="ok"?
@@ -174,7 +183,8 @@ export async function liveBridge({maxBudget=210,exclude=[],groupA,groupB,locatio
     trace.push(...tagStep.trace);
     const tagEvidence=tagStep.tagEvidence;
     const treaty=createTreaty({candidates:all,plan:result,tagEvidence});
-    return {candidates:all,trace,tagEvidence,treaty,threadOpportunity,mode:"qloo-live",scenario:{title:"Custom cultural bridge",groupA:{title:"First audience",anchors:a},groupB:{title:"Second audience",anchors:b},location:place},notice:"Relative rank-percentile proxies from Qloo tool calls on matched shortlists. Real Qloo entities have NO pricing or availability guarantee. Budget is disabled in live mode.",...result};
+    return {candidates:all,trace,tagEvidence,treaty,threadTagIndex,
+      threadOpportunity,threadChoice,mode:"qloo-live",scenario:{title:"Custom cultural bridge",groupA:{title:"First audience",anchors:a},groupB:{title:"Second audience",anchors:b},location:place},notice:"Relative rank-percentile proxies from Qloo tool calls on matched shortlists. Real Qloo entities have NO pricing or availability guarantee. Budget is disabled in live mode.",...result};
   }finally{
     // Drop the in-memory credential reference after each bounded request cycle.
     client.key="";

@@ -181,6 +181,56 @@ function renderNegotiation(result){
  const idx=atlas.points.findIndex(p=>p.id===atlas.maximinId);
  showNegotiationPoint(idx>=0?idx:0);
 }
+function renderThreadChoice(result){
+ const panel=$("cultural-thread");
+ const current=result?.threadChoice;
+ if(result?.mode!=="qloo-live"||result?.status!=="ok"||!current){
+  panel.hidden=true;
+  $("thread-verified-tags").innerHTML="";
+  $("thread-alternative-items").innerHTML="";
+  return;
+ }
+ panel.hidden=false;
+ const approved=current.status==="verified"&&
+  current.provider_calls===0&&current.alternative?.items?.length===3&&
+  Array.isArray(current.verified_motifs)&&current.verified_motifs.length>0;
+ const tested=Number.isInteger(current.within_fairness_bound)?
+  current.within_fairness_bound:0;
+ if(!approved){
+  $("thread-status").textContent="NO VERIFIED CULTURAL LINK IN BOUNDED SEARCH";
+  $("thread-heading").textContent="No evidence-based shared thread yet";
+  $("thread-message").textContent=
+   "Across "+tested+" near-balanced candidate agreements, Qloo did not provide a matching public tag in two selected categories. MOSAIC won't invent one.";
+  $("thread-verified-tags").innerHTML="";
+  $("thread-alternative-items").textContent="No verified alternative under the chosen rank-proxy loss limit.";
+  $("thread-rank-cost").textContent="Zero fabricated connections";
+  return;
+ }
+ const loss=Number(current.worst_rank_proxy_loss);
+ const safeLoss=Number.isFinite(loss)&&loss>=0&&loss<=.2?loss:0;
+ const maxLoss=Number.isFinite(current.max_rank_proxy_loss)?
+  current.max_rank_proxy_loss:.05;
+ $("thread-status").textContent="MATCHED QLOO PROVIDER TAG IDS";
+ $("thread-heading").textContent=
+  safeLoss===0?"Cultural common ground — no rank trade-off":
+  "A cultural thread with an explicit trade-off";
+ $("thread-message").textContent=
+  "This alternative shares independently verified cultural tag IDs across"+
+  " different types of selected Qloo entities. The maximum accepted drop"+
+  " was "+(maxLoss*100).toFixed(1)+" percentage points of the lowest group-relative rank proxy.";
+ $("thread-verified-tags").innerHTML=current.verified_motifs.slice(0,4).map(m=>{
+  const slots=Array.isArray(m.slots)?m.slots.filter(x=>["music","food","experience"].includes(x)):[];
+  if(slots.length<2||typeof m.id!=="string"||!m.id.startsWith("urn:tag:"))return "";
+  return '<span class="thread-tag"><strong>'+safe(m.name)+
+   '</strong><small>Qloo ID '+safe(m.id)+' · '+safe(slots.join(" + "))+'</small></span>';
+ }).join("");
+ $("thread-alternative-items").innerHTML=current.alternative.items.map(x=>
+  '<p class="thread-alternative-item"><b>'+safe(x.slot?.toUpperCase())+'</b> · '+
+  safe(x.label)+' <small>'+safe(x.evidence_id)+'</small></p>').join("");
+ $("thread-rank-cost").textContent=
+  safeLoss===0?"No loss in the lowest group rank proxy":
+  "Balance trade-off: −"+(safeLoss*100).toFixed(1)+" percentage points of ordinal proxy";
+}
 function showUnavailable(message){
  // A failed Qloo query must not leave a copyable agreement from an earlier run.
  latest=null;
@@ -192,6 +242,7 @@ function showUnavailable(message){
  $("treaty-panel").hidden=true;
  renderResilience(null);
  renderNegotiation(null);
+ renderThreadChoice(null);
  $("agent-trace-panel").hidden=true;
  $("agent-trace").textContent="";
  $("ledger-items").textContent="No verified evidence-backed agreement was produced.";
@@ -227,6 +278,7 @@ function render(result){
  renderTreaty(result);
  renderResilience(result);
  renderNegotiation(result);
+ renderThreadChoice(result);
  const bridge=result.bridge;
  $("plan-title").textContent="A little of both. All together.";
  $("plan-cost").textContent=result.mode==="qloo-live"?"—":money(bridge.cost);

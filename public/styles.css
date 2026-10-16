@@ -245,3 +245,25 @@ footer .brand{font-size:17px}footer p{font-size:11px;color:#89988c}footer>a:last
 .qloo-contributors p{font-size:11px;color:#c9d7c6;line-height:1.6;margin:8px 0;overflow-wrap:anywhere}
 .qloo-contributors p strong{color:#f5ffe8;margin-right:7px}
 .qloo-contributors small{display:block;margin-top:7px;color:#9aaf9e;font-size:10px;line-height:1.6}
+
+/* Provider-grounded cultural thread: an optional alternative, not a promise. */
+.cultural-thread{margin-top:28px;background:#172620;color:#f2f3e9;border:1px solid #607567}
+.cultural-thread[hidden]{display:none}
+.thread-header{display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid #48614c;padding:17px 23px;font-size:10px;letter-spacing:1.4px;font-weight:800}
+.thread-header>span{color:var(--lime)}
+.thread-header strong{color:#bdcbbd;font-size:10px}
+.thread-body{display:grid;grid-template-columns:1fr 1fr;gap:30px;padding:25px 23px 29px}
+.thread-eyebrow{display:block;font-size:10px;letter-spacing:1.1px;color:var(--lime);font-weight:800}
+.thread-body h3{font-size:29px;font-weight:600;letter-spacing:-1.3px;font-family:var(--display);line-height:1.2;margin:13px 0 14px}
+.thread-body p{font-size:13px;color:#bdcfc2;line-height:1.75}
+.thread-verified-tags{display:flex;flex-wrap:wrap;gap:9px;margin-top:18px}
+.thread-tag{display:inline-block;background:#2e4735;border:1px solid #70916c;padding:10px 12px;color:#e5fbdc;font-size:11px}
+.thread-tag small{display:block;color:#bdceb9;font-size:10px;margin-top:4px}
+.thread-alternative{border:1px solid #466248;padding:19px 20px;background:#203528}
+.thread-alternative>span{font-size:10px;color:var(--lime);font-weight:800;letter-spacing:1.2px}
+.thread-alternative-item{margin:11px 0;font-size:13px;color:#eff2e8;overflow-wrap:anywhere}
+.thread-alternative-item b{color:#c7e5b8;font-size:10px;letter-spacing:.9px}
+.thread-alternative #thread-rank-cost{border-top:1px solid #49614d;padding-top:14px;font-size:15px;font-weight:700;color:#fff;margin:17px 0}
+.thread-alternative small{font-size:11px;color:#acbeab;line-height:1.7;display:block}
+@media(max-width:750px){.thread-body{grid-template-columns:1fr;padding:19px;gap:14px}.thread-body h3{font-size:25px}}
+@media(max-width:390px){.thread-header{align-items:flex-start;flex-direction:column}.thread-alternative{padding:16px}}

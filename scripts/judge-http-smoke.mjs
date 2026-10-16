@@ -48,6 +48,8 @@ try{
  console.log("JUDGE_HTTP_HEALTH_OK");
  // Exactly the default cultural anchors that appear in the live UI.
  const first=await request({maxBudget:210});
+ if("threadTagIndex" in first||"tagEvidence" in first||
+   "candidates" in first)throw Error("JUDGE_RAW_PROVIDER_TAG_CACHE_LEAK");
  if(first.mode!=="qloo-live"||first.source_mode!=="evidence-backed"||
   first.status!=="ok"||first.bridge?.items?.length!==3||
   !first.bridge.items.every(x=>x.source?.startsWith("qloo-rest:")&&x.qloo_entity_id&&x.evidence_id))
@@ -77,6 +79,21 @@ try{
  console.log("JUDGE_HTTP_LIVE_OK slots=3 rank_stages=3");
  console.log("JUDGE_HTTP_COUNTERFACTUAL_OK exclusions=3 extra_provider_calls=0");
  console.log("JUDGE_HTTP_FRONTIER_OK blind_baseline=grounded extra_provider_calls=0");
+ const thread=first.threadChoice;
+ if(!thread||thread.method!=="bounded-exact-qloo-tag-intersection"||
+  thread.provider_calls!==0||!
+  ["verified","no_verified_thread"].includes(thread.status))
+  throw Error("JUDGE_THREAD_EVIDENCE_INVALID");
+ if(thread.status==="verified"&&(
+  thread.alternative?.items?.length!==3||
+  !thread.verified_motifs?.length||
+  thread.worst_rank_proxy_loss<0||
+  thread.worst_rank_proxy_loss>thread.max_rank_proxy_loss+1e-6||
+  !thread.verified_motifs.every(m=>m.id?.startsWith("urn:tag:")&&m.slots?.length>=2)
+ ))throw Error("JUDGE_THREAD_ALTERNATIVE_UNVERIFIED");
+ console.log("JUDGE_PROVIDER_THREAD_META status="+thread.status+
+  " matched_tag_count="+(thread.verified_motif_count||0)+
+  " additional_provider_calls=0");
  const enrichment=(first.trace||[]).filter(x=>x.stage==="enrich");
  if(enrichment.length!==3||enrichment.some(x=>
    x.tool!=="cached-qloo-discovery-tags"||x.calls!==0))
@@ -88,6 +105,9 @@ try{
   next.bridge?.items?.some(x=>x.id===veto)||
   !next.trace?.some(x=>x.stage==="renegotiate"&&x.calls===0))
   throw Error("JUDGE_CACHE_VETO_FAILED");
+ if(next.threadChoice?.provider_calls!==0||!
+  ["verified","no_verified_thread"].includes(next.threadChoice?.status))
+  throw Error("JUDGE_VETO_THREAD_CACHE_NOT_UPDATED");
  console.log("JUDGE_HTTP_CACHED_REPLAN_OK");
  // Input error must not consume provider calls or silently use synthetic values.
  const invalid=await fetch(base+"/api/plan",{

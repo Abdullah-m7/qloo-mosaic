@@ -22,6 +22,8 @@ const plan=(items=selected)=>({
  negotiation:{method:"exact-nondominated-ordinal-frontier",calls:0,
   maximinId:"balanced-1",points:[{id:"balanced-1",isMaximin:true,items}],
   tasteBlind:{items}},
+ threadChoice:{method:"bounded-exact-qloo-tag-intersection",
+  provider_calls:0,status:"no_verified_thread"},
  resilience:{provider_calls:0,impacts:selected.map(x=>({removed:{id:x.id}}))}
 });
 test("release check refuses sample Render before calling any Qloo-funded planner",async()=>{

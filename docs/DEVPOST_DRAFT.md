@@ -55,6 +55,22 @@ baseline, and outperforming it on the planner's own training objective
 is a mathematical property, not proof of better future human choices.
 No Qloo API calls are added by frontier exploration.
 
+## Evidence-backed Cultural Thread Finder
+MOSAIC identifies an **optional second agreement** for organizers who
+want a verifiable cultural reason to bring different activities together.
+It inspects the provider tag IDs actually attached to Qloo-discovered
+artists, places and film entities and searches for an artist/place/film
+combination with the SAME Qloo tag recorded in two distinct categories.
+
+This search is deliberately constrained: the lower of the two audience
+ordinal rank proxies cannot fall more than five percentage points below
+the standard balanced plan. The interface shows the exact provider
+tag, involved categories, proposed alternative and proxy tradeoff.
+It never asserts that shared metadata proves real audience satisfaction
+or that artists, locations or screenings can be booked. If there is no
+supported link under the constraint, the tool says so rather than
+inventing one. No new API calls are required after candidate discovery.
+
 ## Why Qloo matters
 Qloo is not a decorative API call. Its real entity discovery, audience-
 relative rankings and optional tag evidence are inputs to the planner.

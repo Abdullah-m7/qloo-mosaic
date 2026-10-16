@@ -229,3 +229,45 @@ test("synthetic demo never renders provider explanation metrics",()=>{
  vm.runInContext("render(fixture)",context);
  assert.doesNotMatch(element("plan-items").innerHTML,/QLOO SOURCE CONTRIBUTIONS/);
 });
+
+test("real Qloo cultural-thread alternative displays only matching provider tag evidence",()=>{
+ const {context,element}=makeView();
+ const row=(slot,id)=>({id:slot+":"+id,slot,label:"Public "+id,cost:0,
+  source:"qloo-rest:insights+rank",qloo_entity_id:id,evidence_id:"QL-"+id});
+ const picked=[row("music","a"),row("food","b"),row("experience","c")];
+ const plan={items:picked,groupA:.7,groupB:.7,worst:.7,mean:.7,gap:0};
+ const real={status:"ok",mode:"qloo-live",bridge:plan,
+  baselines:{majority:plan,average:plan},trace:[],treaty:null,
+  threadChoice:{status:"verified",method:"bounded-exact-qloo-tag-intersection",
+   provider_calls:0,max_rank_proxy_loss:.05,worst_rank_proxy_loss:.027,
+   alternative:{items:[row("music","d"),row("food","b"),row("experience","c")]},
+   verified_motifs:[{id:"urn:tag:genre:verified",name:"Public <indie> culture",
+    slots:["experience","music"]}]}
+ };
+ context.fixture=real;
+ vm.runInContext("render(fixture)",context);
+ assert.equal(element("cultural-thread").hidden,false);
+ assert.match(element("thread-heading").textContent,/explicit trade-off/);
+ assert.match(element("thread-rank-cost").textContent,/2.7 percentage points/);
+ assert.match(element("thread-verified-tags").innerHTML,/urn:tag:genre:verified/);
+ assert.match(element("thread-verified-tags").innerHTML,/&lt;indie&gt;/);
+ assert.doesNotMatch(element("thread-verified-tags").innerHTML,/<indie>/);
+ vm.runInContext('showUnavailable("Provider error")',context);
+ assert.equal(element("cultural-thread").hidden,true);
+ assert.equal(element("thread-verified-tags").innerHTML,"");
+});
+test("missing Qloo cross-category link is presented as an honest abstention",()=>{
+ const {context,element}=makeView();
+ const one={id:"m",slot:"music",label:"Public performer",cost:0,evidence_id:"QL-M",
+  source:"qloo-rest:insights+rank"};
+ const plan={items:[one],groupA:.4,groupB:.6,worst:.4,mean:.5,gap:.2};
+ context.fixture={status:"ok",mode:"qloo-live",bridge:plan,
+  baselines:{majority:plan,average:plan},trace:[],treaty:null,
+  threadChoice:{status:"no_verified_thread",provider_calls:0,
+   within_fairness_bound:3}};
+ vm.runInContext("render(fixture)",context);
+ assert.equal(element("cultural-thread").hidden,false);
+ assert.match(element("thread-heading").textContent,/No evidence-based shared thread/);
+ assert.match(element("thread-message").textContent,/did not provide a matching public tag/);
+ assert.equal(element("thread-verified-tags").innerHTML,"");
+});

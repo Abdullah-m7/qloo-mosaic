@@ -135,3 +135,20 @@ HTTP judge smoke requires three cached tag provenance stages, each recording
 zero additional provider calls. Per-anchor explainability details will only
 be publicly surfaced if their exact data schema is validated; no fabricated
 contribution numbers or interpretive labels may be shown.
+
+## Qloo provider-tag cultural thread gate (16 October)
+- The alternative must be computed from exact Qloo **provider tag IDs**
+  shared by different shortlisted categories; equal-looking tag labels
+  with different IDs never establish a link.
+- Limit the alternative's lower-audience ordinal rank proxy drop to a
+  preregistered **5 percentage points**. The original maximin choice is
+  unchanged; no real booking, revenue or human preference advantage is
+  claimed.
+- Accept a safe "no verified thread" outcome. Never invent motifs or
+  assign invented proxy values when provider tags are absent.
+- Cache-backed veto replans must rebuild selected tag evidence from the
+  exact saved provider responses, and compute the alternative without
+  any additional Qloo call. Raw candidate tag arrays must remain
+  server-side, never in the browser response.
+- The GitHub event-key-backed HTTP smoke must verify this contract and
+  emit **status and counts only**, not raw tag identities or private research.

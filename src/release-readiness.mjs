@@ -66,6 +66,16 @@ export async function checkPublicRelease({
   negotiation.calls===0&&negotiation.tasteBlind?.items?.length===3&&
   negotiation.points?.some(x=>x.id===negotiation.maximinId&&x.isMaximin),
   "RELEASE_NEGOTIATION_FRONTIER_MISSING");
+ const thread=first.threadChoice;
+ assert(thread?.method==="bounded-exact-qloo-tag-intersection"&&
+  thread.provider_calls===0&&
+  ["verified","no_verified_thread"].includes(thread.status)&&
+  (thread.status!=="verified"||
+   (thread.alternative?.items?.length===3&&
+    thread.verified_motifs?.length>0&&
+    thread.worst_rank_proxy_loss>=0&&
+    thread.worst_rank_proxy_loss<=thread.max_rank_proxy_loss+1e-6)),
+  "RELEASE_CULTURAL_THREAD_UNVERIFIED");
  const impacts=first.resilience?.impacts;
  assert(first.resilience?.provider_calls===0&&Array.isArray(impacts)&&
   impacts.length===3&&impacts.every(x=>first.bridge.items.some(y=>y.id===x.removed?.id)),
@@ -77,12 +87,15 @@ export async function checkPublicRelease({
   veto.payload.bridge?.items?.every(x=>x.id!==removed)&&
   veto.payload.trace?.some(x=>x.stage==="renegotiate"&&x.calls===0),
   "RELEASE_CACHE_REPLAN_FAILED");
+ assert(veto.payload.threadChoice?.provider_calls===0&&
+  ["verified","no_verified_thread"].includes(veto.payload.threadChoice?.status),
+  "RELEASE_VETO_THREAD_EVIDENCE_UNAVAILABLE");
  const invalid=await post("/api/plan",{groupA:["private@example.com"]});
  assert(invalid.status===400&&!invalid.payload?.bridge&&
   !invalid.payload?.candidates,"RELEASE_FAIL_CLOSED_BROKEN");
  return {
   status:"verified",live:true,provenance:"qloo-rest",
-  categories:3,stress_tests:3,
+  categories:3,stress_tests:3,cultural_thread_status:thread.status,
   provider_calls_for_veto:0,
   startup_ms:durations["/health"],
   ui_ms:durations["/"],

@@ -37,6 +37,23 @@ try{
   candidate_triples:opportunity.all_candidate_triples,
   verified_overlap_triples:opportunity.triples_with_verified_cross_slot_tag
  }));
+ const thread=plan.threadChoice;
+ if(thread?.method!=="bounded-exact-qloo-tag-intersection"||
+   thread.provider_calls!==0||
+   !["verified","no_verified_thread"].includes(thread.status))
+  throw Error("QLOO_THREAD_CHOICE_INVALID");
+ if(thread.status==="verified"&&
+  (!thread.verified_motifs?.length||
+   thread.alternative?.items?.length!==3||
+   thread.worst_rank_proxy_loss>thread.max_rank_proxy_loss+1e-6))
+  throw Error("QLOO_THREAD_CHOICE_UNVERIFIED");
+ console.log("QLOO_THREAD_CHOICE_META="+JSON.stringify({
+  status:thread.status,
+  verified_motifs:thread.verified_motif_count||0,
+  loss_within_preset_limit:thread.status==="verified"?
+    thread.worst_rank_proxy_loss<=thread.max_rank_proxy_loss+1e-6:null,
+  provider_calls:thread.provider_calls
+ }));
  const typed=new QlooRestClient({maxRequests:2});
  try{
   const entityId=await typed.resolveSeed("Movie: Barbie (2023)");

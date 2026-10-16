@@ -70,3 +70,16 @@ source-tag claims instead of calling undocumented recommendation endpoints.
 The public treaty exposes no more than four motifs with exact tag-ID matches
 between two or more selected categories; full tag lists and provider data
 are not included in public HTTP responses or Git history.
+
+## Provider-grounded cultural thread choice
+The regular maximin solution remains the sole default balanced
+recommendation. An optional Qloo-specific second choice enumerates
+three-category alternatives that are within five percentage points
+of the worst-group ordinal proxy, and requires an exact matching
+provider tag ID in at least two selected categories. It prioritizes
+three-way matches, then number of distinct verified tag IDs, then
+minimal loss and deterministic identifiers. These rules provide
+traceability, **not causal cultural understanding or superior human
+satisfaction**. Missing evidence results in abstention, not a generated
+story. Source tags from discovery are cached server-side for 15 minutes
+and are never exported wholesale to public clients.

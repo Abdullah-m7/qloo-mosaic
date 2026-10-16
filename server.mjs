@@ -6,6 +6,8 @@ import {buildBridge} from "./src/engine.mjs";
 import {sample} from "./src/fixtures.mjs";
 import {liveBridge,validateSeeds,validateLocation,DEFAULT_SEEDS} from "./src/qloo.mjs";
 import {createTreaty} from "./src/treaty.mjs";
+import {findVerifiedThreadChoice,cachedSelectedTagEvidence} from "./src/thread-choice.mjs";
+import {summarizeThreadOpportunity} from "./src/thread-opportunity.mjs";
 import {publicQlooFailure} from "./src/qloo-errors.mjs";
 import {clientIdentity,createRateLimiter} from "./src/rate-limit.mjs";
 import {createSingleFlight} from "./src/single-flight.mjs";
@@ -58,11 +60,22 @@ const server=http.createServer(async(req,res)=>{
       const evidence=evidenceCache.get(contextKey);
       if(evidence&&Date.now()-evidence.time<900000){
         const planned=buildBridge({candidates:evidence.candidates,maxBudget:budget,exclude});
+        const newTagEvidence=planned.status==="ok"?
+          cachedSelectedTagEvidence(planned.bridge.items,evidence.threadTagIndex):[];
+        const currentCandidates=evidence.candidates.filter(x=>!exclude.includes(x.id));
+        const threadChoice=planned.status==="ok"?
+          findVerifiedThreadChoice({candidates:evidence.candidates,
+            tagIndex:evidence.threadTagIndex,bridge:planned.bridge,
+            exclude,maxBudget:budget}):
+          {status:"no_verified_thread",provider_calls:0};
         const result={mode:"qloo-live",scenario:evidence.scenario,notice:evidence.notice,
           trace:[...evidence.trace,{stage:"renegotiate",tool:"cached-evidence",
             calls:0,policy:"Re-optimized without additional Qloo API calls."}],
           treaty:createTreaty({candidates:evidence.candidates,plan:planned,
-            tagEvidence:evidence.tagEvidence}),...planned};
+            tagEvidence:newTagEvidence}),
+          threadChoice,
+          threadOpportunity:summarizeThreadOpportunity(currentCandidates,evidence.threadTagIndex),
+          ...planned};
         cache.set(key,{time:Date.now(),value:result});
         return json(res,200,result);
       }
@@ -72,11 +85,11 @@ const server=http.createServer(async(req,res)=>{
       try{
         // Identical public cultural requests share one bounded Qloo operation.
         const result=await liveJobs.run(key,()=>liveBridge({maxBudget:budget,exclude,...context}));
-        const {candidates,tagEvidence,...safeResult}=result;
+        const {candidates,tagEvidence,threadTagIndex,...safeResult}=result;
         if(Array.isArray(candidates)&&candidates.length&&result.status==="ok"){
           evidenceCache.set(contextKey,{time:Date.now(),candidates,scenario:result.scenario,
             notice:result.notice,trace:result.trace,
-            tagEvidence:result.tagEvidence});
+            threadTagIndex,tagEvidence});
           cache.set(key,{time:Date.now(),value:safeResult});
         }
         return json(res,200,safeResult);

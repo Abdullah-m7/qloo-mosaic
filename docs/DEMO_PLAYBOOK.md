@@ -15,6 +15,9 @@ Open **The Negotiation Frontier**, move the dial from a Group-B-leaning compromi
 ## Trace Qloo's own explanation
 On the live three-category plan, expand the per-item `QLOO SOURCE CONTRIBUTIONS` rows for both audiences. These show only public input anchors matched against the provider's `query.explainability` records. If an item has no provider-level explanation, point out the explicit unavailable state. Do not call normalized contribution scores predicted satisfaction, attendee probabilities, or causality.
 
+## Demonstrate the Qloo-verified cultural thread
+Open the second "Verified Cultural Thread" section below the Cultural Bridge Agreement. Qloo's own **exact cross-category tag IDs** identify an alternative artist/place/film plan with a shared tag. Show the selected provider-backed tag names and the explicitly bounded worst-group ordinal rank tradeoff (at most 5 percentage points), then emphasize that this alternative never overrides the default maximin choice. If no such alternative exists within the bound, MOSAIC abstains from claiming a cultural thread rather than improvising one. This logic reuses already cached provider tags with zero new Qloo requests.
+
 ## Demonstrate adaptation
 Reject the first option; show another feasible plan or an explicit insufficient-evidence outcome. Undo the veto. Change the public cultural anchor or search location and show a different real Qloo-grounded result.
 

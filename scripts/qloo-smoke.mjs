@@ -25,6 +25,18 @@ try{
   throw Error("QLOO_TAG_SOURCE_NOT_GROUNDED");
  console.log("QLOO_TAG_SOURCE_OK slots=3 provider_calls=0 verified_slots="+
   tags.filter(x=>x.status==="verified").length);
+ const opportunity=plan.threadOpportunity;
+ if(opportunity?.provider_calls!==0||opportunity?.candidates!==plan.candidates?.length||
+  !Number.isInteger(opportunity.triples_with_verified_cross_slot_tag))
+  throw Error("QLOO_TAG_OPPORTUNITY_UNAVAILABLE");
+ // Counts only: no provider tags, names, source IDs or research rows printed.
+ console.log("QLOO_THREAD_OPPORTUNITY_META="+JSON.stringify({
+  candidates:opportunity.candidates,
+  tagged:opportunity.with_provider_tag_metadata,
+  cross_category_pairs:opportunity.cross_slot_pairs_with_matching_tag,
+  candidate_triples:opportunity.all_candidate_triples,
+  verified_overlap_triples:opportunity.triples_with_verified_cross_slot_tag
+ }));
  const typed=new QlooRestClient({maxRequests:2});
  try{
   const entityId=await typed.resolveSeed("Movie: Barbie (2023)");

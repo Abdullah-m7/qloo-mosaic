@@ -105,3 +105,9 @@ If there is no key or Qloo returns inadequate evidence, the live endpoint respon
 Original project code released under **MIT**. Qloo remains a separate third-party data provider; its data and API are subject to their own terms. No personal taste records or participant identity information is needed for the synthetic demos.
 
 Built independently for the [Qloo Agentic Hackathon 2026](https://qloo.devpost.com/) by Abdullah Almohammedi. The submission closes **October 30, 2026 at 11:45 PM EDT**.
+
+## Independent project advisors (appointed 18 October 2026)
+
+**Astra** (`gpt-6-astra`) is MOSAIC's independent scientific / hackathon-strategy advisor. **Claude Fable** (Claude Code model alias `fable`) is its independent engineering / judge-experience advisor. They provide on-demand, **read-only AI consultations**; they are not human teammates, do not run continuously, and do not have authority to merge, deploy or submit the entry. Project-owner approval remains necessary. Their private review findings are not published with source code.
+
+See [MOSAIC Advisory Board](docs/ADVISORY_BOARD.md) and `bash scripts/consult-advisors.sh --dry-run` for the reproducible consultation setup. All work remains scoped to Qloo MOSAIC, not other research or hackathon projects.

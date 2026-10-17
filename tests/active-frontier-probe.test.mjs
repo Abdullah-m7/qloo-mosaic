@@ -73,3 +73,29 @@ test("never expand invented/synthetic Qloo identities",async()=>{
   probeActiveFrontier({candidates:bad,a:["Aseed"],b:["Bseed"],call:()=>{throw Error("must not call");}}),
   /Only complete, Qloo-grounded/);
 });
+
+test("held-out evaluator runs only after two Qloo plans are frozen",async()=>{
+ const events=[];
+ const call=async(name,args)=>{
+  events.push(name);
+  if(name==="qloo_recommend")return {results:[{name:"C",id:"music:C"}]};
+  if(name==="qloo_rank")return {results:
+   (args.signals[0]==="Aseed"?["C","B","A"]:["C","A","B"])
+   .map(name=>({name}))};
+  throw Error("Unexpected tool");
+ };
+ const result=await probeActiveFrontier({
+  candidates:original,a:["Aseed"],b:["Bseed"],call,
+  evaluateHeldout:async({candidatePool,baselinePlan,expandedPlan,expandedSlot})=>{
+   assert.deepEqual(events,["qloo_recommend","qloo_rank","qloo_rank"]);
+   assert.equal(expandedSlot,"music");
+   assert.ok(candidatePool.some(x=>x.label==="C"&&x.slot==="music"));
+   assert.ok(!baselinePlan.items.some(x=>x.label==="C"));
+   assert.ok(expandedPlan.items.some(x=>x.label==="C"));
+   return {status:"evaluated",delta_worst:-.123};
+  }
+ });
+ assert.equal(result.heldout.status,"evaluated");
+ assert.equal(result.heldout.delta_worst,-.123);
+ assert.ok(result.difference_on_same_union>0);
+});

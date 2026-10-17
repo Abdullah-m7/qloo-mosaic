@@ -1,0 +1,46 @@
+name: Private active frontier holdout
+
+on:
+  push:
+    branches:
+      - experiment/active-taste-frontier-20261017
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: qloo-active-frontier-pilot
+  cancel-in-progress: false
+
+jobs:
+  active-frontier-pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - name: Checkout isolated experiment branch
+        uses: actions/checkout@v4
+      - name: Node runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Clean dependency install
+        run: npm ci --omit=dev --ignore-scripts --no-fund --no-audit
+      - name: Unit and invariant tests
+        run: npm test
+      - name: Production vulnerability check
+        run: npm audit --omit=dev --audit-level=high
+      - name: Run four preregistered fresh live Qloo holdout cases
+        env:
+          QLOO_API_KEY: ${{ secrets.QLOO_API_KEY }}
+          QLOO_RESULT_PUBLIC_KEY: evidence/ablation_results_public.pem
+          QLOO_RESULT_OUTPUT: .qloo-private/active-holdout.enc.json
+        run: node scripts/active-frontier-holdout.mjs
+      - name: Preserve ciphertext only (no research results in Actions logs)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mosaic-active-frontier-private-holdout
+          path: .qloo-private/active-holdout.enc.json
+          if-no-files-found: warn
+          retention-days: 7

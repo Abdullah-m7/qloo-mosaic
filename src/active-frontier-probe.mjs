@@ -21,7 +21,7 @@ function targetSlot(candidates,bridge,groupKey){
 }
 
 export async function probeActiveFrontier({
- candidates,a,b,place="New York",maxBudget=210,call
+ candidates,a,b,place="New York",maxBudget=210,call,evaluateHeldout
 }={}){
  if(!Array.isArray(candidates)||!candidates.length||candidates.some(x=>!valid(x))||
   !Array.isArray(a)||!a.length||!Array.isArray(b)||!b.length||
@@ -80,6 +80,15 @@ export async function probeActiveFrontier({
   return {status:"blocked_insufficient_evidence",slot,underrepresented,provider_calls:3};
  const newIds=new Set(extras.map(x=>x.id));
  const selectedNew=expanded.bridge.items.filter(x=>newIds.has(x.id));
+ // The held-out anchors never influence discovery, slot choice, or either
+ // optimized plan: they are consulted strictly after both plans are frozen.
+ const heldout=typeof evaluateHeldout==="function"?
+  await evaluateHeldout({
+   candidatePool:[...stableOther,...reranked],
+   baselinePlan:rescaledBaseline.bridge,
+   expandedPlan:expanded.bridge,
+   expandedSlot:slot
+  }):null;
  return {
   status:"evaluated",slot,underrepresented,provider_calls:3,
   discovered_new:extras.length,mutually_ranked_new:reranked.filter(x=>newIds.has(x.id)).length,
@@ -90,6 +99,7 @@ export async function probeActiveFrontier({
   expanded_on_union_worst_proxy:expanded.bridge.worst,
   difference_on_same_union:round(expanded.bridge.worst-rescaledBaseline.bridge.worst),
   selected_new_in_expanded_plan:selectedNew.length>0,
+  ...(heldout?{heldout}:{}),
   nominated:expanded.bridge.items.map(x=>({
    slot:x.slot,id:x.id,label:x.label,evidence_id:x.evidence_id,
    from_expanded_discovery:newIds.has(x.id)

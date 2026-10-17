@@ -45,15 +45,27 @@ function sharedTags(items,tagIndex){
    option_ids:[...x.items].sort()}));
 }
 export function findVerifiedThreadChoice({
- candidates,tagIndex,bridge,exclude=[],maxBudget=210,maxLoss=.05
+ candidates,tagIndex,bridge,exclude=[],required=[],maxBudget=210,maxLoss=.05
 }={}){
  if(!Array.isArray(candidates)||!(tagIndex instanceof Map)||
   !bridge||!Number.isFinite(bridge.worst)||
-  !Array.isArray(exclude)||!Number.isFinite(maxLoss)||maxLoss<0||maxLoss>.2)
+  !Array.isArray(exclude)||!Array.isArray(required)||required.length>3||
+  !Number.isFinite(maxLoss)||maxLoss<0||maxLoss>.2)
   throw TypeError("Invalid grounded cultural thread inputs");
  const excluded=new Set(exclude);
+ const protectedBySlot=new Map();
+ for(const id of required){
+  const item=candidates.find(x=>x.id===id&&grounded(x));
+  if(!item||excluded.has(id))return {status:"no_verified_thread",
+   method:"bounded-exact-qloo-tag-intersection",provider_calls:0};
+  if(protectedBySlot.has(item.slot)&&protectedBySlot.get(item.slot)!==id)
+   return {status:"no_verified_thread",
+    method:"bounded-exact-qloo-tag-intersection",provider_calls:0};
+  protectedBySlot.set(item.slot,id);
+ }
  const bySlot=slots.map(slot=>candidates.filter(x=>
-  x.slot===slot&&grounded(x)&&!excluded.has(x.id)));
+  x.slot===slot&&grounded(x)&&!excluded.has(x.id)&&
+  (!protectedBySlot.has(slot)||protectedBySlot.get(slot)===x.id)));
  let examined=0,withinBound=0,withThread=0,best=null;
  const choose=(p,q)=>{
   if(!q)return true;

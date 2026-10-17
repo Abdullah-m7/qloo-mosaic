@@ -48,6 +48,15 @@
    <div class="slider-ends"><span>130 pts</span><span>260 pts</span></div>
    <label class="form-label sublabel" for="exclude"><span>Replan: reject an option</span></label>
    <select id="exclude"><option value="">Select an option to reject</option></select><div class="vetoes" id="rejection-list" aria-live="polite"></div>
+   <div class="approval-constraints" id="approval-constraints" hidden>
+     <div class="approval-constraints-header">PROTECT ONE CULTURAL CHOICE PER REPRESENTATIVE</div>
+     <label for="protect-a">Representative A — protected preference</label>
+     <select id="protect-a"><option value="">No protected choice</option></select>
+     <label for="protect-b">Representative B — protected preference</label>
+     <select id="protect-b"><option value="">No protected choice</option></select>
+     <button type="button" id="clear-protected">Clear protected choices ↗</button>
+     <p>Each protected choice must appear in the next agreement. Opposing choices in one category may be impossible to combine.</p>
+   </div>
    <button type="button" id="run" class="run">Find common ground <span>↗</span></button>
    <p class="hint">Try lowering the budget or removing the strongest option. The agent recalculates the trade-off.</p>
   </div>
@@ -55,6 +64,19 @@
    <div class="panel-heading"><span>THE PROPOSED BRIDGE</span><span class="pill">MAXIMIN PLANNER</span></div>
    <div class="result-head"><div><span class="mini-label">THE SHARED EXPERIENCE</span><h3 id="plan-title">Finding our common ground…</h3></div><div class="cost"><b id="plan-cost">—</b><span>PLANNING TOKENS</span></div></div>
    <div id="plan-items" class="plan-items"></div>
+   <div id="joint-approval" class="joint-approval" hidden>
+     <div class="joint-approval-heading"><span>THE DECISION ROOM</span><strong>TWO VOICES · ONE CONCEPT</strong></div>
+     <p class="joint-approval-lead">Each representative approves this exact proposal, not an imagined booking. Changing any selected item or input clears both approvals automatically.</p>
+     <p id="protection-impact" class="protection-impact">No protected choices. The current plan is the balanced recommendation.</p>
+     <div class="joint-votes">
+       <div><span>REPRESENTATIVE A</span><button id="approve-a" type="button">Approve this concept</button><p id="vote-a">Not approved</p></div>
+       <div><span>REPRESENTATIVE B</span><button id="approve-b" type="button">Approve this concept</button><p id="vote-b">Not approved</p></div>
+     </div>
+     <p id="joint-status" class="joint-status" role="status">Waiting for both representatives.</p>
+     <button id="joint-copy" type="button" disabled>Copy jointly approved concept ↗</button>
+     <p id="joint-copy-feedback" class="joint-copy-feedback" role="status"></p>
+     <p class="joint-limitations">Local, single-device approvals only: button presses are not verified identities, legal signatures, venue bookings, or evidence of audience satisfaction.</p>
+   </div>
    <div class="score-section">
     <div class="score-title"><span>FAIRNESS CHECK</span><span id="gain" class="gain">—</span></div><div class="baseline-tabs" role="group" aria-label="Choose baseline"><button id="baseline-majority" type="button" class="active" aria-pressed="true">One-sided baseline</button><button id="baseline-average" type="button" aria-pressed="false">Average-first baseline</button></div>
     <div class="compare"><span id="baseline-title">Group A–first baseline</span><span class="small-note">Group A / Group B</span></div>
@@ -81,7 +103,7 @@
     </div>
     <div class="treaty-under">
       <div><span class="treaty-label">THE CULTURAL THREAD</span><h3 id="treaty-thread">Awaiting verified evidence.</h3><p id="treaty-thread-explain">A cross-domain connection will appear only when the underlying data supports it.</p></div>
-      <div class="treaty-right"><span class="treaty-label">DECISION NOTE</span><p id="treaty-note">A fair trade-off does not guarantee real-world satisfaction.</p><button type="button" class="treaty-copy" id="copy-treaty">Copy decision brief ↗</button><p class="copy-feedback" id="copy-feedback" role="status"></p></div>
+      <div class="treaty-right"><span class="treaty-label">DECISION NOTE</span><p id="treaty-note">A fair trade-off does not guarantee real-world satisfaction.</p><button type="button" class="treaty-copy" id="copy-treaty">Copy proposal brief ↗</button><p class="copy-feedback" id="copy-feedback" role="status"></p></div>
     </div>
   </div>
  <div class="cultural-thread" id="cultural-thread" hidden>

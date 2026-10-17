@@ -1,0 +1,35 @@
+name: MOSAIC isolated co-approval Qloo smoke
+
+on:
+  push:
+    branches:
+      - experiment/joint-approval-20261017
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mosaic-isolated-approval
+  cancel-in-progress: false
+
+jobs:
+  judge-approval-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - name: Checkout isolated experimental branch
+        uses: actions/checkout@v4
+      - name: Install Node.js 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Clean dependency install
+        run: npm ci --omit=dev --ignore-scripts --no-audit --no-fund
+      - name: Run complete local tests
+        run: npm test
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+      - name: Verify real Qloo-backed protected choice and conflict on isolated HTTP server
+        env:
+          QLOO_API_KEY: ${{ secrets.QLOO_API_KEY }}
+        run: node scripts/joint-approval-smoke.mjs

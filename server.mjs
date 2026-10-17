@@ -43,6 +43,12 @@ const server=http.createServer(async(req,res)=>{
     const input=await getBody(req);
     const budget=Number(input.maxBudget??210);
     const exclude=Array.isArray(input.exclude)?input.exclude.filter(x=>typeof x==="string").slice(0,24):[];
+    const rawRequired=input.required??[];
+    if(!Array.isArray(rawRequired)||rawRequired.length>2||
+      rawRequired.some(x=>typeof x!=="string"||!x.trim()||x.length>160)||
+      new Set(rawRequired).size!==rawRequired.length)
+      return json(res,400,{status:"needs_input",message:"Invalid protected cultural choices."});
+    const required=[...rawRequired].sort();
     if(!Number.isFinite(budget)||budget<0||budget>100000)return json(res,400,{status:"error",message:"Invalid budget"});
     if(mode==="live"){
       let context;
@@ -53,20 +59,20 @@ const server=http.createServer(async(req,res)=>{
       }catch(e){
         return json(res,400,{status:"needs_input",message:e.message});
       }
-      const key=JSON.stringify({budget,exclude,...context});
+      const key=JSON.stringify({budget,exclude,required,...context});
       const contextKey=JSON.stringify(context);
       const hit=cache.get(key);
       if(hit&&Date.now()-hit.time<600000)return json(res,200,hit.value);
       const evidence=evidenceCache.get(contextKey);
       if(evidence&&Date.now()-evidence.time<900000){
-        const planned=buildBridge({candidates:evidence.candidates,maxBudget:budget,exclude});
+        const planned=buildBridge({candidates:evidence.candidates,maxBudget:budget,exclude,required});
         const newTagEvidence=planned.status==="ok"?
           cachedSelectedTagEvidence(planned.bridge.items,evidence.threadTagIndex):[];
         const currentCandidates=evidence.candidates.filter(x=>!exclude.includes(x.id));
         const threadChoice=planned.status==="ok"?
           findVerifiedThreadChoice({candidates:evidence.candidates,
             tagIndex:evidence.threadTagIndex,bridge:planned.bridge,
-            exclude,maxBudget:budget}):
+            exclude,required,maxBudget:budget}):
           {status:"no_verified_thread",provider_calls:0};
         const result={mode:"qloo-live",scenario:evidence.scenario,notice:evidence.notice,
           trace:[...evidence.trace,{stage:"renegotiate",tool:"cached-evidence",
@@ -84,7 +90,7 @@ const server=http.createServer(async(req,res)=>{
           message:"This live demo has reached its temporary request limit. Please try again later."});
       try{
         // Identical public cultural requests share one bounded Qloo operation.
-        const result=await liveJobs.run(key,()=>liveBridge({maxBudget:budget,exclude,...context}));
+        const result=await liveJobs.run(key,()=>liveBridge({maxBudget:budget,exclude,required,...context}));
         const {candidates,tagEvidence,threadTagIndex,...safeResult}=result;
         if(Array.isArray(candidates)&&candidates.length&&result.status==="ok"){
           evidenceCache.set(contextKey,{time:Date.now(),candidates,scenario:result.scenario,
@@ -104,7 +110,7 @@ const server=http.createServer(async(req,res)=>{
     }
     if(input.groupA!==undefined||input.groupB!==undefined||input.location!==undefined)
       return json(res,422,{status:"needs_input",message:"Sample mode uses fixed synthetic audiences. Custom anchors require Qloo live mode."});
-    const result=buildBridge({candidates:sample.candidates,maxBudget:budget,exclude});
+    const result=buildBridge({candidates:sample.candidates,maxBudget:budget,exclude,required});
     return json(res,200,{mode:"synthetic",notice:"Illustrative synthetic fixture, NOT an actual Qloo API response.",scenario:{title:sample.title,groupA:sample.groupA,groupB:sample.groupB},
       treaty:createTreaty({candidates:sample.candidates,plan:result}),...result});
   }

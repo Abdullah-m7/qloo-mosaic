@@ -71,3 +71,17 @@ test("malformed or ungrounded tag data cannot fabricate a documented cultural li
  assert.throws(()=>findVerifiedThreadChoice({candidates:list,tagIndex:null,
   bridge:base.bridge}),/Invalid grounded/);
 });
+
+test("a provider-tag thread is forbidden from silently replacing an organizer-protected choice",()=>{
+ const locked=buildBridge({candidates:list,maxBudget:0,required:["music:lead"]});
+ assert.equal(locked.status,"ok");
+ const thread=findVerifiedThreadChoice({candidates:list,tagIndex:tags,
+  bridge:locked.bridge,maxBudget:0,required:["music:lead"]});
+ assert.equal(thread.status,"no_verified_thread");
+ assert.equal(thread.provider_calls,0);
+ const shared=buildBridge({candidates:list,maxBudget:0,required:["experience:film-lead"]});
+ const permitted=findVerifiedThreadChoice({candidates:list,tagIndex:tags,
+  bridge:shared.bridge,maxBudget:0,required:["experience:film-lead"]});
+ assert.equal(permitted.status,"verified");
+ assert.ok(permitted.alternative.items.some(x=>x.id==="experience:film-lead"));
+});

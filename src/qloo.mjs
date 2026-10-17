@@ -152,7 +152,7 @@ export async function enrichSelectedTags({selected,call}){
   }
   return {tagEvidence,trace};
 }
-export async function liveBridge({maxBudget=210,exclude=[],groupA,groupB,location}={}){
+export async function liveBridge({maxBudget=210,exclude=[],required=[],groupA,groupB,location}={}){
   const a=validateSeeds(groupA,DEFAULT_SEEDS.groupA);
   const b=validateSeeds(groupB,DEFAULT_SEEDS.groupB);
   const place=validateLocation(location);
@@ -165,14 +165,14 @@ export async function liveBridge({maxBudget=210,exclude=[],groupA,groupB,locatio
     const {candidates:all,trace}=await discoverCulturalEvidence({
       a,b,place,call
     });
-    const result=buildBridge({candidates:all,maxBudget,exclude});
+    const result=buildBridge({candidates:all,maxBudget,exclude,required});
     const threadOpportunity=summarizeThreadOpportunity(all,client.entityTags);
     // This cache is server-only; the public response excludes raw candidate tag arrays.
     const threadTagIndex=new Map([...client.entityTags.entries()].filter(([id])=>
       all.some(x=>x.qloo_entity_id?.toLowerCase()===id)));
     const threadChoice=result.status==="ok"?
       findVerifiedThreadChoice({candidates:all,tagIndex:threadTagIndex,
-        bridge:result.bridge,exclude,maxBudget}):
+        bridge:result.bridge,exclude,required,maxBudget}):
       {status:"no_verified_thread",method:"bounded-exact-qloo-tag-intersection",
        provider_calls:0};
     // Reuse provider tag IDs from already discovered Qloo entities. No extra

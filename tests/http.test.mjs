@@ -83,3 +83,24 @@ test("unconfigured live mode fails closed and never returns synthetic candidates
   assert.ok(!("candidates" in response.body));
  }finally{await s.close();}
 });
+
+test("HTTP accepts a grounded protected choice, but rejects incompatible group locks",async()=>{
+ const s=await startServer("sample");
+ try{
+  const locked=await json(s.url,{maxBudget:210,required:["acoustic"]});
+  assert.equal(locked.status,200);
+  assert.equal(locked.body.status,"ok");
+  assert.ok(locked.body.bridge.items.some(x=>x.id==="acoustic"));
+  const conflict=await json(s.url,{
+   maxBudget:210,required:["acoustic","electronic"]
+  });
+  assert.equal(conflict.status,200);
+  assert.equal(conflict.body.status,"no_feasible_plan");
+  const vetoed=await json(s.url,{
+   maxBudget:210,required:["acoustic"],exclude:["acoustic"]
+  });
+  assert.equal(vetoed.body.status,"no_feasible_plan");
+  assert.equal((await json(s.url,{required:["acoustic","acoustic"]})).status,400);
+  assert.equal((await json(s.url,{required:["acoustic","electronic","jazz"]})).status,400);
+ }finally{await s.close();}
+});

@@ -31,14 +31,21 @@ const byMajority = (a,b) => b.groupA-a.groupA || b.mean-a.mean ||
 const byAverage = (a,b) => b.mean-a.mean || b.worst-a.worst ||
   a.cost-b.cost || key(a).localeCompare(key(b));
 
-export function buildBridge({candidates, maxBudget=210, exclude=[]}) {
+export function buildBridge({candidates, maxBudget=210, exclude=[], required=[]}) {
   if (!Array.isArray(candidates)) throw new TypeError("Candidate array required");
   if (!Number.isFinite(maxBudget) || maxBudget < 0 || maxBudget > 100000)
     throw new RangeError("Invalid budget");
   if (!Array.isArray(exclude) || exclude.some(x => !text(x)) || exclude.length > 50)
     throw new TypeError("Invalid exclusions");
+  if (!Array.isArray(required) || required.length > 3 ||
+    required.some(x => !text(x)) || new Set(required).size !== required.length)
+    throw new TypeError("Invalid protected choices");
 
   const blocked = new Set(exclude);
+  if(required.some(id => blocked.has(id)))return {
+    status:"no_feasible_plan",
+    reason:"A public option is both protected and rejected; the representatives must resolve this conflict."
+  };
   const available = candidates.filter(x => valid(x) && !blocked.has(x.id));
   const seen = new Set();
   // Duplicate identity would make veto/evidence ambiguous. Refuse rather than
@@ -48,7 +55,21 @@ export function buildBridge({candidates, maxBudget=210, exclude=[]}) {
   if (new Set(available.map(x=>x.source)).size > 1)
     return {status:"needs_input",reason:"Mixed evidence sources must be reconciled before planning.", rejected:candidates.length-available.length};
 
-  const buckets = SLOTS.map(slot => available.filter(x=>x.slot===slot));
+  // Each role may protect a culturally grounded item; it must be retained
+  // in all resulting plans. Two distinct protected options in the same
+  // category are incompatible without making either up or discarding one.
+  const requiredBySlot=new Map();
+  for(const id of required){
+    const item=available.find(x=>x.id===id);
+    if(!item)return {status:"needs_input",
+      reason:"Protected choice is unavailable in the current Qloo candidate evidence."};
+    if(requiredBySlot.has(item.slot)&&requiredBySlot.get(item.slot)!==id)
+      return {status:"no_feasible_plan",
+        reason:"Two protected alternatives occupy the same category; both cannot be included."};
+    requiredBySlot.set(item.slot,id);
+  }
+  const buckets = SLOTS.map(slot => available.filter(x=>x.slot===slot&&
+    (!requiredBySlot.has(slot)||x.id===requiredBySlot.get(slot))));
   if (buckets.some(a=>a.length===0))
     return {status:"needs_input",reason:"Not enough evidence-backed options in every category.", rejected:candidates.length-available.length};
 
@@ -65,6 +86,22 @@ export function buildBridge({candidates, maxBudget=210, exclude=[]}) {
   const majority = [...feasible].sort(byMajority)[0];
   const utilitarian = [...feasible].sort(byAverage)[0];
   const synthetic=available.every(x=>x.source==="synthetic-fixture");
+  // A protected choice narrows the feasible set. Recompute the original
+  // unconstrained solution on the SAME Qloo evidence, not a new API query.
+  // The difference is a decision sensitivity certificate, never measured
+  // preference satisfaction or a causal effect.
+  const unrestricted=required.length?
+    buildBridge({candidates,maxBudget,exclude,required:[]}):null;
+  const protectionImpact=unrestricted?.status==="ok"?{
+    method:"same-evidence-protected-choice-regret",
+    protected_count:required.length,provider_calls:0,
+    unconstrained_worst:unrestricted.bridge.worst,
+    protected_worst:bridge.worst,
+    worst_proxy_loss:round(Math.max(0,unrestricted.bridge.worst-bridge.worst)),
+    groupA_proxy_change:round(bridge.groupA-unrestricted.bridge.groupA),
+    groupB_proxy_change:round(bridge.groupB-unrestricted.bridge.groupB),
+    limitation:"Within-list ordinal rank sensitivity, not measured audience approval or satisfaction."
+  }:null;
   const negotiation=buildNegotiationAtlas({feasible,bridge});
   // Counterfactual single-option vetoes on the SAME grounded candidate set.
   // Since 'ranked' already maximizes the exact objective, the first feasible
@@ -95,6 +132,7 @@ export function buildBridge({candidates, maxBudget=210, exclude=[]}) {
     status:"ok",
     source_mode: synthetic?"synthetic":"evidence-backed",
     bridge,
+    protectionImpact,
     negotiation,
     resilience,
     baseline:majority, // retained for backward compatibility of the demo

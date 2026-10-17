@@ -3,6 +3,8 @@ const money=x=>Number(x).toFixed(0)+" pts";
 const percent=x=>(Number(x)*100).toFixed(0)+"%";
 const safe=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const vetoes=new Map();
+const protections=new Map(),protectedLabels=new Map();
+let approvalState={A:false,B:false},approvedProposalKey=null;
 let latest=null, baselineType="majority";
 let runtimeMode=null;
 let requestRevision=0;
@@ -231,8 +233,84 @@ function renderThreadChoice(result){
   safeLoss===0?"No loss in the lowest group rank proxy":
   "Balance trade-off: −"+(safeLoss*100).toFixed(1)+" percentage points of ordinal proxy";
 }
+function currentProposalKey(result){
+ if(!result?.bridge?.items)return null;
+ return JSON.stringify({
+  items:result.bridge.items.map(x=>x.id),
+  anchorsA:result.scenario?.groupA?.anchors??[],
+  anchorsB:result.scenario?.groupB?.anchors??[],
+  vetoes:[...vetoes.keys()].sort(),
+  protected:[...protections.entries()].sort((a,b)=>a[0].localeCompare(b[0])),
+  budget:Number($("budget").value),
+  mode:result.mode
+ });
+}
+function updateApprovalPanel(){
+ const valid=latest?.status==="ok"&&latest.bridge?.items?.length===3&&
+  approvedProposalKey===currentProposalKey(latest);
+ if(!valid){$("joint-approval").hidden=true;return;}
+ $("joint-approval").hidden=false;
+ for(const role of ["A","B"]){
+  const yes=approvalState[role]===true;
+  $("vote-"+role.toLowerCase()).textContent=yes?"Approved this exact concept":"Not approved";
+  $("approve-"+role.toLowerCase()).disabled=yes;
+ }
+ const both=approvalState.A&&approvalState.B;
+ $("joint-status").textContent=both?
+  "Both representatives approved the displayed concept on this device.":
+  "Waiting for both representatives to review and approve this exact concept.";
+ $("joint-copy").disabled=!both;
+}
+function invalidateApprovals(){
+ approvalState={A:false,B:false};
+ approvedProposalKey=null;
+ $("joint-approval").hidden=true;
+ $("joint-copy").disabled=true;
+ $("joint-copy-feedback").textContent="";
+}
+function renderApprovalRoom(result){
+ invalidateApprovals();
+ if(result?.status!=="ok"||result.bridge?.items?.length!==3)return;
+ const options=new Map();
+ for(const row of result.bridge.items)options.set(row.id,row.label);
+ for(const p of result.negotiation?.points??[]){
+  for(const row of p.items??[])if(!options.has(row.id))options.set(row.id,row.label);
+ }
+ for(const row of result.negotiation?.tasteBlind?.items??[]){
+  if(!options.has(row.id))options.set(row.id,row.label);
+ }
+ for(const [id,label] of protectedLabels){
+  if(!options.has(id))options.set(id,label);
+ }
+ $("approval-constraints").hidden=false;
+ const html='<option value="">No protected choice</option>'+
+  [...options.entries()].map(([id,label])=>
+   '<option value="'+safe(id)+'">'+safe(label)+'</option>').join("");
+ for(const role of ["A","B"]){
+  const select=$("protect-"+role.toLowerCase());
+  select.innerHTML=html;
+  select.value=protections.get(role)||"";
+ }
+ const impact=result.protectionImpact;
+ $("protection-impact").textContent=
+  impact?.method==="same-evidence-protected-choice-regret"&&
+  impact.provider_calls===0&&Number.isFinite(impact.worst_proxy_loss)?
+  "Protected choices cost "+(impact.worst_proxy_loss*100).toFixed(1)+
+   " percentage points on the lower group's ordinal rank proxy compared with "+
+   "the unconstrained plan; zero additional Qloo calls. This is NOT measured satisfaction.":
+  "No protected choices. The current proposal remains the unconstrained balanced plan.";
+ approvedProposalKey=currentProposalKey(result);
+ updateApprovalPanel();
+}
+function voteFor(role){
+ if(!["A","B"].includes(role)||!latest||latest.status!=="ok"||
+  approvedProposalKey!==currentProposalKey(latest))return;
+ approvalState[role]=true;
+ updateApprovalPanel();
+}
 function showUnavailable(message){
  // A failed Qloo query must not leave a copyable agreement from an earlier run.
+ invalidateApprovals();
  latest=null;
  $("plan-title").textContent="No verified plan available";
  $("plan-items").textContent=message;
@@ -279,6 +357,7 @@ function render(result){
  renderResilience(result);
  renderNegotiation(result);
  renderThreadChoice(result);
+ renderApprovalRoom(result);
  const bridge=result.bridge;
  $("plan-title").textContent="A little of both. All together.";
  $("plan-cost").textContent=result.mode==="qloo-live"?"—":money(bridge.cost);
@@ -327,7 +406,9 @@ async function run(){
  $("plan-title").textContent="Evaluating cultural evidence…";
  $("gain").textContent="REQUEST IN PROGRESS";
  try{
-  const payload={maxBudget:Number($("budget").value),exclude:[...vetoes.keys()]};
+  const payload={maxBudget:Number($("budget").value),
+    exclude:[...vetoes.keys()],
+    required:[...new Set(protections.values())]};
   if(runtimeMode==="live"){
    payload.groupA=$("group-a").value.split(";").map(x=>x.trim()).filter(Boolean);
    payload.groupB=$("group-b").value.split(";").map(x=>x.trim()).filter(Boolean);
@@ -354,12 +435,18 @@ function addVeto(id,label){
  vetoes.set(id,label||id);
  run();
 }
-$("budget").addEventListener("input",()=>{$("budget-value").textContent=money($("budget").value);});
+$("budget").addEventListener("input",()=>{
+ $("budget-value").textContent=money($("budget").value);
+ invalidateApprovals();
+});
 // Editing cultural context invalidates any previous treaty and its veto IDs.
 function inputsChanged(){
  requestRevision++;
  vetoes.clear();
+ protections.clear();
+ protectedLabels.clear();
  renderVetoes();
+ $("approval-constraints").hidden=true;
  showUnavailable("Cultural anchors changed. Run the planner for a new verified agreement.");
  const button=$("run");
  button.disabled=false;
@@ -368,6 +455,52 @@ function inputsChanged(){
 for(const field of ["group-a","group-b","location"]){
  $(field).addEventListener("input",inputsChanged);
 }
+function chooseProtected(role,value){
+ if(!latest?.bridge?.items||!["A","B"].includes(role))return;
+ const available=new Map();
+ for(const row of latest.bridge.items)available.set(row.id,row.label);
+ for(const p of latest.negotiation?.points??[])
+  for(const row of p.items??[])available.set(row.id,row.label);
+ for(const row of latest.negotiation?.tasteBlind?.items??[])
+  available.set(row.id,row.label);
+ for(const [id,label] of protectedLabels)available.set(id,label);
+ if(value&&!available.has(value))return;
+ if(value){
+  protections.set(role,value);
+  protectedLabels.set(value,available.get(value));
+ }else protections.delete(role);
+ invalidateApprovals();
+ run();
+}
+for(const role of ["A","B"]){
+ $("protect-"+role.toLowerCase()).addEventListener("change",ev=>
+  chooseProtected(role,ev.target?.value??""));
+ $("approve-"+role.toLowerCase()).addEventListener("click",()=>voteFor(role));
+}
+$("clear-protected").addEventListener("click",()=>{
+ protections.clear();protectedLabels.clear();invalidateApprovals();run();
+});
+$("joint-copy").addEventListener("click",async()=>{
+ if(!(approvalState.A&&approvalState.B)||!latest||
+   approvedProposalKey!==currentProposalKey(latest)||latest.status!=="ok")return;
+ const items=latest.bridge.items;
+ const brief=[
+  "MOSAIC — JOINTLY REVIEWED CULTURAL CONCEPT",
+  "Role A and Role B approved this exact proposal on one device; identities were not independently verified.",
+  "Evidence: "+(latest.mode==="qloo-live"?"Qloo source-ranked candidate entities":"SYNTHETIC TEST ONLY"),
+  "Concept: "+items.map(x=>x.slot+": "+x.label+" ["+x.evidence_id+"]").join("; "),
+  "Protected options: "+([...new Set(protections.values())].map(id=>protectedLabels.get(id)||id).join("; ")||"none"),
+  "Rejected options: "+([...vetoes.values()].join("; ")||"none"),
+  "Not a venue reservation, contractual signature, license, verified cost, or prediction of attendance.",
+  "https://github.com/Abdullah-m7/qloo-mosaic"
+ ];
+ try{
+  await navigator.clipboard.writeText(brief.join("\n"));
+  $("joint-copy-feedback").textContent="Co-approved concept copied (single-device demonstration).";
+ }catch{
+  $("joint-copy-feedback").textContent="Clipboard unavailable; agreement not exported.";
+ }
+});
 $("run").addEventListener("click",run);
 $("exclude").addEventListener("change",ev=>{
  const id=ev.target.value;
@@ -414,7 +547,7 @@ $("copy-treaty").addEventListener("click",async()=>{
  if(!latest?.treaty || latest.status!=="ok")return;
  const t=latest.treaty;
  const lines=[
-  "MOSAIC | CULTURAL BRIDGE AGREEMENT",
+  "MOSAIC | CULTURAL BRIDGE PROPOSAL (NOT JOINTLY APPROVED)",
   "Evidence status: "+(latest.mode==="qloo-live"?"Qloo ordinal rankings":"SYNTHETIC EXAMPLE — NOT QLOO DATA"),
   "Selected: "+t.selected.map(x=>x.name+" ["+x.evidence_id+"]").join("; "),
   "Group A difference from A-first: "+Math.round(t.groupAChange*100)+" percentage points of ordinal proxy",

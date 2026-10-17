@@ -271,3 +271,60 @@ test("missing Qloo cross-category link is presented as an honest abstention",()=
  assert.match(element("thread-message").textContent,/did not provide a matching public tag/);
  assert.equal(element("thread-verified-tags").innerHTML,"");
 });
+
+test("two representative approvals apply only to the precise displayed plan",()=>{
+ const {context,element}=makeView();
+ const proposal=buildBridge({candidates:sample.candidates,maxBudget:210});
+ context.fixture={...proposal,mode:"synthetic",scenario:sample,treaty:null};
+ vm.runInContext("render(fixture)",context);
+ assert.equal(element("joint-approval").hidden,false);
+ assert.equal(element("joint-copy").disabled,true);
+ element("approve-a").handlers.click();
+ assert.match(element("vote-a").textContent,/Approved/);
+ assert.equal(element("joint-copy").disabled,true);
+ element("approve-b").handlers.click();
+ assert.equal(element("joint-copy").disabled,false);
+ assert.match(element("joint-status").textContent,/Both representatives approved/);
+ vm.runInContext("render(fixture)",context);
+ assert.equal(element("joint-copy").disabled,true);
+ assert.match(element("vote-a").textContent,/Not approved/);
+ assert.match(element("vote-b").textContent,/Not approved/);
+});
+test("a protected candidate gets transmitted in the next Qloo-style plan request and clears prior votes",async()=>{
+ const requests=[];let reply;
+ const fake=async(path,opt)=>{
+  requests.push(JSON.parse(opt.body));
+  return new Promise(resolve=>reply=resolve);
+ };
+ const {context,element}=makeView(fake);
+ const proposal=buildBridge({candidates:sample.candidates,maxBudget:210});
+ context.fixture={...proposal,mode:"synthetic",scenario:sample,treaty:null};
+ vm.runInContext("runtimeMode='sample'; render(fixture)",context);
+ element("approve-a").handlers.click();
+ element("approve-b").handlers.click();
+ assert.equal(element("joint-copy").disabled,false);
+ element("protect-a").handlers.change({target:{value:"acoustic"}});
+ assert.equal(requests.length,1);
+ assert.deepEqual(JSON.parse(JSON.stringify(requests[0].required)),["acoustic"]);
+ assert.equal(element("joint-approval").hidden,true);
+ assert.equal(element("joint-copy").disabled,true);
+ const newPlan=buildBridge({candidates:sample.candidates,maxBudget:210,required:["acoustic"]});
+ reply({ok:true,json:async()=>({...newPlan,mode:"synthetic",scenario:sample,treaty:null})});
+ await new Promise(resolve=>setImmediate(resolve));
+ assert.equal(element("joint-approval").hidden,false);
+ assert.match(element("plan-items").innerHTML,/Intimate acoustic set/);
+ assert.equal(element("joint-copy").disabled,true);
+});
+test("anchor changes delete stale protected item IDs and approvals",()=>{
+ const {context,element}=makeView();
+ const proposal=buildBridge({candidates:sample.candidates,maxBudget:210});
+ context.fixture={...proposal,mode:"synthetic",scenario:sample,treaty:null};
+ vm.runInContext("render(fixture)",context);
+ vm.runInContext('protections.set("A","old-public-id")',context);
+ element("approve-a").handlers.click();
+ element("group-a").handlers.input();
+ assert.equal(vm.runInContext("protections.size",context),0);
+ assert.equal(vm.runInContext("approvalState.A",context),false);
+ assert.equal(element("joint-approval").hidden,true);
+ assert.equal(element("approval-constraints").hidden,true);
+});

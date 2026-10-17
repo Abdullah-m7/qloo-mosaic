@@ -28,3 +28,17 @@ This is a Qloo-dependent agent. The official challenge requires an externally re
 
 ## Current public preview
 https://abdullah-m7.github.io/qloo-mosaic/ is a verified offline synthetic demo served by GitHub Pages, not the Node API-backed app. It cannot host Qloo secrets and must not be submitted as the final live Qloo application.
+
+## Automated public judge probe
+After the real production credential is entered in the **protected Render
+environment** and the Qloo-verified release has been deployed, run:
+
+```bash
+npm run judge:check
+```
+
+This tests the judge's real HTTPS path without injecting any Qloo
+credential into the browser or CLI process. If it reports
+`RENDER_STILL_SAMPLE`, the public demo is still synthetic and MUST NOT
+be used as the final Devpost application URL. It is an intentional
+fail-closed state, not permission to silently show fake results.

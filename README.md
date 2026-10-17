@@ -4,11 +4,11 @@
 
 *One room. Two audiences. A cultural agreement that explains the trade-offs.*
 
-[**Interactive preview — synthetic data**](https://abdullah-m7.github.io/qloo-mosaic/) · [**Hosted Node demo — synthetic data**](https://mosaic-agent-2026.onrender.com/) · [**Qloo Agentic Hackathon**](https://qloo.devpost.com/)
+[**Interactive preview — synthetic data**](https://abdullah-m7.github.io/qloo-mosaic/) · [**Hosted Node demo — synthetic data**](https://mosaic-agent-2026.onrender.com/) · [**Judge release gate**](docs/JUDGE_RELEASE_GATE.md) · [**Devpost draft**](docs/DEVPOST_DRAFT.md) · [**Qloo Agentic Hackathon**](https://qloo.devpost.com/)
 
 ![MOSAIC interface with the Cultural Bridge Agreement and supporting decision evidence](docs/mosaic-demo-desktop.png)
 
-> **Live data status:** Qloo event API access has been requested and receipt confirmed. As of October 12, 2026, the event key has not arrived. Both demos currently show **clearly labeled synthetic preferences**; neither is presented as a validated Qloo-backed entry.
+> **Live data status (October 16):** The event-issued Qloo key is securely configured for GitHub Actions, and the isolated direct-REST agent **passed a real Qloo end-to-end API smoke test**. The two public demo links are still explicitly **synthetic**. Render must be provisioned and validated separately before submitting a public live entry.
 
 ## The challenge
 
@@ -23,8 +23,12 @@ It does **not** book venues, reserve artists, license films or predict a real au
 1. **Discover:** Ask Qloo for relevant entities using publicly chosen taste anchors from both groups. If joint discovery returns too little evidence, try a **single bounded alternative**, never an unbounded search.
 2. **Compare:** Rank the *identical* shortlist against each group's taste anchors independently. Use **within-list ordinal percentile proxies** rather than treating scores from separate Qloo calls as directly comparable or calibrated probabilities.
 3. **Negotiate:** Search feasible three-category combinations and maximize the **lower** of the two relative group rank scores. Show separate globally computed one-sided and average-first baselines, not a strawman comparator.
-4. **Verify cultural threads:** When available, call Qloo's entity tag tool at most once per selected category. A shared cross-category motif is shown **only if Qloo reports the same verified tag across two different chosen categories**. Otherwise the UI explicitly states *No cross-domain thread verified*.
+4. **Verify cultural threads:** Reuse the actual Qloo tag identifiers already attached to discovered entities. No additional tag-search API calls are required. A shared cross-category motif is shown **only if Qloo reports the same verified tag across two selected categories**. Otherwise the UI explicitly states *No cross-domain thread verified*.
 5. **Adapt and explain:** Reject options, change the taste anchors and inspect the tool trace. The planner reuses cached Qloo evidence for ordinary veto-based renegotiation; incomplete or ambiguous Qloo evidence causes abstention, **never a synthetic fallback disguised as Qloo**.
+6. **Stress-test the agreement:** Automatically remove each chosen category once and recompute the best feasible alternative using the **same** verified candidate rankings. Reveal how much the lower audience rank proxy would change or explicitly report no alternative. No extra Qloo calls, invented availability, or real-world robustness claims.
+7. **Expose the negotiation frontier:** Enumerate the exact Pareto-efficient group-rank trade-offs over the same grounded shortlist. A no-network dial lets people preview alternative agreements and compare the official maximin choice with an explicitly limited rank-blind alphabetical policy. The blind comparison still uses Qloo entity discovery, and optimization's in-sample advantage is **not** empirical human uplift.
+8. **Explain contributions directly from Qloo:** Where the event API returns documented `query.explainability`, the live cards show which public artist/movie anchors Qloo marked as contributors for each audience. An absent provider explanation remains explicitly absent; normalized contribution values are not satisfaction probabilities or causal claims.
+9. **Find a verifiable cultural thread, not a generated story:** Use exact Qloo provider tag IDs shared across two different candidate categories to discover an alternative cultural agreement. Search all shortlisted combinations within a maximum **five-percentage-point** loss in the lowest audience's ordinal rank proxy; show which alternative was selected and precisely how much balance was traded off, or abstain if Qloo has no shared evidence. Zero additional Qloo requests.
 
 Unlike a conventional group recommender, the application exposes the cultural and decision-making process: whose preference shaped the result, how the compromise changes, and which cultural links are — or are not — supported.
 
@@ -39,10 +43,10 @@ The preview's example scores, tag availability and planning tokens are invented 
 | Area | Verified status |
 | --- | --- |
 | Responsive interface, working veto/undo and comparison controls | Tested in desktop and mobile Chrome |
-| Optimizer, provenance gates, bounded agent orchestration and cultural treaty | **50/50 local automated checks passed**; Qloo tool responses mocked in agent tests |
+| Optimizer, provenance gates, bounded agent orchestration and cultural treaty | **127/127 local automated checks passed on the direct-REST branch**; offline tests mock Qloo, supplemented by a separate real API smoke run |
 | Deterministic algorithmic falsification | 500 **synthetic** scenarios, 429 feasible; see below |
 | Public open-source repo and externally hosted Node app | Deployed; Node app is intentionally **sample mode** |
-| Qloo live API integration and real shared-tag evidence | **Pending** event-issued credential and live schema validation |
+| Qloo live API integration and real shared-tag evidence | **Real GitHub Actions Qloo Search/Insights/Rank agent smoke PASSED**; a public Render live integration and independent tag evidence remain pending |
 | Public, judge-ready Qloo experience and Devpost final submission | **Not completed** |
 
 ## Reproducible tests
@@ -60,11 +64,20 @@ QLOO_MODE=sample npm start
 
 Open http://localhost:8788. Run `npm run build:preview` to generate the static synthetic-only UI in `dist-preview/`.
 
-The offline property experiment generates 500 deterministic score assignments (seed `20261012`). For 429 scenarios a feasible plan exists. In **all 429**, maximin's worst-group proxy was at least as high as the one-sided and mean-first alternatives — **a mathematical consequence of the optimization objective**, not proof of product quality. Average worst-group rank-proxy improvement over the one-sided alternative was 0.132, and relative to mean-first it was 0.024. An ablation on **actual Qloo-derived candidates** is still required.
+**Production release gate:** After the protected Qloo secret is provisioned
+and the candidate is deployed on Render, run `npm run judge:check`. This
+read-only, anonymous visitor probe verifies the public live health mode,
+UI access, three real Qloo-backed categories, audited single-option
+stress tests, cached veto re-planning and invalid-input refusal. It exits
+with `RENDER_STILL_SAMPLE` while the public service is synthetic; that is
+an expected **release blocker**, not a failed algorithm experiment.
+The public probe never holds or transmits an event API credential.
 
-## Live Qloo setup — after key approval
+The offline property experiment generates 500 deterministic score assignments (seed `20261012`). For 429 scenarios a feasible plan exists. In **all 429**, maximin's worst-group proxy was at least as high as the one-sided and mean-first alternatives — **a mathematical consequence of the optimization objective**, not proof of product quality. Average worst-group rank-proxy improvement over the one-sided alternative was 0.132, and relative to mean-first it was 0.024. Private exploratory holdout ablations using **real Qloo-ranked candidates** have now been run; they do not establish reliable out-of-sample preference improvement. Numeric research results are stored as encrypted, access-controlled artifacts, not in this public repository.
 
-The app depends on Qloo's official `@qloo/qloo-harness`, using the read-only MCP tools `qloo_recommend`, `qloo_rank`, `qloo_entity_tags` and `qloo_capabilities`.
+## Live Qloo setup — after secure credential provisioning
+
+The experimental branch uses a dependency-free, bounded REST tool executor over the documented Qloo `/search` and `/v2/insights` GET endpoints. It resolves public cultural seeds, ranks identical candidate shortlists for each audience and optionally checks shared tag evidence. For ambiguous names, use explicit public identity hints in the live UI, such as `Artist: Radiohead; Movie: Barbie (2023)`; the stated film release year must match Qloo identity metadata, otherwise the agent abstains. The direct REST agent has been verified against the event API in GitHub Actions. This does not imply that the publicly hosted Render application is live or that the exploratory recommendation metrics show uplift.
 
 The key is a **hackathon-only secret**. Configure it in your server's secure environment as `QLOO_API_KEY`, never in a browser, public repository, example URL or screenshot. The service pins `QLOO_BASE_URL=https://hackathon.api.qloo.com` instead of the production Qloo API endpoint.
 

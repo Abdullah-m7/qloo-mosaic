@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: mosaic-qloo-agent
+    name: mosaic-agent-2026
     runtime: node
     plan: free
     buildCommand: npm ci --omit=dev

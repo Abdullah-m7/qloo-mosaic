@@ -84,10 +84,52 @@
       <div class="treaty-right"><span class="treaty-label">DECISION NOTE</span><p id="treaty-note">A fair trade-off does not guarantee real-world satisfaction.</p><button type="button" class="treaty-copy" id="copy-treaty">Copy decision brief ↗</button><p class="copy-feedback" id="copy-feedback" role="status"></p></div>
     </div>
   </div>
+ <div class="cultural-thread" id="cultural-thread" hidden>
+   <div class="thread-header"><span>QLOO VERIFIED CULTURAL THREAD</span><strong>ALTERNATE BRIDGE</strong></div>
+   <div class="thread-body">
+     <div><span class="thread-eyebrow" id="thread-status">VERIFIABLE THREAD</span>
+       <h3 id="thread-heading">A shared cultural connection</h3>
+       <p id="thread-message">Only links supported by matching Qloo tag IDs will appear here.</p>
+       <div id="thread-verified-tags" class="thread-verified-tags"></div>
+     </div>
+     <div class="thread-alternative">
+       <span>THE EVIDENCE-BASED ALTERNATIVE</span>
+       <div id="thread-alternative-items"></div>
+       <p id="thread-rank-cost"></p>
+       <small>Each shared link is a Qloo provider tag recorded on entities in two or more different categories. Not predicted event feasibility or measured cultural causation.</small>
+     </div>
+   </div>
+ </div>
 </section>
 <section class="evidence-section" id="evidence">
  <div class="section-intro evidence-intro"><div><span class="section-number">04 / WHY IT CHOSE THIS</span><h2>No magic.<br/>Just reasons.</h2></div><p>Good AI should be willing to explain its choices — and know when it doesn't have enough evidence.</p></div>
- <div class="evidence-grid"><div class="evidence-card"><span class="card-numeral">01</span><h3>Bridge, don't average.</h3><p>Optimize the lower satisfaction score rather than maximizing the most vocal group's preferences.</p></div><div class="evidence-card"><span class="card-numeral">02</span><h3>Show the trade-offs.</h3><p>Compare what a one-sided recommendation would produce with the proposed shared experience.</p></div><div class="evidence-card"><span class="card-numeral">03</span><h3>Trace the evidence.</h3><p>Every candidate must have a valid score and source. Missing evidence means abstain, not invent.</p></div></div>
+ <div class="evidence-grid"><div class="evidence-card"><span class="card-numeral">01</span><h3>Bridge, don't average.</h3><p>Optimize the lower relative group rank proxy rather than claiming to predict satisfaction.</p></div><div class="evidence-card"><span class="card-numeral">02</span><h3>Show the trade-offs.</h3><p>Compare what a one-sided recommendation would produce with the proposed shared experience.</p></div><div class="evidence-card"><span class="card-numeral">03</span><h3>Trace the evidence.</h3><p>Every candidate must have a valid score and source. Missing evidence means abstain, not invent.</p></div></div>
+ <div class="resilience-panel" id="resilience-panel" hidden>
+   <div class="ledger-head"><h3>Agreement stress test</h3><span id="resilience-mode">SAME EVIDENCE · ZERO NEW QLOO CALLS</span></div>
+   <p class="resilience-intro">What changes if a chosen cultural option is rejected? We re-optimize the exact same evidenced shortlist. This is an ordinal-rank counterfactual, not venue availability or measured audience satisfaction.</p>
+   <div class="resilience-grid" id="resilience-items" aria-live="polite"></div>
+ </div>
+ <section class="negotiation-panel" id="negotiation-panel" hidden aria-label="Evidence-backed cultural negotiation frontier">
+   <div class="negotiation-header"><span>THE NEGOTIATION FRONTIER</span><strong>WHO GETS MORE SAY?</strong></div>
+   <p class="negotiation-intro">Explore the exact trade-offs using the SAME Qloo-grounded options. Each point is a plan where neither group's relative rank can improve without decreasing the other's. Move the dial to preview an alternative — no extra API calls.</p>
+   <div class="negotiation-layout">
+     <div class="negotiation-chart-box">
+       <div id="negotiation-chart" class="negotiation-chart" role="group" aria-label="Interactive plot of nondominated cultural plans"></div>
+       <p class="negotiation-caption">Horizontal: Group A relative rank → · Vertical: Group B relative rank ↑. Ordinal proxies, not satisfaction or probability.</p>
+     </div>
+     <div class="negotiation-preview">
+       <div class="negotiation-preview-top"><span id="negotiation-plan-type">BALANCED CHOICE</span><span id="negotiation-position">1 / 1</span></div>
+       <label for="negotiation-slider">Shift the trade-off</label>
+       <input type="range" id="negotiation-slider" min="0" max="0" value="0" step="1" aria-label="Explore trade-offs between audience A and B"/>
+       <div class="negotiation-scale"><span>Prioritize B</span><span>Prioritize A</span></div>
+       <div class="negotiation-scores"><div><span>GROUP A RANK</span><strong id="negotiation-a">—</strong></div><div><span>GROUP B RANK</span><strong id="negotiation-b">—</strong></div></div>
+       <div class="negotiation-options" id="negotiation-options"></div>
+       <p id="negotiation-preview-note" class="negotiation-note">Preview only. The recommended agreement stays maximin.</p>
+       <button type="button" id="negotiation-reset">Return to balanced choice ↗</button>
+     </div>
+   </div>
+   <div class="negotiation-control"><span>RANK-BLIND COMPARATOR</span><p id="negotiation-blind">Waiting for verified candidate evidence.</p><small>The comparator uses Qloo-discovered candidates but ignores their taste ordering. Any in-sample gain is a property of optimization — not proof of human preference uplift.</small></div>
+ </section>
  <div class="ledger"><div class="ledger-head"><h3>Decision ledger</h3><span id="ledger-mode">SYNTHETIC ONLY</span></div><div id="ledger-items" class="ledger-items"><p>Run the planner to show evidence identifiers.</p></div></div>
  <div id="agent-trace-panel" class="agent-trace-panel" hidden>
    <div class="ledger-head"><h3>Agent activity &amp; evidence</h3><span>QLOO TOOL CALLS</span></div>

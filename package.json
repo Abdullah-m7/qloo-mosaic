@@ -10,10 +10,9 @@
     "start": "node server.mjs",
     "test": "node --test tests/*.test.mjs",
     "benchmark": "node scripts/benchmark.mjs",
-    "build:preview": "node scripts/build-static-preview.mjs"
-  },
-  "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.32.1",
-    "@qloo/qloo-harness": "^0.1.26"
+    "build:preview": "node scripts/build-static-preview.mjs",
+    "benchmark:live": "node scripts/live-ablation.mjs",
+    "benchmark:multi": "node scripts/multi-anchor-ablation.mjs",
+    "judge:check": "node scripts/public-release-check.mjs"
   }
 }

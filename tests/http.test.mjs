@@ -76,7 +76,9 @@ test("unconfigured live mode fails closed and never returns synthetic candidates
   const response=await json(s.url,{maxBudget:210});
   assert.equal(response.status,503);
   assert.equal(response.body.status,"blocked");
-  assert.equal(response.body.code,"QLOO_LIVE_UNAVAILABLE");
+  assert.equal(response.body.code,"QLOO_AUTH_UNAVAILABLE");
+  assert.match(response.body.message,/protected event credential/i);
+  assert.doesNotMatch(JSON.stringify(response.body),/QLOO_API_KEY=|secret=/i);
   assert.ok(!("bridge" in response.body));
   assert.ok(!("candidates" in response.body));
  }finally{await s.close();}

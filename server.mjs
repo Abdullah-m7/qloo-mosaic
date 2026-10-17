@@ -6,6 +6,11 @@ import {buildBridge} from "./src/engine.mjs";
 import {sample} from "./src/fixtures.mjs";
 import {liveBridge,validateSeeds,validateLocation,DEFAULT_SEEDS} from "./src/qloo.mjs";
 import {createTreaty} from "./src/treaty.mjs";
+import {findVerifiedThreadChoice,cachedSelectedTagEvidence} from "./src/thread-choice.mjs";
+import {summarizeThreadOpportunity} from "./src/thread-opportunity.mjs";
+import {publicQlooFailure} from "./src/qloo-errors.mjs";
+import {clientIdentity,createRateLimiter} from "./src/rate-limit.mjs";
+import {createSingleFlight} from "./src/single-flight.mjs";
 const root=path.dirname(fileURLToPath(import.meta.url));
 const publicDir=path.join(root,"public");
 const port=Number(process.env.PORT||8788);
@@ -14,7 +19,8 @@ if(!["sample","live"].includes(mode))throw Error("Invalid QLOO_MODE");
 const typeMap={".html":"text/html; charset=utf-8",".css":"text/css; charset=utf-8",".js":"application/javascript; charset=utf-8",".svg":"image/svg+xml"};
 const cache=new Map();
 const evidenceCache=new Map();
-const calls=new Map();
+const limited=createRateLimiter();
+const liveJobs=createSingleFlight({maxActive:3});
 function json(res,status,data){
  res.writeHead(status,{"content-type":"application/json; charset=utf-8","cache-control":"no-store","x-content-type-options":"nosniff"});
  res.end(JSON.stringify(data));
@@ -27,17 +33,11 @@ async function getBody(req){
  }
  return JSON.parse(text||"{}");
 }
-function limited(ip){
- const now=Date.now(),r=calls.get(ip)??{start:now,count:0};
- if(now-r.start>3600000){r.start=now;r.count=0;}
- r.count++;calls.set(ip,r);
- return r.count>12;
-}
 const server=http.createServer(async(req,res)=>{
  try{
   const u=new URL(req.url,"http://localhost");
   if(u.pathname==="/health"){
-    return json(res,200,{status:"ok",product:"MOSAIC",mode,version:"0.2.0"});
+    return json(res,200,{status:"ok",product:"MOSAIC",mode,version:"0.3.0"});
   }
   if(u.pathname==="/api/plan"&&req.method==="POST"){
     const input=await getBody(req);
@@ -60,28 +60,46 @@ const server=http.createServer(async(req,res)=>{
       const evidence=evidenceCache.get(contextKey);
       if(evidence&&Date.now()-evidence.time<900000){
         const planned=buildBridge({candidates:evidence.candidates,maxBudget:budget,exclude});
+        const newTagEvidence=planned.status==="ok"?
+          cachedSelectedTagEvidence(planned.bridge.items,evidence.threadTagIndex):[];
+        const currentCandidates=evidence.candidates.filter(x=>!exclude.includes(x.id));
+        const threadChoice=planned.status==="ok"?
+          findVerifiedThreadChoice({candidates:evidence.candidates,
+            tagIndex:evidence.threadTagIndex,bridge:planned.bridge,
+            exclude,maxBudget:budget}):
+          {status:"no_verified_thread",provider_calls:0};
         const result={mode:"qloo-live",scenario:evidence.scenario,notice:evidence.notice,
           trace:[...evidence.trace,{stage:"renegotiate",tool:"cached-evidence",
             calls:0,policy:"Re-optimized without additional Qloo API calls."}],
           treaty:createTreaty({candidates:evidence.candidates,plan:planned,
-            tagEvidence:evidence.tagEvidence}),...planned};
+            tagEvidence:newTagEvidence}),
+          threadChoice,
+          threadOpportunity:summarizeThreadOpportunity(currentCandidates,evidence.threadTagIndex),
+          ...planned};
         cache.set(key,{time:Date.now(),value:result});
         return json(res,200,result);
       }
-      if(limited(req.socket.remoteAddress??"unknown"))return json(res,429,{status:"blocked",message:"Try later: Qloo API rate protection."});
+      if(limited(clientIdentity(req)))
+        return json(res,429,{status:"blocked",code:"DEMO_REQUEST_LIMIT",
+          message:"This live demo has reached its temporary request limit. Please try again later."});
       try{
-        const result=await liveBridge({maxBudget:budget,exclude,...context});
-        const {candidates,tagEvidence,...safeResult}=result;
+        // Identical public cultural requests share one bounded Qloo operation.
+        const result=await liveJobs.run(key,()=>liveBridge({maxBudget:budget,exclude,...context}));
+        const {candidates,tagEvidence,threadTagIndex,...safeResult}=result;
         if(Array.isArray(candidates)&&candidates.length&&result.status==="ok"){
           evidenceCache.set(contextKey,{time:Date.now(),candidates,scenario:result.scenario,
             notice:result.notice,trace:result.trace,
-            tagEvidence:result.tagEvidence});
+            threadTagIndex,tagEvidence});
           cache.set(key,{time:Date.now(),value:safeResult});
         }
         return json(res,200,safeResult);
       }catch(e){
-        console.error("Qloo integration failed:",e?.message??"unknown");
-        return json(res,503,{status:"blocked",code:"QLOO_LIVE_UNAVAILABLE",message:"Live Qloo evidence is unavailable; no synthetic fallback is used. Configure an event-issued Qloo API key and check the Qloo result schema."});
+        const publicError=publicQlooFailure(e);
+        // Never log raw error messages, original cultural anchors, provider
+        // payloads, API credentials, or correlation identifiers.
+        console.error("Qloo request blocked:",publicError.code);
+        const {httpStatus,...payload}=publicError;
+        return json(res,httpStatus,payload);
       }
     }
     if(input.groupA!==undefined||input.groupB!==undefined||input.location!==undefined)

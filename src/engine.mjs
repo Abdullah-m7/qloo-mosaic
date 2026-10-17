@@ -1,4 +1,5 @@
 // MOSAIC: deterministic evidence-gated optimization of relative group preference proxies.
+import {buildNegotiationAtlas} from "./negotiation-atlas.mjs";
 // These values are NEVER Qloo absolute preference probabilities or attendance predictions.
 export const SLOTS = Object.freeze(["music", "food", "experience"]);
 const round = x => Math.round((x + Number.EPSILON) * 1000) / 1000;
@@ -64,11 +65,38 @@ export function buildBridge({candidates, maxBudget=210, exclude=[]}) {
   const majority = [...feasible].sort(byMajority)[0];
   const utilitarian = [...feasible].sort(byAverage)[0];
   const synthetic=available.every(x=>x.source==="synthetic-fixture");
+  const negotiation=buildNegotiationAtlas({feasible,bridge});
+  // Counterfactual single-option vetoes on the SAME grounded candidate set.
+  // Since 'ranked' already maximizes the exact objective, the first feasible
+  // non-containing plan is the strongest defensible replacement for each item.
+  // No additional taste calls, unmeasured venue claims or imputed preferences.
+  const impacts=bridge.items.map(removed=>{
+    const alternative=ranked.find(plan=>!plan.items.some(x=>x.id===removed.id));
+    return {
+      removed:{id:removed.id,slot:removed.slot,label:removed.label},
+      status:alternative?"feasible":"unavailable",
+      worst_after:alternative?.worst??null,
+      worst_rank_loss:alternative?round(Math.max(0,bridge.worst-alternative.worst)):null,
+      changes:alternative?alternative.items.filter((item,index)=>
+        item.id!==bridge.items[index].id).map(item=>({
+          id:item.id,slot:item.slot,label:item.label,evidence_id:item.evidence_id
+        })):[]
+    };
+  });
+  const resilience={
+    method:"single-option-veto",
+    provider_calls:0,
+    evaluated_exclusions:impacts.length,
+    impacts,
+    limitation:"Counterfactual plan substitution using the same ordinal rank proxies, not measured real-world resilience or availability."
+  };
 
   return {
     status:"ok",
     source_mode: synthetic?"synthetic":"evidence-backed",
     bridge,
+    negotiation,
+    resilience,
     baseline:majority, // retained for backward compatibility of the demo
     baselines:{majority, average:utilitarian},
     improvement:round(bridge.worst-majority.worst),

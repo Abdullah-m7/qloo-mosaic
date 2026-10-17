@@ -1,0 +1,77 @@
+name: Qloo Event API Smoke
+
+on:
+  push:
+    branches:
+      - feature/qloo-rest-validation-20261015
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: qloo-event-api-smoke
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Checkout isolated Qloo candidate
+        uses: actions/checkout@v4
+      - name: Install Node 24
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Reproduce clean install
+        run: npm ci --omit=dev --ignore-scripts --no-fund
+      - name: Run offline tests
+        run: npm test
+      - name: Check production dependency vulnerabilities
+        run: npm audit --omit=dev --audit-level=high
+      - name: Verify Qloo event API and agent with protected secret
+        env:
+          QLOO_API_KEY: ${{ secrets.QLOO_API_KEY }}
+          QLOO_TEST_INSPECT: '1'
+        run: node scripts/qloo-smoke.mjs
+      - name: Probe real judge-facing HTTP server without publishing
+        if: contains(github.event.head_commit.message, '[http-e2e]')
+        env:
+          QLOO_API_KEY: ${{ secrets.QLOO_API_KEY }}
+        run: node scripts/judge-http-smoke.mjs
+      - name: Check documented Qloo explanation metadata safely
+        if: contains(github.event.head_commit.message, '[explainability]')
+        env:
+          QLOO_API_KEY: ${{ secrets.QLOO_API_KEY }}
+        run: node scripts/qloo-explainability-probe.mjs
+      - name: Evaluate held-out Qloo ablation privately
+        if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[ablation]')
+        env:
+          QLOO_API_KEY: ${{ secrets.QLOO_API_KEY }}
+          QLOO_RESULT_PUBLIC_KEY: evidence/ablation_results_public.pem
+          QLOO_RESULT_OUTPUT: .qloo-private/holdout.enc.json
+        run: npm run benchmark:live
+      - name: Preserve encrypted-only experiment artifact
+        if: always() && (github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[ablation]'))
+        uses: actions/upload-artifact@v4
+        with:
+          name: qloo-encrypted-holdout
+          path: .qloo-private/holdout.enc.json
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Evaluate multi-anchor robustness privately
+        if: github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[multi]')
+        env:
+          QLOO_API_KEY: ${{ secrets.QLOO_API_KEY }}
+          QLOO_RESULT_PUBLIC_KEY: evidence/ablation_results_public.pem
+          QLOO_RESULT_OUTPUT: .qloo-private/multianchor.enc.json
+        run: npm run benchmark:multi
+      - name: Preserve encrypted-only multi-anchor results
+        if: always() && (github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[multi]'))
+        uses: actions/upload-artifact@v4
+        with:
+          name: qloo-encrypted-multi-anchor
+          path: .qloo-private/multianchor.enc.json
+          if-no-files-found: warn
+          retention-days: 7

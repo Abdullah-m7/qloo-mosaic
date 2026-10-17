@@ -185,3 +185,85 @@ footer .brand{font-size:17px}footer p{font-size:11px;color:#89988c}footer>a:last
 .copy-feedback{min-height:16px;font-size:11px;color:#345b38!important}
 @media(max-width:850px){.treaty-section{padding:70px 22px}.treaty-top{display:block}.treaty-aside{margin-top:20px}}
 @media(max-width:550px){.treaty-top h2{font-size:45px;letter-spacing:-2px}.treaty-metrics{grid-template-columns:1fr}.treaty-metric{border-right:0;border-bottom:1px solid #b3bbb0;min-height:118px;padding:20px}.treaty-metric:last-child{border-bottom:0}.treaty-metric strong{margin:5px 0;font-size:41px}.treaty-under{grid-template-columns:1fr}.treaty-under>div{padding:23px}.treaty-under>div:first-child{border-right:0;border-bottom:1px solid #b3bbb0}}
+
+/* Evidence-backed treaty stress test: calculations reuse the current shortlist. */
+.resilience-panel{background:#1d2722;border:1px solid #4d6455;margin:20px 0 22px}
+.resilience-panel[hidden]{display:none}
+.resilience-panel .ledger-head span{font-size:9px;color:var(--lime);text-align:right}
+.resilience-intro{padding:18px 21px 9px;margin:0;color:#bfcec0;font-size:12px;line-height:1.8;max-width:920px}
+.resilience-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;padding:12px 20px 20px}
+.resilience-card{border:1px solid #3e5346;background:#19241d;padding:17px;min-width:0}
+.resilience-card .resilience-slot{display:block;color:var(--lime);font-size:10px;letter-spacing:1.4px;text-transform:uppercase}
+.resilience-card h4{font-family:var(--display);font-size:17px;line-height:1.4;margin:10px 0;overflow-wrap:anywhere}
+.resilience-card p{font-size:12px;color:#c5d1c7;line-height:1.65;margin:7px 0}
+.resilience-card .resilience-loss{font-size:22px;font-family:var(--display);color:var(--cream);font-weight:700}
+.resilience-card .resilience-alt{color:#a5bbaa;font-size:11px;line-height:1.6}
+.resilience-card button{margin-top:11px;padding:10px 12px;border:1px solid var(--lime);background:transparent;color:var(--lime);font-size:11px;font-weight:700;cursor:pointer}
+.resilience-card button:hover{background:#d5ff9120}
+@media(max-width:850px){.resilience-grid{grid-template-columns:1fr}.resilience-card{padding:15px}}
+
+/* Evidence-aware, nondominated cultural negotiation frontier. */
+.negotiation-panel{margin:26px 0 28px;border:1px solid #586e59;background:#17221b;color:#eff6e9;overflow:hidden}
+.negotiation-panel[hidden]{display:none}
+.negotiation-header{padding:19px 22px;background:#263a2b;display:flex;gap:14px;justify-content:space-between;align-items:center}
+.negotiation-header span{font-size:10px;letter-spacing:1.6px;font-weight:800;color:var(--lime)}
+.negotiation-header strong{font-size:10px;letter-spacing:.8px;color:#cfe0c5}
+.negotiation-intro{margin:0;padding:19px 22px 4px;font-size:13px;line-height:1.8;color:#bdcebd;max-width:930px}
+.negotiation-layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(280px,.9fr);gap:22px;padding:17px 22px 23px}
+.negotiation-chart-box{background:#121c15;border:1px solid #3c5743;padding:12px;min-width:0}
+.negotiation-chart{width:100%;max-width:540px;margin:auto}
+.negotiation-chart svg{display:block;width:100%;height:auto}
+.negotiation-chart [data-frontier-point]{cursor:pointer;transition:stroke-width .2s}
+.negotiation-chart [data-frontier-point]:focus{outline:none;stroke:#fff;stroke-width:4}
+.negotiation-caption{font-size:10px;line-height:1.7;color:#9eac9f;margin:3px 7px 7px}
+.negotiation-preview{padding:19px;background:#213025;border:1px solid #436047;min-width:0}
+.negotiation-preview-top{display:flex;justify-content:space-between;gap:9px;font-size:10px;color:var(--lime);font-weight:800;letter-spacing:1px}
+.negotiation-preview label{font-size:13px;display:block;margin:24px 0 10px;color:#e4f0dc;font-weight:700}
+.negotiation-preview input[type=range]{width:100%;accent-color:var(--lime);cursor:pointer}
+.negotiation-scale{display:flex;justify-content:space-between;font-size:10px;color:#9faf9d}
+.negotiation-scores{display:grid;grid-template-columns:1fr 1fr;margin:22px 0 15px;border-top:1px solid #4a5e49;border-bottom:1px solid #4a5e49}
+.negotiation-scores div{padding:12px 0}
+.negotiation-scores div+div{border-left:1px solid #4a5e49;padding-left:18px}
+.negotiation-scores span{display:block;font-size:9px;letter-spacing:1px;color:#a3b8a3}
+.negotiation-scores strong{font-size:29px;font-weight:600;font-family:var(--display);letter-spacing:-1px}
+.negotiation-options{font-size:12px;line-height:1.8;color:#d0ddc9;overflow-wrap:anywhere}
+.negotiation-option{margin:6px 0}
+.negotiation-option b{color:var(--lime);font-size:10px;letter-spacing:.8px}
+.negotiation-note{font-size:11px;line-height:1.65;color:#acbca8;margin:13px 0}
+#negotiation-reset{background:transparent;border:1px solid var(--lime);color:var(--lime);font-size:11px;font-weight:700;padding:10px 13px;cursor:pointer}
+#negotiation-reset:hover{background:#d5ff911c}
+.negotiation-control{padding:16px 22px 20px;border-top:1px solid #41604a;background:#1d2c22}
+.negotiation-control>span{font-size:10px;color:var(--peach);letter-spacing:1.2px;font-weight:800}
+.negotiation-control p{font-size:13px;color:#dfecdd;line-height:1.65;margin:8px 0}
+.negotiation-control small{font-size:11px;line-height:1.75;color:#9eb29e;display:block}
+@media(max-width:850px){.negotiation-layout{grid-template-columns:1fr}}
+@media(max-width:550px){.negotiation-header{align-items:flex-start;flex-direction:column}.negotiation-layout{padding:13px;gap:13px}.negotiation-intro{padding:17px 16px 4px}.negotiation-preview{padding:15px}.negotiation-control{padding:15px}.negotiation-scores strong{font-size:25px}}
+
+/* First-party provider explanation metadata: not preference probabilities. */
+.qloo-contributors{margin:13px 0 7px;border-top:1px solid #3d5145;padding:12px 0 2px}
+.qloo-contributors>b{color:var(--lime);font-size:9px;letter-spacing:1.25px}
+.qloo-contributors p{font-size:11px;color:#c9d7c6;line-height:1.6;margin:8px 0;overflow-wrap:anywhere}
+.qloo-contributors p strong{color:#f5ffe8;margin-right:7px}
+.qloo-contributors small{display:block;margin-top:7px;color:#9aaf9e;font-size:10px;line-height:1.6}
+
+/* Provider-grounded cultural thread: an optional alternative, not a promise. */
+.cultural-thread{margin-top:28px;background:#172620;color:#f2f3e9;border:1px solid #607567}
+.cultural-thread[hidden]{display:none}
+.thread-header{display:flex;align-items:center;justify-content:space-between;gap:14px;border-bottom:1px solid #48614c;padding:17px 23px;font-size:10px;letter-spacing:1.4px;font-weight:800}
+.thread-header>span{color:var(--lime)}
+.thread-header strong{color:#bdcbbd;font-size:10px}
+.thread-body{display:grid;grid-template-columns:1fr 1fr;gap:30px;padding:25px 23px 29px}
+.thread-eyebrow{display:block;font-size:10px;letter-spacing:1.1px;color:var(--lime);font-weight:800}
+.thread-body h3{font-size:29px;font-weight:600;letter-spacing:-1.3px;font-family:var(--display);line-height:1.2;margin:13px 0 14px}
+.thread-body p{font-size:13px;color:#bdcfc2;line-height:1.75}
+.thread-verified-tags{display:flex;flex-wrap:wrap;gap:9px;margin-top:18px}
+.thread-tag{display:inline-block;background:#2e4735;border:1px solid #70916c;padding:10px 12px;color:#e5fbdc;font-size:11px}
+.thread-tag small{display:block;color:#bdceb9;font-size:10px;margin-top:4px}
+.thread-alternative{border:1px solid #466248;padding:19px 20px;background:#203528}
+.thread-alternative>span{font-size:10px;color:var(--lime);font-weight:800;letter-spacing:1.2px}
+.thread-alternative-item{margin:11px 0;font-size:13px;color:#eff2e8;overflow-wrap:anywhere}
+.thread-alternative-item b{color:#c7e5b8;font-size:10px;letter-spacing:.9px}
+.thread-alternative #thread-rank-cost{border-top:1px solid #49614d;padding-top:14px;font-size:15px;font-weight:700;color:#fff;margin:17px 0}
+.thread-alternative small{font-size:11px;color:#acbeab;line-height:1.7;display:block}
+@media(max-width:750px){.thread-body{grid-template-columns:1fr;padding:19px;gap:14px}.thread-body h3{font-size:25px}}
+@media(max-width:390px){.thread-header{align-items:flex-start;flex-direction:column}.thread-alternative{padding:16px}}

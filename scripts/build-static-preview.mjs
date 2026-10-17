@@ -12,6 +12,7 @@ fs.mkdirSync(path.join(target,"shared"),{recursive:true});
 const copy=(from,to)=>fs.copyFileSync(path.join(root,from),path.join(target,to));
 copy("public/styles.css","styles.css");
 copy("src/engine.mjs","shared/engine.mjs");
+copy("src/negotiation-atlas.mjs","shared/negotiation-atlas.mjs");
 copy("src/fixtures.mjs","shared/fixtures.mjs");
 copy("src/treaty.mjs","shared/treaty.mjs");
 let html=fs.readFileSync(path.join(root,"public/index.html"),"utf8");

@@ -215,7 +215,7 @@ function renderThreadChoice(result){
   safeLoss===0?"Cultural common ground — no rank trade-off":
   "A cultural thread with an explicit trade-off";
  $("thread-message").textContent=
-  "This alternative shares independently verified cultural tag IDs across"+
+  "This alternative shares identical tag IDs reported by Qloo across"+
   " different types of selected Qloo entities. The maximum accepted drop"+
   " was "+(maxLoss*100).toFixed(1)+" percentage points of the lowest group-relative rank proxy.";
  $("thread-verified-tags").innerHTML=current.verified_motifs.slice(0,4).map(m=>{
@@ -225,11 +225,17 @@ function renderThreadChoice(result){
    '</strong><small>Qloo ID '+safe(m.id)+' · '+safe(slots.join(" + "))+'</small></span>';
  }).join("");
  $("thread-alternative-items").innerHTML=current.alternative.items.map(x=>
-  '<p class="thread-alternative-item"><b>'+safe(x.slot?.toUpperCase())+'</b> · '+
+  '<p class="thread-alternative-item"><b>'+safe(visibleSlot(x.slot,true))+'</b> · '+
   safe(x.label)+' <small>'+safe(x.evidence_id)+'</small></p>').join("");
  $("thread-rank-cost").textContent=
   safeLoss===0?"No loss in the lowest group rank proxy":
   "Balance trade-off: −"+(safeLoss*100).toFixed(1)+" percentage points of ordinal proxy";
+}
+// Internal categories do not always match the entity type a judge sees.
+function visibleSlot(slot,live){
+ if(!live)return String(slot??"").toUpperCase();
+ return ({music:"ARTIST",food:"PLACE",experience:"FILM"})[slot]||
+  String(slot??"").toUpperCase();
 }
 function showUnavailable(message){
  // A failed Qloo query must not leave a copyable agreement from an earlier run.
@@ -285,7 +291,7 @@ function render(result){
  if(result.mode==="qloo-live")document.querySelector(".cost span").textContent="NO REAL PRICES";
  $("plan-items").innerHTML=bridge.items.map((o,i)=>
   '<article class="plan-card"><span class="category">'+
-  String(i+1).padStart(2,"0")+" / "+safe(o.slot.toUpperCase())+
+  String(i+1).padStart(2,"0")+" / "+safe(visibleSlot(o.slot,result.mode==="qloo-live"))+
   '</span><strong>'+safe(o.label)+'</strong><div class="under"><span>'+
   (result.mode==="qloo-live"?"No verified price":money(o.cost))+
   '</span><small>Evidence '+safe(o.evidence_id)+'</small></div>'+
@@ -321,10 +327,16 @@ function render(result){
 }
 async function run(){
  const revision=++requestRevision;
- const button=$("run");button.disabled=true;button.textContent="Renegotiating…";
+ const hadPlan=Boolean(latest);
+ const button=$("run");button.disabled=true;
+ button.textContent=hadPlan?"Renegotiating…":"Finding common ground…";
  // Existing evidence cannot be copied or misread while a new veto/profile is pending.
- showUnavailable("Checking verified cultural alternatives. Please wait…");
+ showUnavailable(runtimeMode==="live"?
+  "Requesting Qloo evidence; the first verified plan may take a little time…":
+  "Preparing the clearly labeled synthetic preview…");
  $("plan-title").textContent="Evaluating cultural evidence…";
+ $("ledger-items").textContent="Waiting for source evidence; no speculative choices will be shown.";
+ $("tradeoff").textContent="Planning in progress — rank comparisons appear after verification.";
  $("gain").textContent="REQUEST IN PROGRESS";
  try{
   const payload={maxBudget:Number($("budget").value),exclude:[...vetoes.keys()]};
@@ -416,11 +428,18 @@ $("copy-treaty").addEventListener("click",async()=>{
  const lines=[
   "MOSAIC | CULTURAL BRIDGE AGREEMENT",
   "Evidence status: "+(latest.mode==="qloo-live"?"Qloo ordinal rankings":"SYNTHETIC EXAMPLE — NOT QLOO DATA"),
+  "Location: "+(latest.scenario?.location||"Not specified in this example"),
+  "Group A public taste anchors: "+(latest.scenario?.groupA?.anchors?.join("; ")||"Synthetic profile"),
+  "Group B public taste anchors: "+(latest.scenario?.groupB?.anchors?.join("; ")||"Synthetic profile"),
+  "Rejected options: "+([...vetoes.values()].join("; ")||"None"),
   "Selected: "+t.selected.map(x=>x.name+" ["+x.evidence_id+"]").join("; "),
   "Group A difference from A-first: "+Math.round(t.groupAChange*100)+" percentage points of ordinal proxy",
   "Group B difference from A-first: "+Math.round(t.groupBChange*100)+" percentage points of ordinal proxy",
   "Both groups' non-top choice count: "+t.compromiseOptions,
-  "Verified cross-domain Qloo tags: "+(t.motifs?.length?t.motifs.map(x=>x.label).join(", "):"none"),
+  "Shared provider tag labels: "+(t.motifs?.length?t.motifs.map(x=>x.label).join(", "):"none"),
+  "Optional tag-grounded alternative: "+(latest.threadChoice?.status==="verified"?
+   latest.threadChoice.alternative?.items?.map(x=>x.label).join("; "):"No verified alternative"),
+  "Verification still needed: venue and artist availability, booking costs, film rights, and real audience preferences.",
   "Limitations: "+t.provenance.limitations,
   "Project: https://github.com/Abdullah-m7/qloo-mosaic"
  ];
@@ -446,15 +465,25 @@ async function init(){
   document.querySelector('label[for="budget"]').style.display="none";
   $("budget").style.display="none";
   document.querySelector(".slider-ends").style.display="none";
-  document.querySelector(".hint").textContent="Change public cultural anchors or reject options to renegotiate. Qloo has no verified price or booking data.";
+  document.querySelector(".hint").textContent="Try the default public anchors, then reject an option. First Qloo planning can take longer after server sleep. No booking or price claims.";
   const banner=document.querySelector(".notice");
   banner.querySelector("b").textContent="LIVE QLOO MODE — VERIFYING EVIDENCE";
   banner.querySelector("p").textContent="No simulated Qloo results will be shown if the API is unavailable.";
   banner.querySelector(".notice-tag").textContent="VERIFYING";
+ }else{
+  const banner=document.querySelector(".notice");
+  banner.querySelector("b").textContent="DEMONSTRATION MODE — SYNTHETIC DATA";
+  banner.querySelector("p").textContent="Illustrative invented scores only. No live Qloo recommendation is claimed in this preview.";
+  banner.querySelector(".notice-tag").textContent="SYNTHETIC";
+  $("ledger-mode").textContent="SYNTHETIC ONLY";
  }
  await run();
 }
 init().catch(e=>{
+ const banner=document.querySelector(".notice");
+ banner.querySelector("b").textContent="SOURCE VERIFICATION UNAVAILABLE";
+ banner.querySelector("p").textContent="No live or synthetic recommendations can be validated until the service responds.";
+ banner.querySelector(".notice-tag").textContent="UNAVAILABLE";
  $("plan-title").textContent="Server unavailable";
  $("plan-items").textContent=e.message;
  $("gain").textContent="NOT AVAILABLE";

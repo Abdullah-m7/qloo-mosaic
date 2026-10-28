@@ -15,6 +15,8 @@ test("public demo is offline, explicitly synthetic, and budget/replan works",asy
  assert.match(html,/FICTIONAL CULTURAL SCORES/);
  assert.match(html,/SYNTHETIC DATA/);
  assert.ok(existsSync(path.join(output,".nojekyll")));
+ assert.ok(existsSync(path.join(output,"favicon.svg")));
+ assert.match(html,/href="\.\/favicon\.svg"/);
  assert.match(html,/href="\.\/styles\.css"/);
  assert.match(html,/src="\.\/app\.js"/);
  const app=readFileSync(path.join(output,"app.js"),"utf8");

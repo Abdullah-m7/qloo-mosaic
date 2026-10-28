@@ -12,6 +12,9 @@ export function publicQlooFailure(error){
  if(code==="QLOO_SIGNAL_UNRESOLVED")
   return {httpStatus:422,status:"needs_input",code:"CULTURAL_ANCHOR_NOT_FOUND",
    message:"Qloo could not uniquely identify that public cultural name. Try a better-known artist or movie."};
+ if(code==="QLOO_AMBIGUOUS_CANDIDATE")
+  return {httpStatus:422,status:"blocked",code:"QLOO_CANDIDATE_IDENTITY_CONFLICT",
+   message:"Qloo returned identically named options with different provider identities. This plan was withheld; try different public taste anchors."};
  if(code==="QLOO_INCOMPLETE_RANKING"||code.startsWith("Insufficient matched Qloo ranking overlap")||
   code.startsWith("Insufficient verifiable Qloo candidates"))
   return {httpStatus:422,status:"blocked",code:"INSUFFICIENT_MUTUAL_QLOO_EVIDENCE",

@@ -7,6 +7,7 @@
 <title>MOSAIC — common ground, by design</title>
 <meta name="description" content="A culture-aware event planner that finds an experience two different audiences can both enjoy."/>
 <link rel="stylesheet" href="/styles.css"/>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml"/>
 </head>
 <body>
 <header class="nav">
@@ -24,7 +25,7 @@
 </section>
 <section class="lab" id="lab">
  <div class="section-intro"><div><span class="section-number">02 / THE INTERACTIVE LAB</span><h2>One night.<br/>Two worlds.</h2></div><div class="section-explain"><strong>A real planning problem.</strong><p>Bring two taste communities to the same event. Adjust your constraints and ask the agent to renegotiate the evening.</p></div></div>
- <div class="notice" role="status"><span class="notice-icon">!</span><div><b>DEMONSTRATION MODE — SYNTHETIC DATA</b><p>This preview uses deliberately invented test scores, not Qloo results. A live Qloo connector is the next step.</p></div><span class="notice-tag">NOT LIVE</span></div>
+ <div class="notice" role="status"><span class="notice-icon">!</span><div><b>CHECKING SOURCE MODE</b><p>Checking whether this instance serves verified Qloo evidence or an explicitly synthetic offline example.</p></div><span class="notice-tag">CONNECTING</span></div>
  <div class="lab-grid">
   <div class="controls">
    <div class="panel-heading"><span>YOUR AUDIENCES</span><span class="tiny-num">01—02</span></div>
@@ -34,7 +35,7 @@
    <div class="rule"></div>
    <details class="taste-settings" id="taste-settings">
      <summary>Customize public taste anchors <span aria-hidden="true">↗</span></summary>
-     <p class="seed-help" id="seed-help">Only enabled after live Qloo access. The sample uses fixed synthetic audiences.</p>
+     <p class="seed-help" id="seed-help">Editable public taste anchors are enabled only after live Qloo mode is confirmed.</p>
      <label for="group-a">GROUP A — PUBLIC ENTITIES (SEPARATE WITH ;)</label>
      <input id="group-a" type="text" maxlength="360" value="Radiohead; The Grand Budapest Hotel" disabled autocomplete="off" />
      <label for="group-b">GROUP B — PUBLIC ENTITIES (SEPARATE WITH ;)</label>
@@ -56,12 +57,12 @@
    <div class="result-head"><div><span class="mini-label">THE SHARED EXPERIENCE</span><h3 id="plan-title">Finding our common ground…</h3></div><div class="cost"><b id="plan-cost">—</b><span>PLANNING TOKENS</span></div></div>
    <div id="plan-items" class="plan-items"></div>
    <div class="score-section">
-    <div class="score-title"><span>FAIRNESS CHECK</span><span id="gain" class="gain">—</span></div><div class="baseline-tabs" role="group" aria-label="Choose baseline"><button id="baseline-majority" type="button" class="active" aria-pressed="true">One-sided baseline</button><button id="baseline-average" type="button" aria-pressed="false">Average-first baseline</button></div>
+    <div class="score-title"><span>AUDIENCE RANK BALANCE</span><span id="gain" class="gain">—</span></div><div class="baseline-tabs" role="group" aria-label="Choose baseline"><button id="baseline-majority" type="button" class="active" aria-pressed="true">One-sided baseline</button><button id="baseline-average" type="button" aria-pressed="false">Average-first baseline</button></div>
     <div class="compare"><span id="baseline-title">Group A–first baseline</span><span class="small-note">Group A / Group B</span></div>
     <div class="bars"><div class="bar-wrap"><span>A</span><div class="bar-bg"><i id="baseA" class="bar-a" style="width:0%"></i></div><output id="baseAT">—</output></div><div class="bar-wrap"><span>B</span><div class="bar-bg"><i id="baseB" class="bar-b" style="width:0%"></i></div><output id="baseBT">—</output></div></div>
     <div class="compare compare-second"><span>MOSAIC's bridge plan</span><span class="mini-pill">BALANCED</span></div>
     <div class="bars"><div class="bar-wrap"><span>A</span><div class="bar-bg"><i id="newA" class="bar-a" style="width:0%"></i></div><output id="newAT">—</output></div><div class="bar-wrap"><span>B</span><div class="bar-bg"><i id="newB" class="bar-b" style="width:0%"></i></div><output id="newBT">—</output></div></div>
-    <p class="score-foot">The percentages represent synthetic relative group-preference scores, not observed satisfaction or probabilities.</p><p class="tradeoff" id="tradeoff" aria-live="polite">—</p>
+    <p class="score-foot">These values are relative rank proxies, not measured satisfaction, probabilities or demographic fairness.</p><p class="tradeoff" id="tradeoff" aria-live="polite">—</p>
    </div>
   </div>
  </div>
@@ -130,7 +131,7 @@
    </div>
    <div class="negotiation-control"><span>RANK-BLIND COMPARATOR</span><p id="negotiation-blind">Waiting for verified candidate evidence.</p><small>The comparator uses Qloo-discovered candidates but ignores their taste ordering. Any in-sample gain is a property of optimization — not proof of human preference uplift.</small></div>
  </section>
- <div class="ledger"><div class="ledger-head"><h3>Decision ledger</h3><span id="ledger-mode">SYNTHETIC ONLY</span></div><div id="ledger-items" class="ledger-items"><p>Run the planner to show evidence identifiers.</p></div></div>
+ <div class="ledger"><div class="ledger-head"><h3>Decision ledger</h3><span id="ledger-mode">SOURCE CHECK PENDING</span></div><div id="ledger-items" class="ledger-items"><p>Run the planner to show evidence identifiers.</p></div></div>
  <div id="agent-trace-panel" class="agent-trace-panel" hidden>
    <div class="ledger-head"><h3>Agent activity &amp; evidence</h3><span>QLOO TOOL CALLS</span></div>
    <ol class="agent-trace" id="agent-trace" aria-live="polite"></ol>

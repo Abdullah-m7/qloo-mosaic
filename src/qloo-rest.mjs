@@ -184,6 +184,18 @@ export class QlooRestClient {
       success:data?.success??null,
       hasError:Boolean(data?.error||data?.errors)}));
    }
+   // Qloo may return homonymous entities with different provider IDs.
+   // The planner ranks by names but attributes evidence by IDs. Refuse to
+   // rebind a name across a discovery batch or an earlier discovery call.
+   // Validate the entire batch before mutating candidate identity state.
+   const identities=new Map();
+   for(const item of results){
+    const key=type+"|"+normalize(item.name);
+    const id=item.id.toLowerCase();
+    const known=identities.get(key)??this.candidates.get(key)?.toLowerCase();
+    if(known&&known!==id)throw Error("QLOO_AMBIGUOUS_CANDIDATE");
+    identities.set(key,id);
+   }
    for(const record of raw){
     const item=parseEntity(record);
     if(!item||!matchesCategory(item,type))continue;

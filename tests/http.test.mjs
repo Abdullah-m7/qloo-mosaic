@@ -63,7 +63,11 @@ test("sample mode is honestly synthetic, budget enforced, and veto replan works"
   assert.equal((await json(s.url,{maxBudget:-5})).status,400);
   const page=await fetch(s.url+"/");
   assert.equal(page.status,200);
-  assert.match(await page.text(),/SYNTHETIC DATA/i);
+  // Initial HTML must not claim either mode before the /health probe.
+  assert.match(await page.text(),/CHECKING SOURCE MODE/i);
+  // After health resolves to sample, the shipped browser JS labels it synthetic.
+  const client=await fetch(s.url+"/app.js");
+  assert.match(await client.text(),/DEMONSTRATION MODE — SYNTHETIC DATA/);
   assert.equal((await fetch(s.url+"/src/qloo.mjs")).status,404);
  }finally{await s.close();}
 });

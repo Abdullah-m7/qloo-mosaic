@@ -11,15 +11,17 @@ fs.rmSync(target,{recursive:true,force:true});
 fs.mkdirSync(path.join(target,"shared"),{recursive:true});
 const copy=(from,to)=>fs.copyFileSync(path.join(root,from),path.join(target,to));
 copy("public/styles.css","styles.css");
+copy("public/favicon.svg","favicon.svg");
 copy("src/engine.mjs","shared/engine.mjs");
 copy("src/negotiation-atlas.mjs","shared/negotiation-atlas.mjs");
 copy("src/fixtures.mjs","shared/fixtures.mjs");
 copy("src/treaty.mjs","shared/treaty.mjs");
 let html=fs.readFileSync(path.join(root,"public/index.html"),"utf8");
 html=html.replace('href="/styles.css"','href="./styles.css"')
+  .replace('href="/favicon.svg"','href="./favicon.svg"')
   .replace('src="/app.js"','src="./app.js"')
   .replace('<title>MOSAIC','<title>Public synthetic preview — MOSAIC');
-const banner='<div style="padding:11px 20px;text-align:center;background:#ffa987;color:#101315;font:700 12px system-ui">PUBLIC OFFLINE PREVIEW · FICTIONAL CULTURAL SCORES · NO QLOO API CONNECTION</div>';
+const banner='<div style="padding:11px 20px;text-align:center;background:#ffa987;color:#101315;font:700 12px system-ui">PUBLIC OFFLINE PREVIEW · SYNTHETIC DATA · FICTIONAL CULTURAL SCORES · NO QLOO API CONNECTION</div>';
 html=html.replace("<body>","<body>"+banner);
 fs.writeFileSync(path.join(target,"index.html"),html);
 const app=fs.readFileSync(path.join(root,"public/app.js"),"utf8");

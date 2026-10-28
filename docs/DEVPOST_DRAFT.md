@@ -1,10 +1,24 @@
 # Devpost draft — MOSAIC (NOT SUBMITTED)
 
+For the concise, submission-ready English narrative, see [DEVPOST_READY_COPY.md](DEVPOST_READY_COPY.md). This longer document preserves the technical and limitation details for review.
+
 **Project:** MOSAIC — Common Ground, by Design
 **Tagline:** Two communities. One cultural night. An explainable agreement.
 **Team:** Solo entry · Abdullah Almohammedi
 **Source:** https://github.com/Abdullah-m7/qloo-mosaic
-**Judge demo:** https://mosaic-agent-2026.onrender.com/ — DO NOT submit while it says sample mode.
+**Judge demo:** https://mosaic-agent-2026.onrender.com/ — live Qloo-backed mode publicly verified on 28 October 2026.
+**Candidate screenshots (not deployed):** [Desktop](mosaic-live-judge-desktop.jpg) · [390px mobile](mosaic-live-judge-mobile.jpg). Captured with unpublished candidate UI using the existing public Render Qloo API; confirm screenshots still match the final deployed commit before using in Devpost.
+
+## How the judges can try it
+
+Open the **live Render demo** above without signing in. The default public
+artist/movie anchors and city are ready; the first full Qloo plan took ~21
+seconds in one observed check and may vary or require a cold start. Inspect
+the artist/place/film agreement, compare the two audience rank proxies,
+inspect the exact shared Qloo tag evidence, reject a proposed option to see
+a cached re-plan, and use **Copy decision brief**. The separately linked
+GitHub Pages preview is a clearly labeled synthetic illustration, **not**
+the live competition demo. Rank proxies are not measured audience satisfaction.
 
 ## The problem
 An event organizer has two cultural communities to bring together. The
@@ -116,9 +130,11 @@ not claim a measured real-world outcome.
 5. Use an ambiguous name or insufficient evidence and show honest
    abstention with no synthetic fallback.
 
-**Submission status:** Draft only. Do not submit until the public Render
-health endpoint reports `mode=live` and its planner returns verified
-Qloo evidence with no secrets in logs or browser network responses.
+**Submission status:** DRAFT ONLY — not confirmed submitted on Devpost.
+The anonymous public technical release check passed on 28 October 2026.
+Before submitting, validate the actual mobile/desktop browser experience,
+all mandatory Devpost fields and credential-safe network behavior.
+Owner approval is required for final submission.
 
 ## Intended users and business potential (hypotheses, not customer validation)
 MOSAIC is designed for community event organizers, arts-program producers,

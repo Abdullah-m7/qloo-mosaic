@@ -1,9 +1,9 @@
 # MOSAIC — Judge Release Gate
 
-**Status:** NOT READY TO SUBMIT · Updated 16 October 2026
+**Status:** PUBLIC LIVE TECHNICAL CHECK PASSED · Devpost submission NOT CONFIRMED · Updated 28 October 2026
 **Scope:** Abdullah-m7/qloo-mosaic only
-**Candidate:** `feature/qloo-rest-validation-20261015`
-**Public judge URL (not live yet):** https://mosaic-agent-2026.onrender.com/
+**Deployed baseline:** `main` commit `b54a94d` (Render); proposed later fixes remain isolated
+**Public live judge URL:** https://mosaic-agent-2026.onrender.com/
 
 ## Verified independently
 - Source is public under Abdullah-m7 with an MIT license.
@@ -19,23 +19,28 @@
   encrypted artifacts; they DO NOT establish consistent decision uplift.
   Never publish private experiment rows or claim real-world human outcomes.
 
-## Release blockers — do not mark complete prematurely
-1. Render currently reports `QLOO_MODE=sample`; its public response remains
-   explicitly synthetic. GitHub's Actions secret does NOT configure Render.
-2. The final branch is not merged or deployed; review this feature branch
-   as a draft PR first.
-3. Store `QLOO_API_KEY` in the existing Render service's protected Environment
-   secrets, with `QLOO_MODE=live`. Never paste it into a GitHub issue, PR,
-   commit, browser bundle, documentation, screen recording or chat.
-4. Verify three separate live public scenarios from a browser with no login,
-   including a successful plan and a clear insufficient-evidence case.
-5. Verify direct access from mobile, initial cold start, cache-backed veto/undo,
-   default inputs, API throttling, CORS and absence of secret leakage.
-6. Confirm the public source points to the exact deployed commit, that the
-   MIT license is visible, and that judge instructions are unambiguous.
-7. Prepare the final Devpost entry; no final submission is claimed.
+## Verified production checks and remaining submission tasks
 
-## Required release check (after secure Render provisioning)
+**Verified 28 October 2026 (anonymous public HTTPS):**
+1. `GET /health` returned `status=ok`, `mode=live`, `version=0.3.0`.
+2. `npm run judge:check` passed a public Qloo-backed plan with three ID-grounded categories, provider-tag cultural thread evidence, three no-new-Qloo-call stress checks, cached veto re-planning and bad-input refusal.
+3. The public source is MIT licensed; Render's currently deployed Git commit is `b54a94d`. This check does not prove the full browser experience.
+
+**Still required before final Devpost submission:**
+1. **Browser baseline and candidate UI paths verified on 390px and 1440px Chrome on 28 Oct**; still verify additional browsers, cold-start/failure states and browser-side credential handling again after any approved production deploy.
+2. Keep the official live Render URL as the primary judge demo and clearly label the static GitHub Pages preview synthetic.
+3. Synchronize public README, the Devpost text, and the page's initial HTML with live status; distinguish the present public baseline from any unmerged candidate fixes.
+4. Confirm all mandatory Devpost fields and the logged-in submission status. No final submission has been verified.
+5. Do not merge, redeploy, expose credentials or submit a final Devpost entry without owner approval. No paid plan changes.
+
+## 28 October isolated browser preflight — candidate only
+
+- Chrome's real JavaScript executed on the existing **public Render deployment** on 390px mobile and 1440px desktop viewports: three Qloo-backed cards, provenance, and veto re-planning. A missing favicon returned 404; the newly prepared candidate fixes that asset.
+- The **unpublished** worktree `prep/qloo-judge-readiness-20261028` was then tested using its candidate HTML/JS/CSS through a **localhost-only test proxy** that forwarded API requests to the existing public Render service (no API credential in the browser). Mobile and desktop both showed Qloo-live, three artist/place/film cards, cached veto, no horizontal overflow, and zero browser-console failures. The last result was `PASS`.
+- Browser checks cover this workflow and viewport sizes, not every device or all failure scenarios. Observed warm-cache candidate test took ~10 seconds; no production latency improvement is claimed. A previous live public browser plan took ~25.5 seconds.
+- Local source and screenshots are not an actual Render deployment. Final Devpost submission remains unconfirmed; owner approval is required before merge, deploy or submit.
+
+## Public release check contract
 - GET `/health` responds `status=ok,mode=live`.
 - POST `/api/plan` using publicly known cultural entities returns
   `mode=qloo-live,source_mode=evidence-backed`, three Qloo-backed slots,
@@ -82,10 +87,9 @@
   that requires a separate production smoke test.
 
 ## Public release probe — no browser-side credential
-Run `npm run judge:check` after the existing Render service receives its
-protected `QLOO_API_KEY`, the verified branch is deployed, and
-`QLOO_MODE=live` is confirmed. The checker uses **only public HTTPS**
-endpoints and holds no Qloo credential. It asserts:
+Run `npm run judge:check` to verify the existing Render endpoint and
+after any future deployment. This checker uses **only public HTTPS**
+endpoints, holds no Qloo credential and asserts:
 - `/health` returns product MOSAIC, `mode=live`, `version=0.3.0`;
 - the page is actually served; the default public anchor request creates
   three Qloo-sourced, ID-backed categories with rank provenance;
@@ -96,17 +100,17 @@ endpoints and holds no Qloo credential. It asserts:
 - response timings are reported without printing personal identifiers,
   event keys, raw Qloo results or private research metrics.
 
-The current live link is intentionally still synthetic, so the probe must
-return `MOSAIC_PUBLIC_RELEASE_BLOCKED: RENDER_STILL_SAMPLE` until the
-production secret/deployment gate is passed. A passing Actions smoke in
-a separate runner is NOT a substitute for this public release gate.
+**Observed 28 October 2026:** `MOSAIC_PUBLIC_RELEASE_PASS` against the actual
+Render URL, with public Qloo evidence. One first live plan took ~20.9s;
+cached veto re-planning took ~0.14s. These are single observed timings,
+not guaranteed performance. GitHub Actions checks alone would not prove this
+public gate, and this probe still does not run browser JavaScript.
 
-**Observed result, 16 October 2026:** the read-only checker was run
+**Historical result, 16 October 2026 (superseded):** the read-only checker was run
 against https://mosaic-agent-2026.onrender.com/ and deliberately blocked
 with `MOSAIC_PUBLIC_RELEASE_BLOCKED: RENDER_STILL_SAMPLE` before issuing
-any Qloo-funded planner requests. This confirms the remaining deployment
-and protected environment-key work; it does not negate the already-green
-GitHub event API and localhost HTTP smoke tests.
+any Qloo-funded planner requests. This was a deployment blocker at that date; it was subsequently resolved,
+as independently shown by the public pass on 28 October.
 
 ## Negotiation frontier check — candidate version
 - The app returns an exact nondominated frontier from already validated
@@ -141,7 +145,7 @@ contribution numbers or interpretive labels may be shown.
   shared by different shortlisted categories; equal-looking tag labels
   with different IDs never establish a link.
 - Limit the alternative's lower-audience ordinal rank proxy drop to a
-  preregistered **5 percentage points**. The original maximin choice is
+  a fixed **5 percentage points** design threshold.. The original maximin choice is
   unchanged; no real booking, revenue or human preference advantage is
   claimed.
 - Accept a safe "no verified thread" outcome. Never invent motifs or

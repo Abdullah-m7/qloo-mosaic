@@ -4,7 +4,7 @@
 
 *One room. Two audiences. A cultural agreement that explains the trade-offs.*
 
-[**Interactive preview — synthetic data**](https://abdullah-m7.github.io/qloo-mosaic/) · [**Live Qloo judge demo**](https://mosaic-agent-2026.onrender.com/) · [**Public release verification**](docs/JUDGE_RELEASE_GATE.md) · [**90-second judge walkthrough**](docs/JUDGE_DEMO_90S.md) · [**Devpost draft**](docs/DEVPOST_DRAFT.md) · [**Qloo Agentic Hackathon**](https://qloo.devpost.com/)
+[**Interactive preview — synthetic data**](https://abdullah-m7.github.io/qloo-mosaic/) · [**Live Qloo judge demo**](https://mosaic-agent-2026.onrender.com/) · [**Public release verification**](docs/JUDGE_RELEASE_GATE.md) · [**90-second judge walkthrough**](docs/JUDGE_DEMO_90S.md) · [**Devpost submission copy**](docs/DEVPOST_READY_COPY.md) · [**Full Devpost draft**](docs/DEVPOST_DRAFT.md) · [**Qloo Agentic Hackathon**](https://qloo.devpost.com/)
 
 ![MOSAIC Qloo-backed live planning interface, photographed in an isolated judge preflight](docs/mosaic-live-judge-desktop.jpg)
 

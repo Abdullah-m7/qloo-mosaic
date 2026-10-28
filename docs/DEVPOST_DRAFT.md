@@ -1,5 +1,7 @@
 # Devpost draft — MOSAIC (NOT SUBMITTED)
 
+For the concise, submission-ready English narrative, see [DEVPOST_READY_COPY.md](DEVPOST_READY_COPY.md). This longer document preserves the technical and limitation details for review.
+
 **Project:** MOSAIC — Common Ground, by Design
 **Tagline:** Two communities. One cultural night. An explainable agreement.
 **Team:** Solo entry · Abdullah Almohammedi

@@ -56,4 +56,4 @@ Future validation should measure whether organizers make clearer and faster deci
 
 **Judge quickstart:** Open the **live Render app** (not the separately labeled synthetic GitHub Pages preview). The default public taste anchors are preloaded. Allow the first Qloo plan to finish, then inspect the cards and decision trace, switch the comparison, explore the cultural thread, reject a card and observe the cached replan. The initial Qloo request may take 20–30 seconds or vary with cold starts. No login is required.
 
-**Submission status:** Draft only, not entered on Devpost. This copy should be reviewed against the exact final deployed commit after the owner authorizes any production changes. Do not claim current local-only candidate edits are already published.
+**Submission status:** Draft only, not entered on Devpost. The live Render release `8a7a297` was deployed and browser-verified on 28 October 2026. Review this copy against the exact public experience before submitting; **owner approval for Devpost submission is still required**.

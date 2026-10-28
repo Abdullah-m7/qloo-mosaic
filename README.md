@@ -8,7 +8,7 @@
 
 ![MOSAIC Qloo-backed live planning interface, photographed in an isolated judge preflight](docs/mosaic-live-judge-desktop.jpg)
 
-[View the 390px mobile judge walkthrough](docs/mosaic-live-judge-mobile.jpg). These screenshots show the **unpublished candidate UI** connected to the existing public Render Qloo API through a localhost-only test proxy. They do not imply that the candidate branch has been deployed or submitted.
+[View the 390px mobile judge walkthrough](docs/mosaic-live-judge-mobile.jpg). These screenshots were captured from the **public live Render deployment** after commit `8a7a297` was deployed and verified on 28 October 2026. This does not mean the Devpost entry has been submitted.
 
 > **Live data status (October 28, 2026):** The public Render application is now serving evidence-backed Qloo plans. The anonymous `npm run judge:check` release probe passed against the live URL with three grounded categories, a verified provider-tag thread and cached veto renegotiation. The GitHub Pages preview remains intentionally **synthetic**. The technical release pass is not a Devpost submission confirmation.
 
@@ -45,11 +45,11 @@ The preview's example scores, tag availability and planning tokens are invented 
 | Area | Verified status |
 | --- | --- |
 | Responsive interface, working veto/undo and comparison controls | Tested in desktop and mobile Chrome |
-| Optimizer, provenance gates, bounded agent orchestration and cultural treaty | **127/127 baseline checks; 131/131 checks on isolated 28 Oct candidate**; offline tests mock Qloo, plus a separate real public API release probe |
+| Optimizer, provenance gates, bounded agent orchestration and cultural treaty | **127/127 baseline checks; 131/131 checks on the subsequently deployed 28 Oct release candidate**; offline tests mock Qloo, plus a separate real public API release probe |
 | Deterministic algorithmic falsification | 500 **synthetic** scenarios, 429 feasible; see below |
 | Public open-source repo and externally hosted Node app | **Live Qloo mode verified publicly on Render (28 Oct)**; static GitHub Pages remains synthetic |
 | Qloo live API integration and real shared-tag evidence | **Public live release probe PASSED**: three entity-backed categories and a provider-tag-grounded cultural thread |
-| Public Qloo judge experience and Devpost submission | Live technical release check passed; 390px mobile and 1440px desktop browser paths passed locally against real Qloo evidence. **Candidate fixes are not deployed, and final Devpost submission is pending** |
+| Public Qloo judge experience and Devpost submission | The approved candidate is **deployed live** (commit `8a7a297`); anonymous public Qloo judge check and real mobile/desktop Chrome walkthrough both passed on 28 Oct. **Final Devpost submission remains pending** |
 
 ## Reproducible tests
 
@@ -71,7 +71,7 @@ probe against the externally hosted app. On **28 October 2026** it returned
 `MOSAIC_PUBLIC_RELEASE_PASS`: live mode, three genuine Qloo categories,
 provider ID provenance, a grounded cross-category tag, three stress
 counterfactuals, cached veto re-planning and invalid-input rejection.
-The first Qloo plan took approximately 21 seconds in this one measurement.
+The first Qloo plan took approximately 21 seconds in one post-deployment measurement.
 The probe holds no event credential. It does **not** prove mobile usability,
 all browser journeys or final Devpost submission; re-run it after deploying
 any future code change.

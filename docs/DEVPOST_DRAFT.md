@@ -7,7 +7,7 @@ For the concise, submission-ready English narrative, see [DEVPOST_READY_COPY.md]
 **Team:** Solo entry · Abdullah Almohammedi
 **Source:** https://github.com/Abdullah-m7/qloo-mosaic
 **Judge demo:** https://mosaic-agent-2026.onrender.com/ — live Qloo-backed mode publicly verified on 28 October 2026.
-**Candidate screenshots (not deployed):** [Desktop](mosaic-live-judge-desktop.jpg) · [390px mobile](mosaic-live-judge-mobile.jpg). Captured with unpublished candidate UI using the existing public Render Qloo API; confirm screenshots still match the final deployed commit before using in Devpost.
+**Verified live screenshots:** [Desktop](mosaic-live-judge-desktop.jpg) · [390px mobile](mosaic-live-judge-mobile.jpg). Captured from the production public Render URL after commit `8a7a297` was deployed and passed browser and Qloo release checks on 28 October 2026.
 
 ## How the judges can try it
 
@@ -131,9 +131,7 @@ not claim a measured real-world outcome.
    abstention with no synthetic fallback.
 
 **Submission status:** DRAFT ONLY — not confirmed submitted on Devpost.
-The anonymous public technical release check passed on 28 October 2026.
-Before submitting, validate the actual mobile/desktop browser experience,
-all mandatory Devpost fields and credential-safe network behavior.
+The anonymous public technical release check and desktop/mobile Chrome walkthrough passed on 28 October 2026 against deployed commit `8a7a297`. Before submitting, confirm all mandatory Devpost fields and the final account submission state; no real-world human impact has been measured.
 Owner approval is required for final submission.
 
 ## Intended users and business potential (hypotheses, not customer validation)

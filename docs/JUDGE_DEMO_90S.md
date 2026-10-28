@@ -1,4 +1,4 @@
-# MOSAIC — 90-second judge walkthrough (candidate, 28 Oct 2026)
+# MOSAIC — 90-second live judge walkthrough (verified 28 Oct 2026)
 
 **Opening idea:** Most recommendations pick a winner. MOSAIC makes the cultural trade-off visible and auditable.
 
@@ -31,4 +31,4 @@
 
 ## Release note
 
-This walkthrough is prepared on the **isolated candidate branch**, not necessarily the version currently served by Render. Before a final Devpost submission, the owner must approve the deployment and recheck that the live URL and screenshot match that exact deployed code. There is no requirement to record a submission video under the verified contest rules, so this is a useful optional presentation script, not proof of a required artifact.
+This walkthrough now corresponds to the **deployed Render production release** `8a7a297`, verified by a public Qloo release check and Chrome mobile/desktop preflight on 28 October 2026. Before a final Devpost submission, confirm all required form fields and obtain explicit owner approval. There is no requirement to record a submission video under the verified contest rules, so this is a useful optional presentation script, not proof of a required artifact.

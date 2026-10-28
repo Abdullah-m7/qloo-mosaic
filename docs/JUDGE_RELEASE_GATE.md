@@ -2,7 +2,7 @@
 
 **Status:** PUBLIC LIVE TECHNICAL CHECK PASSED · Devpost submission NOT CONFIRMED · Updated 28 October 2026
 **Scope:** Abdullah-m7/qloo-mosaic only
-**Deployed baseline:** `main` commit `b54a94d` (Render); proposed later fixes remain isolated
+**Deployed release:** `main` commit `8a7a297` (Render; live from 28 October 2026, 09:16 UTC)
 **Public live judge URL:** https://mosaic-agent-2026.onrender.com/
 
 ## Verified independently
@@ -24,21 +24,21 @@
 **Verified 28 October 2026 (anonymous public HTTPS):**
 1. `GET /health` returned `status=ok`, `mode=live`, `version=0.3.0`.
 2. `npm run judge:check` passed a public Qloo-backed plan with three ID-grounded categories, provider-tag cultural thread evidence, three no-new-Qloo-call stress checks, cached veto re-planning and bad-input refusal.
-3. The public source is MIT licensed; Render's currently deployed Git commit is `b54a94d`. This check does not prove the full browser experience.
+3. The public source is MIT licensed; Render reports commit `8a7a297` as **Live**. The public browser walkthrough below independently verifies the UI experience.
 
 **Still required before final Devpost submission:**
-1. **Browser baseline and candidate UI paths verified on 390px and 1440px Chrome on 28 Oct**; still verify additional browsers, cold-start/failure states and browser-side credential handling again after any approved production deploy.
+1. **Browser production walkthrough passed on 390px and 1440px Chrome on 28 Oct**; additional browsers, cold-start and all failure states are outside the current verified coverage.
 2. Keep the official live Render URL as the primary judge demo and clearly label the static GitHub Pages preview synthetic.
-3. Synchronize public README, the Devpost text, and the page's initial HTML with live status; distinguish the present public baseline from any unmerged candidate fixes.
-4. Confirm all mandatory Devpost fields and the logged-in submission status. No final submission has been verified.
+3. Keep public README, Devpost description and screenshot captions consistent with the actual deployed release; the final Devpost entry has not been submitted.
+4. Confirm all mandatory Devpost fields and the logged-in submission status. The public deployment is complete, **but final Devpost submission has not occurred**.
 5. Do not merge, redeploy, expose credentials or submit a final Devpost entry without owner approval. No paid plan changes.
 
-## 28 October isolated browser preflight — candidate only
+## 28 October browser preflight and final live production acceptance
 
-- Chrome's real JavaScript executed on the existing **public Render deployment** on 390px mobile and 1440px desktop viewports: three Qloo-backed cards, provenance, and veto re-planning. A missing favicon returned 404; the newly prepared candidate fixes that asset.
-- The **unpublished** worktree `prep/qloo-judge-readiness-20261028` was then tested using its candidate HTML/JS/CSS through a **localhost-only test proxy** that forwarded API requests to the existing public Render service (no API credential in the browser). Mobile and desktop both showed Qloo-live, three artist/place/film cards, cached veto, no horizontal overflow, and zero browser-console failures. The last result was `PASS`.
+- Before the release, Chrome confirmed three Qloo-backed cards and veto re-planning on the older public Render instance. Its missing favicon returned 404; the deployed release now serves it with HTTP 200.
+- The formerly isolated worktree `prep/qloo-judge-readiness-20261028` was first tested through a localhost-only proxy with real Render Qloo API data. After PR #3 merged and Render deployed `8a7a297`, the **actual public live URL** passed Chrome preflight again: mobile 390px and desktop 1440px, three Artist/Place/Film cards, source provenance, veto re-planning, no horizontal overflow or browser errors. Result: `PASS`.
 - Browser checks cover this workflow and viewport sizes, not every device or all failure scenarios. Observed warm-cache candidate test took ~10 seconds; no production latency improvement is claimed. A previous live public browser plan took ~25.5 seconds.
-- Local source and screenshots are not an actual Render deployment. Final Devpost submission remains unconfirmed; owner approval is required before merge, deploy or submit.
+- **Final release gate passed on public HTTPS**: Render reports `live` for `8a7a297`; public `/health` and `/favicon.svg` returned 200; `npm run judge:check` returned `MOSAIC_PUBLIC_RELEASE_PASS`, 3 grounded categories and 3 stress tests, a verified Qloo cultural thread, cached veto and a safe 400 refusal. One first Qloo plan took ~21.0s; this is not a latency guarantee. **Devpost final submission remains unconfirmed and requires owner approval.**
 
 ## Public release check contract
 - GET `/health` responds `status=ok,mode=live`.
